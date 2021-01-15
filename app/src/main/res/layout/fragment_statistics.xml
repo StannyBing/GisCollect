@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/content_bg"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.zx.zxutils.views.ZXSpinner
+                android:id="@+id/sp_statitics_layer"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="10dp" />
+
+            <com.zx.zxutils.views.ZXSpinner
+                android:id="@+id/sp_statistics_sortfield"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp" />
+
+            <com.zx.zxutils.views.ZXSpinner
+                android:id="@+id/sp_statistics_resultfield"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp" />
+
+            <com.zx.zxutils.views.ZXSpinner
+                android:id="@+id/sp_statistics_resulttype"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@color/title_bg"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="统计范围绘制"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_normal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_statistics_start"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:tag="close"
+                    android:drawableTop="@drawable/icon_statistics_draw"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="开始绘制"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tv_statistics_undo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/icon_collect_undo"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="上一步"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tv_statistics_redo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/icon_collect_redo"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="下一步"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tv_statistics_clear"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/icon_collect_clear"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="清除"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="10sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_statistics_change"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:drawableLeft="@drawable/icon_statistics_change"
+                android:drawablePadding="5dp"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="柱状图"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/text_small_size"
+                android:visibility="gone" />
+
+            <com.gt.giscollect.module.query.func.mchart.ChartView
+                android:id="@+id/chart_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-5dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_gis_statistics_response"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never" />
+
+            <TextView
+                android:id="@+id/tv_statistics_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="@dimen/dp_10"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/text_normal_size"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/btn_statistic_start"
+        style="@style/MyBtnStyle"
+        android:layout_margin="5dp"
+        android:text="开始统计" />
+
+</LinearLayout>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="说明：请选择测量模式，点击开始测量后，点击地图进行测量操作。收起测量页或切换功能菜单即可退出测量状态"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/text_size_small" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_margin="5dp"
+        android:background="@color/gray_cc" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_measure_feature_start"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/icon_mea_start"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="gone"
+            android:text="开始测量"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tv_measure_feature_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/selector_mea_type"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="距离"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tv_measure_feature_undo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/icon_collect_undo"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="上一步"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tv_measure_feature_redo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/icon_collect_redo"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="下一步"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tv_measure_feature_clear"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/icon_collect_clear"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="清除"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_measure_geometry_size"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textSize="@dimen/text_small_size" />
+
+</LinearLayout>

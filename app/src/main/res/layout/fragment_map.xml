@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.esri.arcgisruntime.mapping.view.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.gt.giscollect.module.main.func.view.MapCompassView
+        android:id="@+id/map_compass"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="30dp"/>
+
+</RelativeLayout>

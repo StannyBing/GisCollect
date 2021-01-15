@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:background="@color/light_gray"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_guide_item_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:background="@drawable/shape_guide_item"
+        android:gravity="center"
+        android:text="选址测绘"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/text_size_normal" />
+
+</RelativeLayout>

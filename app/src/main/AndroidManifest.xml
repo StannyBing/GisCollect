@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.gt.giscollect">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".app.MyApplication"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/my_app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        tools:ignore="LockedOrientationActivity"
+        tools:replace="android:label">
+        <activity
+            android:name=".module.system.ui.GuideActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".module.system.ui.WebActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".module.collect.ui.FilePreviewActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".module.collect.ui.CameraVedioActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".module.main.ui.MainActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".module.system.ui.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".module.system.ui.SplashActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <meta-data
+            android:name="com.gt.giscollect.api.ApiConfigModule"
+            android:value="ConfigModule" />
+
+<!--        <meta-data-->
+<!--            android:name="design_width_in_dp"-->
+<!--            android:value="450" />-->
+<!--        <meta-data-->
+<!--            android:name="design_height_in_dp"-->
+<!--            android:value="1500" />-->
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.gt.giscollect.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+
+</manifest>

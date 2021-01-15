@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/content_bg"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/sv_collect_feature"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/ll_collect_edit_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/ll_collect_edit_rename"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <EditText
+                        android:id="@+id/et_collect_rename"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/shape_normal_edit"
+                        android:hint="请输入图层名称"
+                        android:imeOptions="actionDone"
+                        android:maxLength="20"
+                        android:paddingLeft="10dp"
+                        android:singleLine="true"
+                        android:textSize="@dimen/text_small_size" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_rename"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:gravity="center"
+                        android:text="修改"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="@dimen/text_size_normal" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_collect_edit_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:background="@color/title_bg"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="要素编辑"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_normal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_create"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/icon_collect_add"
+                        android:gravity="center"
+                        android:text="新增"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_undo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/icon_collect_undo"
+                        android:gravity="center"
+                        android:text="上一步"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_redo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/icon_collect_redo"
+                        android:gravity="center"
+                        android:text="下一步"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_gps"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/icon_collect_gps"
+                        android:gravity="center"
+                        android:text="GPS"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_clear"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/icon_collect_clear"
+                        android:gravity="center"
+                        android:text="清除"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_save"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/icon_collect_save"
+                        android:gravity="center"
+                        android:text="保存"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <EditText
+                        android:id="@+id/et_collect_angle"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/shape_normal_edit"
+                        android:hint="角度(-180°~180°)"
+                        android:imeOptions="actionDone"
+                        android:inputType="numberSigned|numberDecimal"
+                        android:paddingLeft="10dp"
+                        android:singleLine="true"
+                        android:textSize="@dimen/text_small_size" />
+
+                    <EditText
+                        android:id="@+id/et_collect_distance"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/shape_normal_edit"
+                        android:hint="距离(米)"
+                        android:imeOptions="actionDone"
+                        android:inputType="numberDecimal"
+                        android:paddingLeft="10dp"
+                        android:singleLine="true"
+                        android:textSize="@dimen/text_small_size" />
+
+                    <TextView
+                        android:id="@+id/tv_collect_feature_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableTop="@drawable/icon_collect_distance"
+                        android:gravity="center"
+                        android:padding="5dp"
+                        android:text="计算打点"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_collect_geometry_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="40dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:textSize="@dimen/text_small_size" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_collect_feature_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:background="@color/title_bg"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="要素列表"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_normal" />
+
+                <com.zx.zxutils.views.ZXSpinner
+                    android:id="@+id/sp_collect_feature_showfield"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+
+            </RelativeLayout>
+
+            <com.gt.giscollect.module.collect.func.tool.MyRecyclerView
+                android:id="@+id/rv_collect_filed_features"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

@@ -1,0 +1,13 @@
+package com.gt.giscollect.module.query.mvp.presenter
+
+import com.gt.giscollect.module.query.mvp.contract.SearchContract
+
+
+/**
+ * Create By XB
+ * 功能：
+ */
+class SearchPresenter : SearchContract.Presenter() {
+
+
+}

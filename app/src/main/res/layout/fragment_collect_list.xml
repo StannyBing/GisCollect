@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RadioGroup
+        android:id="@+id/rg_collect_listtype"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="5dp">
+
+        <RadioButton
+            android:id="@+id/rb_collect_listlocal"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_list_local"
+            android:button="@null"
+            android:checked="true"
+            android:textColor="@drawable/selector_list_textcolor"
+            android:gravity="center"
+            android:text="未上传"
+            android:textSize="@dimen/text_size_small" />
+
+        <RadioButton
+            android:id="@+id/rb_collect_listnet"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_list_net"
+            android:button="@null"
+            android:gravity="center"
+            android:textColor="@drawable/selector_list_textcolor"
+            android:text="已上传"
+            android:textSize="@dimen/text_size_small" />
+    </RadioGroup>
+
+    <com.gt.giscollect.base.VerticalSwipeRefreshLayout
+        android:id="@+id/sr_collect_layers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_collect_layers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.gt.giscollect.base.VerticalSwipeRefreshLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_collect_check"
+            style="@style/MyCancelBtnStyle"
+            android:layout_width="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="审核"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_collect_create"
+            style="@style/MyBtnStyle"
+            android:layout_width="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="2"
+            android:text="新建图层" />
+
+    </LinearLayout>
+</LinearLayout>

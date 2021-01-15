@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/record_color" />
+
+    <item
+        android:bottom="30dp"
+        android:drawable="@drawable/icon_collect_touch_record_white"
+        android:left="30dp"
+        android:right="30dp"
+        android:top="30dp" />
+
+</layer-list>

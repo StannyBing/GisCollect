@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_chart_tips"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="数据结果过多，无法显示统计图"
+        android:textColor="@color/colorPrimary" />
+
+    <com.gt.giscollect.module.query.func.mchart.MBarView
+        android:id="@+id/bar_chart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.gt.giscollect.module.query.func.mchart.MPieView
+        android:id="@+id/pie_chart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.gt.giscollect.module.query.func.mchart.MLegendView
+        android:id="@+id/legend_chart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

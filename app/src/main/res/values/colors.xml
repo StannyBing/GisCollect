@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1E6AA7</color>
+    <color name="colorPrimaryDark">#1E6AA7</color>
+    <color name="colorAccent">#81B9F2</color>
+
+    <color name="content_bg">#eef3f6</color>
+    <color name="record_color">#50B32E</color>
+    <color name="title_bg">#dddddd</color>
+
+    <color name="Chart_1">#51c3f9</color>
+    <color name="Chart_2">#63a537</color>
+    <color name="Chart_3">#08a5ef</color>
+    <color name="Chart_4">#37a76f</color>
+    <color name="Chart_5">#7ba79d</color>
+    <color name="Chart_6">#dd8047</color>
+    <color name="Chart_7">#d8b25c</color>
+    <color name="Chart_8">#318c80</color>
+    <color name="Chart_9">#f2cf61</color>
+    <color name="Chart_10">#a6e582</color>
+    <color name="Chart_11">#d95b5b</color>
+    <color name="Chart_12">#7cca62</color>
+    <color name="Chart_13">#009dd9</color>
+    <color name="Chart_14">#7f5f52</color>
+    <color name="Chart_15">#b27d49</color>
+    <color name="Chart_16">#a5300f</color>
+    <color name="Chart_17">#e19825</color>
+    <color name="Chart_18">#d55816</color>
+    <color name="Chart_19">#2CC597</color>
+    <color name="Chart_20">#FA6164</color>
+    <color name="Chart_21">#8bde96</color>
+</resources>
