@@ -1,6 +1,6 @@
-package com.gt.giscollect.module.collect.mvp.presenter
+package com.gt.camera.module.mvp.presenter
 
-import com.gt.giscollect.module.collect.mvp.contract.CameraVedioContract
+import com.gt.camera.module.mvp.contract.CameraVedioContract
 
 
 /**

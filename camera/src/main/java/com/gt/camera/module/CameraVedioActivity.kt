@@ -10,9 +10,9 @@ import com.gt.camera.CameraView.GTCameraView
 import com.gt.camera.CameraView.listener.CameraListener
 import com.gt.camera.CameraView.listener.CameraListener.CameraType
 import com.gt.camera.R
-import com.gt.giscollect.module.collect.mvp.contract.CameraVedioContract
-import com.gt.giscollect.module.collect.mvp.model.CameraVedioModel
-import com.gt.giscollect.module.collect.mvp.presenter.CameraVedioPresenter
+import com.gt.camera.module.mvp.contract.CameraVedioContract
+import com.gt.camera.module.mvp.model.CameraVedioModel
+import com.gt.camera.module.mvp.presenter.CameraVedioPresenter
 import com.zx.zxutils.util.ZXTimeUtil
 import com.zx.zxutils.views.ZXStatusBarCompat
 import kotlinx.android.synthetic.main.activity_camera_vedio.*
@@ -66,6 +66,15 @@ class CameraVedioActivity : BaseActivity<CameraVedioPresenter, CameraVedioModel>
             intent.putExtra("cameraType", cameraType)
             intent.putExtra("filePath", filePath)
             fragment.startActivityForResult(intent, requestCode)
+        }
+        /**
+         * 启动器
+         */
+        fun startAction(activity: Activity, isFinish: Boolean, cameraType: Int = 0, requestCode: Int, filePath: String) {
+            val intent = Intent(activity, CameraVedioActivity::class.java)
+            intent.putExtra("cameraType", cameraType)
+            intent.putExtra("filePath", filePath)
+            activity.startActivityForResult(intent, requestCode)
         }
     }
 

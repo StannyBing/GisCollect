@@ -3,11 +3,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fillViewport="true">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <include
+            layout="@layout/layout_tool_bar"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintVertical_chainStyle="spread"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/idCardRv" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/idCardRv"
             android:layout_width="wrap_content"
@@ -17,7 +27,7 @@
             android:visibility="gone"
             android:background="@drawable/shape_stroke_bg"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+           app:layout_constraintTop_toBottomOf="@id/rootCl"
             android:paddingEnd="64dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"

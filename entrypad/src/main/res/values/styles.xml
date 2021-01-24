@@ -12,8 +12,12 @@
         <item name="android:colorControlHighlight" tools:ignore="NewApi">#f2f2f2</item>
         <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
     </style>
-    <style name="ActivityAnimation" parent="@android:style/Animation.Activity">
 
+    <style name="ActivityAnimation" parent="@android:style/Animation.Activity">
+       <!-- <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/slide</item>
+        <item name="android:windowExitTransition">@transition/slide</item>
+        <item name="android:windowReturnTransition">@transition/explode</item>-->
     </style>
 
     <style name="MyEditText" parent="Base.Widget.AppCompat.EditText">

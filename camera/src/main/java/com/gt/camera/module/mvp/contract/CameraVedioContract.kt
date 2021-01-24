@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.collect.mvp.contract
+package com.gt.camera.module.mvp.contract
 
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IModel

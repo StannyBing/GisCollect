@@ -14,13 +14,7 @@ package="com.gt.entrypad">
         android:screenOrientation="landscape"
         android:theme="@style/MainAppTheme"
         android:windowSoftInputMode="adjustResize|stateHidden"/>
-    <activity android:name=".module.project.ui.activity.ProjectHomePageActivity"
-        android:screenOrientation="landscape"
-        android:theme="@style/MainAppTheme"
-        android:windowSoftInputMode="adjustResize|stateHidden"/>
-    <activity android:name=".module.project.ui.activity.CameraActivity"
-        android:screenOrientation="landscape"
-        android:theme="@style/MainAppTheme"/>
+
         <activity android:name="com.zx.zxutils.views.PhotoPicker.PhotoPickerActivity"
             android:theme="@style/MainAppTheme"
             android:screenOrientation="landscape"
@@ -28,6 +22,25 @@ package="com.gt.entrypad">
         <activity android:name="com.zx.zxutils.views.PhotoPicker.PhotoPagerActivity"
             android:theme="@style/MainAppTheme"
             android:screenOrientation="landscape"/>
+        <activity android:name=".module.project.ui.activity.ScanIdCardActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"/>
+        <activity android:name=".module.project.ui.activity.InfoInputActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity android:name=".module.project.ui.activity.TakePhotoActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"/>
+        <activity android:name=".module.project.ui.activity.GroundFigureActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"/>
+        <activity android:name=".module.project.ui.activity.ResultShowActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"/>
+        <activity android:name=".module.project.ui.activity.DrawSketchActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"/>
 
     </application>
 </manifest>

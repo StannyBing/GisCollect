@@ -1,7 +1,7 @@
-package com.gt.giscollect.module.collect.mvp.model
+package com.gt.camera.module.mvp.model
 
 import com.frame.zxmvp.base.BaseModel
-import com.gt.giscollect.module.collect.mvp.contract.CameraVedioContract
+import com.gt.camera.module.mvp.contract.CameraVedioContract
 
 
 /**

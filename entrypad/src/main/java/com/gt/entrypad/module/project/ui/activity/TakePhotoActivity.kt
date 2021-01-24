@@ -1,13 +1,18 @@
-package com.gt.entrypad.module.project.ui.fragment
+package com.gt.entrypad.module.project.ui.activity
 
 import android.Manifest
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.gt.base.fragment.BaseFragment
+import com.gt.base.activity.BaseActivity
+import com.gt.base.view.ICustomViewActionListener
+import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.app.RouterPath
@@ -22,30 +27,29 @@ import com.zx.zxutils.util.ZXSystemUtil
 import com.zx.zxutils.views.PhotoPicker.PhotoPickUtils
 import com.zx.zxutils.views.PhotoPicker.PhotoPicker
 import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
-import kotlinx.android.synthetic.main.fragment_info_input.*
+import kotlinx.android.synthetic.main.activity_info_input.*
+import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1
 import java.util.*
 import kotlin.collections.ArrayList
 
 @Route(path =RouterPath.TAKE_PHOTO)
-class TakePhotoFragment : BaseFragment<TakePhotoPresenter, TakePhotoModel>(),TakePhotoContract.View{
+class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),TakePhotoContract.View{
    private var photoList= arrayListOf<PhotoViewViewModel>()
     private var photoAdapter = PhotoAdapter(photoList)
     private var bottomSheetOptionsDialog:BottomSheetOptionsDialog?=null
+
+
     companion object {
         /**
          * 启动器
          */
-        fun newInstance(): TakePhotoFragment {
-            val fragment = TakePhotoFragment()
-            val bundle = Bundle()
-
-            fragment.arguments = bundle
-            return fragment
+        fun startAction(activity: Activity, isFinish: Boolean) {
+            val intent = Intent(activity, TakePhotoActivity::class.java)
+            activity.startActivity(intent)
+            if (isFinish) activity.finish()
         }
     }
-
-
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         recyclerView.apply {
@@ -55,6 +59,30 @@ class TakePhotoFragment : BaseFragment<TakePhotoPresenter, TakePhotoModel>(),Tak
         photoList.add(PhotoViewViewModel().apply {
             resId=R.drawable.tianjia
         })
+        toolBarTitleTv.text = getString(R.string.takePhoto)
+        leftTv.apply {
+            setData(TitleViewViewModel(getString(R.string.lastStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    ActivityCompat.finishAfterTransition(this@TakePhotoActivity)
+                }
+
+            })
+        }
+        rightTv.apply {
+            visibility=View.VISIBLE
+            setData(TitleViewViewModel(getString(R.string.nextStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    DrawSketchActivity.startAction(this@TakePhotoActivity,false)
+                }
+
+            })
+        }
+        finishTv.apply {
+            setData(TitleViewViewModel(getString(R.string.finish)))
+            visibility = View.VISIBLE
+        }
     }
     override fun onViewListener() {
         mRxManager.on("bottom", Action1<String> {
@@ -62,7 +90,7 @@ class TakePhotoFragment : BaseFragment<TakePhotoPresenter, TakePhotoModel>(),Tak
             when(it){
                 getString(R.string.photo)->{
                     //相册
-                    PhotoPickUtils.startPick(mActivity, false, 1, arrayListOf(), UUID.randomUUID().toString(), false, false)
+                    PhotoPickUtils.startPick(this, false, 1, arrayListOf(), UUID.randomUUID().toString(), false, false)
                 }
                 getString(R.string.camera)->{
                     //拍照
@@ -85,7 +113,7 @@ class TakePhotoFragment : BaseFragment<TakePhotoPresenter, TakePhotoModel>(),Tak
                     add(it)
                 })
                 .setCurrentItem(0)
-                .start(mActivity)
+                .start(this)
         })
         mRxManager.on("show", Action1<Int> {
             BottomSheetOptionsDialog(mContext, arrayListOf<TitleViewViewModel>().apply {
@@ -104,7 +132,7 @@ class TakePhotoFragment : BaseFragment<TakePhotoPresenter, TakePhotoModel>(),Tak
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.fragment_take_photo
+        return R.layout.activity_take_photo
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

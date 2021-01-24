@@ -1,8 +1,15 @@
-package com.gt.entrypad.module.project.ui.fragment
+package com.gt.entrypad.module.project.ui.activity
 
+import android.app.Activity
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import com.gt.base.fragment.BaseFragment
+import com.gt.base.activity.BaseActivity
+import com.gt.base.view.ICustomViewActionListener
+import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.func.ResultShowAdapter
@@ -15,7 +22,8 @@ import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewM
 import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
-import kotlinx.android.synthetic.main.fragment_result_show.*
+import kotlinx.android.synthetic.main.activity_result_show.*
+import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1
 
 /**
@@ -23,19 +31,17 @@ import rx.functions.Action1
  * Email 962123525@qq.com
  * desc  成果展示
  */
-class ResultShowFragment : BaseFragment<ResultShowPresenter, ResultShowModel>(),ResultShowContract.View{
+class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),ResultShowContract.View{
     private var data = arrayListOf<InputInfoBean>()
     private var resultAdapter = ResultShowAdapter(data)
     companion object {
         /**
          * 启动器
          */
-        fun newInstance(): ResultShowFragment {
-            val fragment = ResultShowFragment()
-            val bundle = Bundle()
-
-            fragment.arguments = bundle
-            return fragment
+        fun startAction(activity: Activity, isFinish: Boolean) {
+            val intent = Intent(activity, ResultShowActivity::class.java)
+            activity.startActivity(intent)
+            if (isFinish) activity.finish()
         }
     }
     override fun onViewListener() {
@@ -53,7 +59,7 @@ class ResultShowFragment : BaseFragment<ResultShowPresenter, ResultShowModel>(),
                             add(R.drawable.property_picture.toString())
                         })
                         .setCurrentItem(0)
-                        .start(mActivity)
+                        .start(this)
                 }
                 "宗地房屋图"->{
                     ZXPhotoPreview.builder()
@@ -61,14 +67,14 @@ class ResultShowFragment : BaseFragment<ResultShowPresenter, ResultShowModel>(),
                             add(R.drawable.ground_picture.toString())
                         })
                         .setCurrentItem(0)
-                        .start(mActivity)
+                        .start(this)
                 }
             }
         })
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.fragment_result_show
+        return R.layout.activity_result_show
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -94,6 +100,19 @@ class ResultShowFragment : BaseFragment<ResultShowPresenter, ResultShowModel>(),
                 }
             }
             adapter = resultAdapter
+        }
+        toolBarTitleTv.text = getString(R.string.resultShow)
+        leftTv.apply {
+            setData(TitleViewViewModel(getString(R.string.lastStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    ActivityCompat.finishAfterTransition(this@ResultShowActivity)
+                }
+
+            })
+        }
+        rightTv.apply {
+            visibility = View.GONE
         }
     }
 

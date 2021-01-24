@@ -16,8 +16,6 @@ class SketchPadLabelView @JvmOverloads constructor(context: Context, attrs: Attr
     private var mPoint = PointF()
     private var text = ""
     var sketchPadListener: SketchPadListener? = null
-    private  var labelBitmap: Bitmap
-    private  var labelCanvas : Canvas
 
     init {
         mPaint.apply {
@@ -27,8 +25,6 @@ class SketchPadLabelView @JvmOverloads constructor(context: Context, attrs: Attr
             textSize=14f
             isAntiAlias = true
         }
-        labelBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        labelCanvas = Canvas(labelBitmap)
     }
 
 
@@ -60,6 +56,5 @@ class SketchPadLabelView @JvmOverloads constructor(context: Context, attrs: Attr
      * 保存图形
      */
     private fun saveLabelView(){
-        draw(labelCanvas)
     }
 }

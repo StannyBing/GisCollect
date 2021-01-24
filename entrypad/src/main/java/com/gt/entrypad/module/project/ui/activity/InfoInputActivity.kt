@@ -1,9 +1,16 @@
-package com.gt.entrypad.module.project.ui.fragment
+package com.gt.entrypad.module.project.ui.activity
 
+import android.app.Activity
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.gt.base.fragment.BaseFragment
+import com.gt.base.activity.BaseActivity
+import com.gt.base.view.ICustomViewActionListener
+import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
 import com.gt.entrypad.app.RouterPath
 import com.gt.entrypad.module.project.bean.InputInfoBean
@@ -16,26 +23,24 @@ import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewM
 import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.entity.KeyValueEntity
-import kotlinx.android.synthetic.main.fragment_info_input.*
+import kotlinx.android.synthetic.main.activity_info_input.*
+import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1
 
 @Route(path = RouterPath.INFO_INPUT)
-class InfoInputFragment : BaseFragment<InfoInputPresenter, InfoInputModel>(),InfoInputContract.View{
+class InfoInputActivity : BaseActivity<InfoInputPresenter, InfoInputModel>(),InfoInputContract.View{
     private var dataList = arrayListOf<InputInfoBean>()
     private var infoAdapter = InfoInputAdapter(dataList)
     companion object {
         /**
          * 启动器
          */
-        fun newInstance(): InfoInputFragment {
-            val fragment = InfoInputFragment()
-            val bundle = Bundle()
-
-            fragment.arguments = bundle
-            return fragment
+        fun startAction(activity: Activity, isFinish: Boolean) {
+            val intent = Intent(activity, InfoInputActivity::class.java)
+            activity.startActivity(intent)
+            if (isFinish) activity.finish()
         }
     }
-
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         recyclerView.apply {
@@ -57,7 +62,28 @@ class InfoInputFragment : BaseFragment<InfoInputPresenter, InfoInputModel>(),Inf
             }
             adapter = infoAdapter
         }
+        toolBarTitleTv.text = getString(R.string.registrationInfo)
+        leftTv.apply {
+            setData(TitleViewViewModel(getString(R.string.lastStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    ActivityCompat.finishAfterTransition(this@InfoInputActivity)
+                }
+
+            })
+        }
+        rightTv.apply {
+            visibility = View.VISIBLE
+            setData(TitleViewViewModel(getString(R.string.nextStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    TakePhotoActivity.startAction(this@InfoInputActivity,false)
+                }
+
+            })
+        }
         initData()
+
     }
 
 
@@ -75,7 +101,7 @@ class InfoInputFragment : BaseFragment<InfoInputPresenter, InfoInputModel>(),Inf
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.fragment_info_input
+        return R.layout.activity_info_input
     }
 
     private fun initData(){

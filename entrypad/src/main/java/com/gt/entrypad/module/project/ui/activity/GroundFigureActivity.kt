@@ -1,8 +1,12 @@
-package com.gt.entrypad.module.project.ui.fragment
+package com.gt.entrypad.module.project.ui.activity
 
 import android.Manifest
+import android.app.Activity
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.View
+import androidx.core.app.ActivityCompat
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.mapping.Basemap
 import com.gt.entrypad.R
@@ -11,8 +15,12 @@ import com.gt.entrypad.module.project.mvp.model.GroundFigureModel
 import com.gt.entrypad.module.project.mvp.presenter.GroundFigureresenter
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.LocationDisplay
-import com.gt.base.fragment.BaseFragment
-import kotlinx.android.synthetic.main.fragment_ground_figure.*
+import com.gt.base.activity.BaseActivity
+import com.gt.base.view.ICustomViewActionListener
+import com.gt.base.viewModel.BaseCustomViewModel
+import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
+import kotlinx.android.synthetic.main.activity_ground_figure.*
+import kotlinx.android.synthetic.main.layout_tool_bar.*
 
 
 /**
@@ -20,7 +28,7 @@ import kotlinx.android.synthetic.main.fragment_ground_figure.*
  * Email 962123525@qq.com
  * desc 宗地落图
  */
-class GroundFigureFragment : BaseFragment<GroundFigureresenter, GroundFigureModel>(),GroundFigureContract.View{
+class GroundFigureActivity : BaseActivity<GroundFigureresenter, GroundFigureModel>(),GroundFigureContract.View{
     private var locationDisplay: LocationDisplay? = null//定位
     private var locationListener: LocationDisplay.LocationChangedListener? = null
 
@@ -28,24 +36,42 @@ class GroundFigureFragment : BaseFragment<GroundFigureresenter, GroundFigureMode
         /**
          * 启动器
          */
-        fun newInstance(): GroundFigureFragment {
-            val fragment = GroundFigureFragment()
-            val bundle = Bundle()
-
-            fragment.arguments = bundle
-            return fragment
-        }
+        fun startAction(activity: Activity, isFinish: Boolean) {
+            val intent = Intent(activity, GroundFigureActivity::class.java)
+            activity.startActivity(intent)
+            if (isFinish) activity.finish()
+            }
     }
     override fun onViewListener() {
 
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.fragment_ground_figure
+        return R.layout.activity_ground_figure
     }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        toolBarTitleTv.text = getString(R.string.groundFigure)
+        leftTv.apply {
+            setData(TitleViewViewModel(getString(R.string.lastStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    ActivityCompat.finishAfterTransition(this@GroundFigureActivity)
+                }
+
+            })
+        }
+        rightTv.apply {
+            visibility=View.VISIBLE
+            setData(TitleViewViewModel(getString(R.string.nextStep)))
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    ResultShowActivity.startAction(this@GroundFigureActivity,false)
+                }
+
+            })
+        }
         setupMap()
         doLocation()
     }
@@ -73,7 +99,7 @@ class GroundFigureFragment : BaseFragment<GroundFigureresenter, GroundFigureMode
                 }
                 if (locationListener!=null)removeLocationChangedListener(locationListener)
                 addLocationChangedListener {
-                    Log.e("fdfd","${it.location}")
+
                 }
                 autoPanMode=LocationDisplay.AutoPanMode.RECENTER
                 startAsync()

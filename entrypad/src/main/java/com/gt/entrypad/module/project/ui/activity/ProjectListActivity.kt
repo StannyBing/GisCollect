@@ -24,7 +24,6 @@ import kotlinx.android.synthetic.main.layout_tool_bar.*
  */
 @Route(path = RouterPath.PROJECT_LIST)
 class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>(), ProjectListContract.View {
-    private var hasGotToken = false
     companion object {
         /**
          * 启动器
@@ -56,7 +55,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   ProjectHomePageActivity.startAction(this@ProjectListActivity,false)
+                   ScanIdCardActivity.startAction(this@ProjectListActivity,false)
                }
 
            })
