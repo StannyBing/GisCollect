@@ -3,6 +3,7 @@ package com.gt.giscollect.module.system.ui
 import android.app.Activity
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.*

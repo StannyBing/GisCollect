@@ -10,18 +10,18 @@ import android.view.View
 import android.widget.MediaController
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXLogUtil
-import kotlinx.android.synthetic.main.activity_file_preview.*
 import java.io.File
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseActivity
 import com.gt.giscollect.module.collect.mvp.contract.FilePreviewContract
 import com.gt.giscollect.module.collect.mvp.model.FilePreviewModel
 import com.gt.giscollect.module.collect.mvp.presenter.FilePreviewPresenter
+import kotlinx.android.synthetic.main.activity_file_preview.*
 
 
 /**

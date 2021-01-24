@@ -20,7 +20,7 @@ import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.func.adapter.CollectFeatureAdapter
 import com.gt.giscollect.module.collect.func.tool.CollectDistanceTool

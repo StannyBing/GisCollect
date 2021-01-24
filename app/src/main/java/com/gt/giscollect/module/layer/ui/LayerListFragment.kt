@@ -3,7 +3,6 @@ package com.gt.giscollect.module.layer.ui
 import android.Manifest
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.data.VectorTileCache
@@ -16,7 +15,7 @@ import com.esri.arcgisruntime.symbology.SimpleRenderer
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.layer.func.adapter.DataLayerAdapter
 import com.gt.giscollect.module.layer.mvp.contract.LayerListContract
 import com.gt.giscollect.module.layer.mvp.model.LayerListModel
@@ -30,7 +29,6 @@ import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_layer_list.*
 import org.json.JSONObject
 import java.io.File
-import java.io.FileInputStream
 
 /**
  * Create By XB

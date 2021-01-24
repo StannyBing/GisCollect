@@ -5,19 +5,15 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
-import com.esri.arcgisruntime.layers.Layer
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
-import com.gt.giscollect.module.collect.bean.CollectBean
-import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.collect.mvp.contract.CollectMainContract
 import com.gt.giscollect.module.collect.mvp.model.CollectMainModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectMainPresenter
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_collect_main.*
-import kotlinx.android.synthetic.main.item_collect_list.*
 
 /**
  * Create By XB

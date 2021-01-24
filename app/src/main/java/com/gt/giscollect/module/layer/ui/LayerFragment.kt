@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.layer.bean.LayerBean
 import com.gt.giscollect.module.layer.func.adapter.BaseLayerAdapter
 import com.gt.giscollect.module.layer.mvp.constract.LayerContract

@@ -4,13 +4,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.system.mvp.contract.SettingMainContract
 import com.gt.giscollect.module.system.mvp.model.SettingMainModel
 import com.gt.giscollect.module.system.mvp.presenter.SettingMainPresenter
 import com.zx.zxutils.util.ZXFragmentUtil
-import kotlinx.android.synthetic.main.fragment_collect_main.*
 import kotlinx.android.synthetic.main.fragment_setting_main.*
 
 /**

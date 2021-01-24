@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.SettingBean
@@ -26,7 +26,7 @@ import java.io.File
  * Create By XB
  * 功能：设置-列表
  */
-class SettingListFragment : BaseFragment<SettingListPresenter, SettingListModel>(),
+class SettingListFragment :BaseFragment<SettingListPresenter, SettingListModel>(),
     SettingListContract.View {
     companion object {
         /**

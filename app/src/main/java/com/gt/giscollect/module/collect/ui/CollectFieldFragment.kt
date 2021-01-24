@@ -7,13 +7,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import com.bumptech.glide.Glide
-import com.esri.arcgisruntime.concurrent.ListenableFuture
 import com.esri.arcgisruntime.data.*
+import com.gt.camera.module.CameraVedioActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldEditAdapter
@@ -134,7 +133,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                                 Manifest.permission.RECORD_AUDIO
                             )
                         ) {
-                            CameraVedioActivity.startAction(this, false, 2, 0x002, filePath)
+                           CameraVedioActivity.startAction(this, false, 2, 0x002, filePath)
                         }
                     }
                     "record", "RECORD" -> {
@@ -489,7 +488,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         }
 
 //        val updateList =
-//            mSharedPrefUtil.getList<String>(ConstStrings.COLLECT_UPDATE_LIST) ?: arrayListOf()
+//            mSharedPrefUtil.getList<String>(ConstEntryStrings.COLLECT_UPDATE_LIST) ?: arrayListOf()
 //        ll_collect_edit_bar.visibility = if (updateList.contains(currentFeature?.featureTable?.layer?.name)) {
 //            View.GONE
 //        } else {

@@ -18,7 +18,7 @@ import java.io.File
 class FilePreviewPresenter : FilePreviewContract.Presenter() {
     override fun downloadFile(name: String, downUrl: String) {
         val downInfo = DownInfo(downUrl)
-//        if (!File(ConstStrings.getCachePath() + "Download/").exists()){
+//        if (!File(ConstEntryStrings.getCachePath() + "Download/").exists()){
 //
 //        }
         val savePath = ConstStrings.getLocalPath() + "ReportFile/" + name

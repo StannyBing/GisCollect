@@ -4,6 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.StrictMode
+import com.baidu.ocr.sdk.OCR
+import com.baidu.ocr.sdk.OnResultListener
+import com.baidu.ocr.sdk.exception.OCRError
+import com.baidu.ocr.sdk.model.AccessToken
 import com.frame.zxmvp.baseapp.BaseApplication
 import com.frame.zxmvp.di.component.AppComponent
 import com.gt.giscollect.BuildConfig
@@ -13,6 +17,7 @@ import com.zx.zxutils.ZXApp
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXSystemUtil
+import com.zx.zxutils.util.ZXToastUtil.showToast
 import java.util.*
 
 /**
@@ -20,6 +25,7 @@ import java.util.*
  * 功能：
  */
 open class MyApplication : BaseApplication() {
+    private var hasGotToken=false
     companion object {
         lateinit var instance: MyApplication
 
@@ -64,6 +70,7 @@ open class MyApplication : BaseApplication() {
         MapTool.reset()
 
         reinit()
+        initAccessTokenWithAkSk(this)
     }
 
     fun reinit() {
@@ -137,4 +144,27 @@ open class MyApplication : BaseApplication() {
         return activityList
     }
 
+    override fun onTerminate() {
+        OCR.getInstance(this).release()
+        super.onTerminate()
+    }
+    fun getToken():Boolean{
+        return  hasGotToken
+    }
+    /**
+     * 用明文ak,sk初始化
+     */
+    private fun initAccessTokenWithAkSk(context: Context) {
+        OCR.getInstance(context).initAccessTokenWithAkSk(object : OnResultListener<AccessToken> {
+            override fun onResult(p0: AccessToken?) {
+                val token = p0?.accessToken ?: ""
+                hasGotToken = true
+            }
+
+            override fun onError(p0: OCRError?) {
+                showToast("AK，SK方式获取token失败${p0?.message}")
+            }
+
+        }, context, "A9ja6msDU0GhGusChhtRwZMh", "y2oGeYHrtnkCidGcMIKlSOI4QmlIvdg6")
+    }
 }

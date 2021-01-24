@@ -2,17 +2,13 @@ package com.gt.giscollect.module.query.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import com.esri.arcgisruntime.geometry.GeometryEngine
-import com.esri.arcgisruntime.geometry.Polygon
-import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.mapping.view.SketchCreationMode
 import com.esri.arcgisruntime.mapping.view.SketchEditor
 import com.esri.arcgisruntime.mapping.view.SketchStyle
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.collect.func.tool.GeometrySizeTool
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.gt.giscollect.module.query.mvp.contract.MeasureContract
