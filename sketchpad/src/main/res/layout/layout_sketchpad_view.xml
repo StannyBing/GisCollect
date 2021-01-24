@@ -34,10 +34,4 @@
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true" />
-    <com.stanny.sketchpad.view.SketchPadLabelView
-        android:id="@+id/sketch_label"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@id/sketch_func"
-        android:visibility="gone"/>
 </RelativeLayout>

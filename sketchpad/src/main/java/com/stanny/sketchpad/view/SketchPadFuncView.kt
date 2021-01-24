@@ -62,10 +62,34 @@ class SketchPadFuncView @JvmOverloads constructor(
         }
         addView(rvList)
 
-        funcList.add(SketchPadFuncBean("保存", R.drawable.icon_sketch_save,R.drawable.icon_sketch_noraml_save))
-        funcList.add(SketchPadFuncBean("居中", R.drawable.icon_sketch_recenter,R.drawable.icon_sketch_normal_recenter))
-        funcList.add(SketchPadFuncBean("配置", R.drawable.icon_sketch_setting,R.drawable.icon_sketch_normal_setting))
-        funcList.add(SketchPadFuncBean("标注", R.drawable.icon_sketch_setting,R.drawable.icon_sketch_normal_setting))
+        funcList.add(
+            SketchPadFuncBean(
+                "保存",
+                R.drawable.icon_sketch_save,
+                R.drawable.icon_sketch_noraml_save
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "居中",
+                R.drawable.icon_sketch_recenter,
+                R.drawable.icon_sketch_normal_recenter
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "配置",
+                R.drawable.icon_sketch_setting,
+                R.drawable.icon_sketch_normal_setting
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "标注",
+                R.drawable.icon_sketch_setting,
+                R.drawable.icon_sketch_normal_setting
+            )
+        )
         rvList.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = funcAdapter
@@ -78,7 +102,7 @@ class SketchPadFuncView @JvmOverloads constructor(
     private fun initListener() {
         funcAdapter.setOnItemClickListener { adapter, view, position ->
             val funcBean = funcList[position]
-            funcBean.isChecked = !funcBean.isChecked
+//            funcBean.isChecked = !funcBean.isChecked
             when (funcBean.name) {
                 "保存" -> {
                     sketchPadListener?.saveGraphicInfo()
@@ -89,8 +113,8 @@ class SketchPadFuncView @JvmOverloads constructor(
                 "配置" -> {
                     showSetting()
                 }
-                "标注"->{
-                    sketchPadListener?.switchLabel(funcBean.isChecked)
+                "标注" -> {
+                    sketchPadListener?.drawLabel()
                 }
             }
             funcAdapter.notifyDataSetChanged()

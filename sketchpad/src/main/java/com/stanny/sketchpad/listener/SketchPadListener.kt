@@ -15,9 +15,8 @@ interface SketchPadListener {
 
     fun resetCenter()
 
+    fun drawLabel()
+
     fun saveGraphicInfo()
 
-    fun switchLabel(isLabel:Boolean)
-
-    fun drawLabel(pointF: PointF)
 }

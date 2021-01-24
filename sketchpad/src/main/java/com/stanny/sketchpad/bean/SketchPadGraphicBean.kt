@@ -38,6 +38,8 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
     //    private val markArr = arrayOf("①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩")
     private val markArr = arrayOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
 
+    var showMeters = false//显示房屋长度/米
+
     init {
         setGraphicInfo(arrayListOf())
     }
@@ -45,17 +47,18 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
     /**
      * 标注
      */
-    fun drawLabel(canvas: Canvas?,@ColorInt color: Int = SketchPadConstant.graphicLineColor){
+    fun drawLabel(canvas: Canvas?, @ColorInt color: Int = SketchPadConstant.graphicLineColor) {
         //绘制文字
         val textPaint = Paint().apply {
             style = Paint.Style.STROKE
-            this.color =  SketchPadConstant.graphicHightLightColor
+            this.color = SketchPadConstant.graphicHightLightColor
             strokeWidth = SketchPadConstant.graphicLineWidth
             isAntiAlias = true
             textSize = 20f
         }
 
     }
+
     /**
      * 根据类型绘制图形
      * @param canvas 画笔
@@ -117,6 +120,26 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
                     (points[index].y + points[lastIndex].y) / 2 + offsetY + textBounds.height() / 2,
                     textPaint
                 )
+            }
+        }
+        //显示米
+        if (showMeters) {
+            val meters = getGraphicMetreList()
+            points.forEachIndexed { index, it ->
+                val lastIndex = if (index + 1 < points.size) {
+                    index + 1
+                } else {
+                    0
+                }
+                val textPaint = Paint().apply {
+                    isAntiAlias = true
+                    style = Paint.Style.FILL
+                    strokeWidth = 5f
+                    textSize = 30f
+                    this.color = SketchPadConstant.graphicMarkNumColor
+                }
+                val textBounds = Rect()
+//                textPaint.getTextBounds(meters[index], 0, meters[index].length, textBounds)
             }
         }
     }

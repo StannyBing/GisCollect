@@ -90,12 +90,12 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         guideAdapter.setChildCall {
-            if (it.itemName.contains("竣工")){
-                ProjectListActivity.startAction(this,false)
-            }else{
+            if (it.itemName.contains("竣工")) {
+                ProjectListActivity.startAction(this, false)
+            } else {
                 ConstStrings.appfuncList.clear()
                 ConstStrings.appfuncList.addAll(it.appFuncs)
-                ConstStrings.bussinessId = it.templateId?:""
+                ConstStrings.bussinessId = it.templateId ?: ""
                 MainActivity.startAction(this, false)
             }
 //            when (it.itemName) {
@@ -127,8 +127,20 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
                     itemName = it.label,
                     icon = R.drawable.ydghjd,
                     childList = arrayListOf<GuideBean>().apply {
-                        it.children.forEach {
-                            add(GuideBean(it.label, it.label, type = GuideBean.GUIDE_ITEM, appFuncs = it.children, templateId = it.obj.templateId))
+                        //TODO:
+                        val childeren = it.children.toMutableList().apply {
+                            //                           add(AppFuncBean(id = "m103",label = "竣工验收",obj = AppFuncBean.TemplateInfo(),children = arrayListOf()))
+                        }
+                        childeren.forEach {
+                            add(
+                                GuideBean(
+                                    it.label,
+                                    it.label,
+                                    type = GuideBean.GUIDE_ITEM,
+                                    appFuncs = it.children,
+                                    templateId = it.obj.templateId
+                                )
+                            )
                         }
                     }
                 ).apply {

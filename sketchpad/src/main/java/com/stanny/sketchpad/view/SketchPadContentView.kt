@@ -12,10 +12,13 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
+import com.stanny.sketchpad.bean.SketchLabelBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
+import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
 import com.stanny.sketchpad.tool.SketchPointTool
+import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import com.zx.zxutils.util.ZXToastUtil
@@ -48,8 +51,12 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var selectGraphic: SketchPadGraphicBean? = null//选中图形
     private var editGraphic: SketchPadGraphicBean? = null//编辑图形
+    private var selectLabel: SketchPadLabelBean? = null//选中标注
 
     private var graphicList = arrayListOf<SketchPadGraphicBean>()
+    private var labelList = arrayListOf<SketchPadLabelBean>()
+
+    private var drawLabel = false//开启标注绘制
 
     init {
         setWillNotDraw(false)
@@ -131,6 +138,9 @@ class SketchPadContentView @JvmOverloads constructor(
         graphicList.forEach {
             it.drawGraphic(canvas, withMark = it.id == editGraphic?.id)
         }
+        labelList.forEach {
+            it.drawLabel(canvas)
+        }
         canvas?.restore()
     }
 
@@ -141,7 +151,31 @@ class SketchPadContentView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
+                if (drawLabel) {
+                    //TODO 替换成可编辑标注内容的弹窗，单独提出去作为一个方法
+                    val labelPoint = PointF(event.x, event.y)
+                    ZXDialogUtil.showInfoDialog(
+                        context,
+                        "提示",
+                        "需要替换此处代码，当前只添加了“测试”字符串"
+                    ) { dialog, which ->
+                        labelList.add(SketchPadLabelBean("测试", labelPoint).apply {
+                            offsetX = -contentTransX
+                            offsetY = -contentTransY
+                        })
+                        refreshGraphic()
+                        drawLabel = false
+                    }
+                    return true
+                }
                 selectGraphic = null
+                selectLabel = null
+                labelList.forEach {
+                    if (it.isLabelInTouch(event.x - contentTransX, event.y - contentTransY)) {
+                        selectLabel = it
+                        return@forEach
+                    }
+                }
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
@@ -211,10 +245,18 @@ class SketchPadContentView @JvmOverloads constructor(
     }
 
     /**
+     * 绘制标注
+     */
+    fun drawLabel() {
+        drawLabel = true
+        ZXToastUtil.showToast("点击画板添加标注")
+    }
+
+    /**
      * 获取当前图形
      */
-    fun  getCurrentGraphic(pointF: PointF):SketchPadGraphicBean?{
-        var sketchPadGraphicBean:SketchPadGraphicBean?=null
+    fun getCurrentGraphic(pointF: PointF): SketchPadGraphicBean? {
+        var sketchPadGraphicBean: SketchPadGraphicBean? = null
         graphicList.forEach {
             if (it.isGraphicInTouch(pointF.x - contentTransX, pointF.y - contentTransY)) {
                 sketchPadGraphicBean = it
@@ -223,6 +265,7 @@ class SketchPadContentView @JvmOverloads constructor(
         }
         return sketchPadGraphicBean
     }
+
     /**
      * 保存图形
      */
@@ -311,7 +354,10 @@ class SketchPadContentView @JvmOverloads constructor(
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            if (selectGraphic != null) {
+            if (selectLabel != null) {
+                selectLabel!!.offsetX -= distanceX / contentScale
+                selectLabel!!.offsetY -= distanceY / contentScale
+            } else if (selectGraphic != null) {
                 selectGraphic!!.offsetX -= distanceX / contentScale
                 selectGraphic!!.offsetY -= distanceY / contentScale
             } else {

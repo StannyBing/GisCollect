@@ -47,7 +47,6 @@ class SketchPadView @JvmOverloads constructor(
         sketch_func.sketchPadListener = this
         sketch_graphic.sketchPadListener = this
         sketch_propedit.sketchPadListener = this
-        sketch_label.sketchPadListener = this
     }
 
     /**
@@ -86,6 +85,13 @@ class SketchPadView @JvmOverloads constructor(
     }
 
     /**
+     * 开始绘制标注
+     */
+    override fun drawLabel() {
+        sketch_content.drawLabel()
+    }
+
+    /**
      * 保存图形
      */
     override fun saveGraphicInfo() {
@@ -95,94 +101,4 @@ class SketchPadView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * 标注开关
-     */
-    override fun switchLabel(isLabel: Boolean) {
-        sketch_label.visibility = if (isLabel)View.VISIBLE else View.GONE
-    }
-
-    /**
-     * 开始标注
-      */
-    override fun drawLabel(pointF: PointF) {
-        var selectValue = ""
-        val data = arrayListOf<SketchLabelBean>()
-        val labelAdapter = SketchPadLabelAdapter(data).apply {
-            setOnItemChildClickListener { adapter, view, position ->
-                kotlin.run label@{
-                    data.forEachIndexed { index, sketchLabelBean ->
-                        if (index==position){
-                            sketchLabelBean.isChecked = !sketchLabelBean.isChecked
-                            if (sketchLabelBean.isChecked)selectValue= sketchLabelBean.value
-                        }else{
-                            sketchLabelBean.isChecked = false
-                        }
-                    }
-                }
-                notifyDataSetChanged()
-            }
-        }
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null).apply {
-            val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-            recyclerView.layoutManager = LinearLayoutManager(context)
-            recyclerView.adapter = labelAdapter
-            findViewById<EditText>(R.id.otherEt).addTextChangedListener(object :TextWatcher{
-                override fun afterTextChanged(s: Editable?) {
-                    selectValue=s?.toString()?.trim()?:""
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                }
-
-            })
-        }
-
-        sketch_content.getCurrentGraphic(pointF)?.let {
-            //弹窗 图形内
-            view.findViewById<EditText>(R.id.otherEt).visibility=View.GONE
-            data.addAll(showInData())
-        }?:data.addAll(showOutData())
-        ZXDialogUtil.showCustomViewDialog(context,"",view, { dialog, which ->
-            //获取所选项
-            sketch_label.drawLabel(selectValue)
-        }, { dialog, which ->
-
-        }).apply {
-            val window = window
-            val layoutParams = window?.attributes
-            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
-            layoutParams?.gravity = Gravity.RIGHT
-            window?.attributes = layoutParams
-            show()
-        }
-    }
-    private fun showInData():ArrayList<SketchLabelBean>{
-      return arrayListOf<SketchLabelBean>().apply {
-            add(SketchLabelBean("1","阳台"))
-            add(SketchLabelBean("2","内阳台"))
-            add(SketchLabelBean("3","砖湿"))
-            add(SketchLabelBean("4","砖瓦"))
-            add(SketchLabelBean("5","滴水"))
-            add(SketchLabelBean("6","猪圈"))
-        }
-    }
-    private fun showOutData():ArrayList<SketchLabelBean>{
-        return arrayListOf<SketchLabelBean>().apply {
-            add(SketchLabelBean("1","坝"))
-            add(SketchLabelBean("2","人行道"))
-            add(SketchLabelBean("3","水沟"))
-            add(SketchLabelBean("4","巷道"))
-            add(SketchLabelBean("5","林地"))
-            add(SketchLabelBean("6","耕地"))
-        }
-    }
 }
