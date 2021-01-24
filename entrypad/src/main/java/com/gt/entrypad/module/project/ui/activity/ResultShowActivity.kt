@@ -112,11 +112,12 @@ class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),
             })
         }
         rightTv.apply {
-            visibility = View.GONE
+            visibility = View.VISIBLE
+            setData(TitleViewViewModel(getString(R.string.save)))
         }
-        finishTv.apply {
+        right2Tv.apply {
             visibility=View.VISIBLE
-            setData(TitleViewViewModel(getString(R.string.finish)))
+            setData(TitleViewViewModel(getString(R.string.print)))
             setActionListener(object :ICustomViewActionListener{
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
                     
