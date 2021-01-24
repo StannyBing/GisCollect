@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="androidx.databinding.BaseObservableField"/>
+        <variable
+            name="viewModel"
+            type="com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel" />
+    </data>
+    <TextView
+        android:id="@+id/tooBarTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:gravity="center"
+        android:textAppearance="@{viewModel.resId}"
+        android:text="@{viewModel.title}"/>
+</layout>

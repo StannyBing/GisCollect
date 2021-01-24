@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.gt.entrypad.module.project.ui.view.checkBox.CheckBoxViewViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <CheckBox
+            android:id="@+id/viewCb"
+            style="@style/CheckBox"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:checked="@{viewModel.checked}"
+            android:onClick="@{viewModel.onClick}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <TextView
+            android:id="@+id/viewTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toRightOf="@id/viewCb"
+            app:layout_constraintTop_toTopOf="@id/viewCb"
+            app:layout_constraintBottom_toBottomOf="@id/viewCb"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:text="@{viewModel.content}"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
