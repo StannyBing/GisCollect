@@ -72,6 +72,16 @@ class GroundFigureActivity : BaseActivity<GroundFigureresenter, GroundFigureMode
 
             })
         }
+        finishTv.apply {
+            visibility =View.VISIBLE
+            setData(TitleViewViewModel(getString(R.string.finish)))
+            setActionListener(object :ICustomViewActionListener{
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+
+                }
+
+            })
+        }
         setupMap()
         doLocation()
     }
