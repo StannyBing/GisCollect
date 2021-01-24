@@ -1,27 +1,29 @@
 package com.stanny.sketchpad.view
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.*
 import android.os.Vibrator
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.View
+import android.view.*
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.stanny.sketchpad.R
+import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
 import com.stanny.sketchpad.bean.SketchLabelBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
 import com.stanny.sketchpad.tool.SketchPointTool
-import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXLogUtil
-import com.zx.zxutils.util.ZXSystemUtil
-import com.zx.zxutils.util.ZXToastUtil
+import com.zx.zxutils.util.*
 import kotlin.math.max
 import kotlin.math.min
 
@@ -154,18 +156,13 @@ class SketchPadContentView @JvmOverloads constructor(
                 if (drawLabel) {
                     //TODO 替换成可编辑标注内容的弹窗，单独提出去作为一个方法
                     val labelPoint = PointF(event.x, event.y)
-                    ZXDialogUtil.showInfoDialog(
-                        context,
-                        "提示",
-                        "需要替换此处代码，当前只添加了“测试”字符串"
-                    ) { dialog, which ->
-                        labelList.add(SketchPadLabelBean("测试", labelPoint).apply {
-                            offsetX = -contentTransX
-                            offsetY = -contentTransY
-                        })
-                        refreshGraphic()
-                        drawLabel = false
+                    graphicList.forEach {
+                        if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
+                            showInDialog(labelPoint)
+                            return true
+                        }
                     }
+                    showOutDialog(labelPoint)
                     return true
                 }
                 selectGraphic = null
@@ -206,6 +203,101 @@ class SketchPadContentView @JvmOverloads constructor(
         //单指移动
         !gestureListener.onTouchEvent(event) && return true
         return false
+    }
+    private fun showInDialog(labelPoint:PointF){
+        var content = ""
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = SketchPadLabelAdapter(showInData()).apply {
+            addCheckedChangeListener {
+                val list = data as ArrayList<SketchLabelBean>
+                content = list[it].value
+            }
+        }
+            ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
+                labelList.add(SketchPadLabelBean(content, labelPoint).apply {
+                    offsetX = -contentTransX
+                    offsetY = -contentTransY
+                })
+                refreshGraphic()
+                drawLabel = false
+            },{dialog, which ->  }).apply {
+                val layoutParams = window?.attributes
+                layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+                layoutParams?.gravity = Gravity.RIGHT
+                window?.attributes = layoutParams
+            }
+    }
+
+    private fun showInData():ArrayList<SketchLabelBean>{
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1","阳台"))
+            add(SketchLabelBean("2","内阳台"))
+            add(SketchLabelBean("3","砖湿"))
+            add(SketchLabelBean("4","砖瓦"))
+            add(SketchLabelBean("5","滴水"))
+            add(SketchLabelBean("6","猪圈"))
+        }
+    }
+
+    private fun showOutData():ArrayList<SketchLabelBean>{
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1","坝"))
+            add(SketchLabelBean("2","人行道"))
+            add(SketchLabelBean("3","水沟"))
+            add(SketchLabelBean("4","巷道"))
+            add(SketchLabelBean("5","林地"))
+            add(SketchLabelBean("6","耕地"))
+        }
+    }
+
+    private fun showOutDialog(labelPoint:PointF){
+        var content = ""
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
+        view.findViewById<EditText>(R.id.otherEt).apply {
+            visibility=View.VISIBLE
+            addTextChangedListener(object :TextWatcher{
+                override fun afterTextChanged(s: Editable?) {
+                    content = s?.toString()?.trim()?:""
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                }
+
+            })
+        }
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = SketchPadLabelAdapter(showOutData()).apply {
+            addCheckedChangeListener {
+                val list = data as ArrayList<SketchLabelBean>
+                content = list[it].value
+            }
+        }
+        ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
+            labelList.add(SketchPadLabelBean(content, labelPoint).apply {
+                offsetX = -contentTransX
+                offsetY = -contentTransY
+            })
+            refreshGraphic()
+            drawLabel = false
+        },{dialog, which ->  }).apply {
+            val layoutParams = window?.attributes
+            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+            layoutParams?.gravity = Gravity.RIGHT
+            window?.attributes = layoutParams
+        }
     }
 
     /**
