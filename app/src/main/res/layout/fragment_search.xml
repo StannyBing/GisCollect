@@ -47,9 +47,9 @@
 
         <ImageView
             android:id="@+id/iv_search_do"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:padding="3dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:padding="5dp"
             android:src="@drawable/btn_func_search" />
     </LinearLayout>
 
