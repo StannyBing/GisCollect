@@ -1,5 +1,6 @@
 package com.gt.giscollect.module.query.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -8,11 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.data.QueryParameters
+import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.gt.giscollect.R
-import com.gt.base.fragment.BaseFragment
+import com.gt.giscollect.base.BaseFragment
+import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.main.func.tool.GeoPackageTool
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.gt.giscollect.module.query.func.adapter.SearchAdapter
@@ -22,6 +25,8 @@ import com.gt.giscollect.module.query.mvp.model.SearchModel
 import com.gt.giscollect.module.query.mvp.presenter.SearchPresenter
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.entity.KeyValueEntity
+import com.zx.zxutils.util.ZXFormatCheckUtil
+import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.fragment_search.*
 import java.util.regex.Pattern
@@ -48,6 +53,9 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
 
     private val searchList = arrayListOf<Feature>()
     private val searchAdapter = SearchAdapter(searchList)
+
+    private var startNum = 0
+    private var featureSize = 10
 
     /**
      * layout配置
@@ -108,6 +116,7 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
             if (sp_search_map_layer.selectedItemPosition == 0) {
                 showToast("请选择查询图层")
             } else {
+                startNum = 0
                 searchInMap(sp_search_map_layer.selectedValue as Layer)
             }
         }
@@ -166,6 +175,7 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (searchList.isNotEmpty()) {
+                    startNum = 0
                     searchInMap(sp_search_map_layer.selectedValue as Layer)
                 }
             }
@@ -177,6 +187,7 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
                 if (sp_search_map_layer.selectedItemPosition == 0) {
                     showToast("请选择查询图层")
                 } else {
+                    startNum = 0
                     searchInMap(sp_search_map_layer.selectedValue as Layer)
                 }
             }
@@ -196,6 +207,12 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
 //                e.printStackTrace()
 //            }
         }
+        searchAdapter.setEnableLoadMore(true)
+        searchAdapter.setOnLoadMoreListener({
+            startNum += featureSize
+            ZXLogUtil.loge("LoadMore：开始加载更多-${startNum}")
+            searchInMap(sp_search_map_layer.selectedValue as Layer)
+        }, rv_search_list)
     }
 
     private fun reloadFieldSpinner(fieldSpinner: ArrayList<KeyValueEntity>) {
@@ -224,16 +241,31 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
         if (layer is FeatureLayer) {
 //            layer.selectionColor = Color.RED
             val query = QueryParameters()
-            if (et_search_text.text.toString().isNotEmpty()) {
-                query.whereClause = getWhereStrFunction(layer, et_search_text.text.toString())
-            }
+            query.whereClause = getWhereStrFunction(layer, et_search_text.text.toString())
+            query.resultOffset = startNum//从第几条开始
+            query.maxFeatures = featureSize//每次查多少条
             layer.featureTable.loadAsync()
             layer.featureTable.addDoneLoadingListener {
+                if (startNum == 0) {
+                    val countQuery = layer.featureTable.queryFeatureCountAsync(QueryParameters().apply { whereClause = getWhereStrFunction(layer, et_search_text.text.toString()) })
+                    countQuery.addDoneListener {
+                        showToast("查询到${countQuery.get()}个结果")
+                    }
+                }
                 val listenable1 = layer.featureTable.queryFeaturesAsync(query)//查询
                 listenable1.addDoneListener {
                     try {
-                        searchList.clear()
-                        searchList.addAll(listenable1.get())
+                        val list = listenable1.get()
+                        ZXLogUtil.loge("LoadMore：当前获取-${list.toList().size}条")
+                        searchAdapter.loadMoreComplete()
+                        if (list.toList().size < featureSize) {
+                            searchAdapter.loadMoreEnd()
+                        }
+
+                        if (startNum == 0) {
+                            searchList.clear()
+                        }
+                        searchList.addAll(list)
 
                         if (searchList.isNotEmpty()) {
                             var showIndex = 0
@@ -248,13 +280,14 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
                             searchAdapter.showIndex = showIndex
                         }
                         //处理adapter
-                        showToast("查询到${searchList.size}个结果")
                         searchAdapter.notifyDataSetChanged()
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
             }
+        } else {
+            showToast("当前图层不支持查询")
         }
     }
 
@@ -265,6 +298,9 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
      * @return
      */
     private fun getWhereStrFunction(featureLayer: FeatureLayer, search: String): String? {
+        if (search.isEmpty()) {
+            return "1=1"
+        }
         val stringBuilder = StringBuilder()
         val fields = featureLayer.featureTable.fields
         val isNumber: Boolean = isNumberFunction(search)
@@ -292,7 +328,7 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
         if (result.length > 2) {
             return result.substring(0, result.length - 2)
         } else {
-            return result
+            return "1=1"
         }
     }
 

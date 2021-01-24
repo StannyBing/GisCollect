@@ -38,6 +38,7 @@ import com.gt.giscollect.base.UserManager
 import com.gt.giscollect.module.collect.func.tool.GeometrySizeTool
 import com.gt.giscollect.module.system.bean.TempIdsBean
 import com.zx.zxutils.entity.KeyValueEntity
+import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
@@ -79,6 +80,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     private var resetSize = true
 
     private var isOverlay = false
+
+    private var startNum = 0
+    private var featureSize = 10
 
     private val featureList = arrayListOf<Feature>()
     private val featureAdapter = CollectFeatureAdapter(featureList)
@@ -341,6 +345,11 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
      * View事件设置
      */
     override fun onViewListener() {
+        featureAdapter.setEnableLoadMore(true)
+        featureAdapter.setOnLoadMoreListener({
+            startNum += featureSize
+            getFeatureList()
+        }, rv_collect_filed_features)
         ZXRecyclerDeleteHelper(activity, rv_collect_filed_features)
             .setSwipeOptionViews(R.id.tv_edit, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
@@ -348,6 +357,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 when (id) {
                     R.id.tv_edit -> {
                         showToast("开启图形编辑")
+                        resetSize = true
                         isInEdit = true
                         editPosition = pos
                         sv_collect_feature.smoothScrollTo(0, 0)
@@ -721,6 +731,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
      * 处理图层
      */
     fun excuteLayer(featureLayer: FeatureLayer, isEdit: Boolean, canRename: Boolean) {
+        startNum = 0
         isInEdit = false
 //        et_collect_rename.isEnabled = canRename
 //        tv_collect_rename.visibility = if (canRename) View.VISIBLE else View.GONE
@@ -760,37 +771,44 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         ll_collect_edit_bar.visibility = if (isEdit) View.VISIBLE else View.GONE
 
 //        moveToLayer(featureLayer)
+        featureList.clear()
+        getFeatureList()
+    }
 
-        featureLayer.featureTable.loadAsync()
-        featureLayer.featureTable.addDoneLoadingListener {
-            featureList.clear()
-            featureAdapter.notifyDataSetChanged()
+    private fun getFeatureList() {
+        currentLayer?.featureTable?.loadAsync()
+        currentLayer?.featureTable?.addDoneLoadingListener {
 
-//                if (featureLayer.featureTable.totalFeatureCount > 0) {
-            val queryGet = featureLayer.featureTable.queryFeaturesAsync(QueryParameters().apply {
+            //                if (featureLayer.featureTable.totalFeatureCount > 0) {
+            val queryGet = currentLayer?.featureTable?.queryFeaturesAsync(QueryParameters().apply {
                 whereClause = "1=1"
+                this.resultOffset = startNum//从第几条开始
+                this.maxFeatures = featureSize//每次查多少条
             })
-            queryGet.addDoneListener {
+            queryGet?.addDoneListener {
                 val list = queryGet.get()
-                if (list.firstOrNull()?.attributes?.containsKey("OBJECTID") == true) {
-                    featureList.addAll(list.sortedBy {
-                        it.attributes["OBJECTID"] as Long
-                    })
-                } else {
-                    featureList.addAll(list)
+                featureAdapter.loadMoreComplete()
+                if (list.toList().size < featureSize) {
+                    featureAdapter.loadMoreEnd()
                 }
-
-                featureAdapter.notifyDataSetChanged()
-                tv_collect_feature_title.text =
-                    "要素列表(${featureLayer.featureTable.totalFeatureCount})"
-            }
+//                if (list.firstOrNull()?.attributes?.containsKey("OBJECTID") == true) {
+//                    featureList.addAll(list.sortedBy {
+//                        it.attributes["OBJECTID"] as Long
+//                    })
+//                } else {
+                featureList.addAll(list)
 //                }
-            tv_collect_feature_title.text = "要素列表(${featureLayer.featureTable.totalFeatureCount})"
 
-            if (featureLayer.featureTable.geometryType == GeometryType.POLYGON) {
+                featureAdapter.notifyItemInserted(startNum)
+                tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
+            }
+            //                }
+            tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
+
+            if (currentLayer!!.featureTable.geometryType == GeometryType.POLYGON) {
                 tv_collect_geometry_size.visibility = View.VISIBLE
                 tv_collect_geometry_size.text = "面积："
-            } else if (featureLayer.featureTable.geometryType == GeometryType.POLYLINE) {
+            } else if (currentLayer!!.featureTable.geometryType == GeometryType.POLYLINE) {
                 tv_collect_geometry_size.visibility = View.VISIBLE
                 tv_collect_geometry_size.text = "长度："
             } else {
