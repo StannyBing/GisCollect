@@ -19,4 +19,5 @@ interface SketchPadListener {
 
     fun saveGraphicInfo()
 
+    fun showSite()
 }

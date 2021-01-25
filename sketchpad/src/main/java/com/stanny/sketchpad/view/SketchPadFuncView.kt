@@ -76,9 +76,10 @@ class SketchPadFuncView @JvmOverloads constructor(
                 R.drawable.icon_sketch_normal_recenter
             )
         )
+
         funcList.add(
             SketchPadFuncBean(
-                "配置",
+                "界址",
                 R.drawable.icon_sketch_setting,
                 R.drawable.icon_sketch_normal_setting
             )
@@ -86,6 +87,20 @@ class SketchPadFuncView @JvmOverloads constructor(
         funcList.add(
             SketchPadFuncBean(
                 "标注",
+                R.drawable.icon_sketch_setting,
+                R.drawable.icon_sketch_normal_setting
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "楼层",
+                R.drawable.icon_sketch_setting,
+                R.drawable.icon_sketch_normal_setting
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "备注",
                 R.drawable.icon_sketch_setting,
                 R.drawable.icon_sketch_normal_setting
             )
@@ -112,6 +127,9 @@ class SketchPadFuncView @JvmOverloads constructor(
                 }
                 "配置" -> {
                     showSetting()
+                }
+                "界址"->{
+                    sketchPadListener?.showSite()
                 }
                 "标注" -> {
                     sketchPadListener?.drawLabel()

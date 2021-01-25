@@ -101,4 +101,10 @@ class SketchPadView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * 显示界址
+     */
+    override fun showSite() {
+        sketch_content.showSite()
+    }
 }

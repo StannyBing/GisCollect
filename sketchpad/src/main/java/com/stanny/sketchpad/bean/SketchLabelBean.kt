@@ -1,6 +1,5 @@
 package com.stanny.sketchpad.bean
 
-import android.graphics.PointF
 
 data class SketchLabelBean(
     var key: String = "",

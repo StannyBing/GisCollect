@@ -22,6 +22,10 @@ object SketchPadConstant {
     @ColorInt
     var graphicMarkNumColor = Color.parseColor("#0e932e")
 
+    //界址标记颜色
+    @ColorInt
+    var graphicSiteColor = Color.parseColor("#FF0000")
+
     //图形边框宽度
     var graphicLineWidth = 2f
 

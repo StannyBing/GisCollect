@@ -1,6 +1,7 @@
 package com.stanny.sketchpad.bean
 
 import android.graphics.*
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import com.stanny.sketchpad.R
@@ -44,19 +45,17 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
         setGraphicInfo(arrayListOf())
     }
 
-    /**
-     * 标注
-     */
-    fun drawLabel(canvas: Canvas?, @ColorInt color: Int = SketchPadConstant.graphicLineColor) {
-        //绘制文字
+    fun drawSite(canvas: Canvas?){
         val textPaint = Paint().apply {
-            style = Paint.Style.STROKE
-            this.color = SketchPadConstant.graphicHightLightColor
-            strokeWidth = SketchPadConstant.graphicLineWidth
             isAntiAlias = true
-            textSize = 20f
+            style = Paint.Style.FILL
+            strokeWidth = 5f
+            textSize = 30f
+            this.color = SketchPadConstant.graphicSiteColor
         }
-
+        points.forEachIndexed { index, pointF ->
+            canvas?.drawText("JF${index+1}",pointF.x+offsetX,pointF.y+offsetY,textPaint)
+        }
     }
 
     /**
@@ -152,6 +151,13 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
      */
     fun isGraphicInTouch(x: Float, y: Float): Boolean {
         return SketchPointTool.isPtInPoly(PointF(x - offsetX, y - offsetY), points)
+    }
+
+    /**
+     * 判断点是否在图形内
+     */
+    fun isGraphicContainsPoint(x:Float,y: Float):Boolean{
+        return SketchPointTool.isPolygonContainsPoint(PointF(x-offsetX,y-offsetY),points)
     }
 
     /**
@@ -453,6 +459,7 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
             if (weltX != null) it.x += weltX!!
             if (weltY != null) it.y += weltY!!
         }
+
 //        nearlyList.sortBy {
 //            it.second
 //        }

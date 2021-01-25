@@ -1,8 +1,10 @@
 package com.stanny.sketchpad.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.*
+import android.os.Environment
 import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,6 +26,11 @@ import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
 import com.stanny.sketchpad.tool.SketchPointTool
 import com.zx.zxutils.util.*
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.lang.Exception
+import java.text.SimpleDateFormat
 import kotlin.math.max
 import kotlin.math.min
 
@@ -59,6 +66,7 @@ class SketchPadContentView @JvmOverloads constructor(
     private var labelList = arrayListOf<SketchPadLabelBean>()
 
     private var drawLabel = false//开启标注绘制
+    private var drawSite = false //界址
 
     init {
         setWillNotDraw(false)
@@ -143,6 +151,11 @@ class SketchPadContentView @JvmOverloads constructor(
         labelList.forEach {
             it.drawLabel(canvas)
         }
+        if (drawSite){
+           graphicList.forEach {
+               it.drawSite(canvas)
+           }
+        }
         canvas?.restore()
     }
 
@@ -154,11 +167,13 @@ class SketchPadContentView @JvmOverloads constructor(
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (drawLabel) {
-                    //TODO 替换成可编辑标注内容的弹窗，单独提出去作为一个方法
                     val labelPoint = PointF(event.x, event.y)
                     graphicList.forEach {
-                        if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
-                            showInDialog(labelPoint)
+                        if (it.isGraphicContainsPoint(event.x - contentTransX, event.y - contentTransY)) {
+                            showInDialog(labelPoint,showInData())
+                            return true
+                        }else if (it.isGraphicContainsPoint(event.x-40,event.y-40)||it.isGraphicContainsPoint(event.x+40,event.y+40)){
+                           showInDialog(labelPoint,showBoundaryData())
                             return true
                         }
                     }
@@ -196,20 +211,21 @@ class SketchPadContentView @JvmOverloads constructor(
 //                    insertGraphic(insertGraphic!!)
 //                    return true
 //                }
+                return true
             }
         }
         //TODO 双指缩放 隐藏
 //        selectGraphic == null && !scaleGestureDetector.onTouchEvent(event) && return true
-        //单指移动
-        !gestureListener.onTouchEvent(event) && return true
+        //单指移动 标注不允许移动
+        if (!drawLabel)!gestureListener.onTouchEvent(event) && return true
         return false
     }
-    private fun showInDialog(labelPoint:PointF){
+    private fun showInDialog(labelPoint:PointF,data:ArrayList<SketchLabelBean>){
         var content = ""
         val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = SketchPadLabelAdapter(showInData()).apply {
+        recyclerView.adapter = SketchPadLabelAdapter(data).apply {
             addCheckedChangeListener {
                 val list = data as ArrayList<SketchLabelBean>
                 content = list[it].value
@@ -249,6 +265,14 @@ class SketchPadContentView @JvmOverloads constructor(
             add(SketchLabelBean("4","巷道"))
             add(SketchLabelBean("5","林地"))
             add(SketchLabelBean("6","耕地"))
+        }
+    }
+
+    private fun showBoundaryData():ArrayList<SketchLabelBean>{
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1","自墙"))
+            add(SketchLabelBean("2","共墙"))
+            add(SketchLabelBean("3","借墙"))
         }
     }
 
@@ -345,17 +369,12 @@ class SketchPadContentView @JvmOverloads constructor(
     }
 
     /**
-     * 获取当前图形
+     * 展示界址
      */
-    fun getCurrentGraphic(pointF: PointF): SketchPadGraphicBean? {
-        var sketchPadGraphicBean: SketchPadGraphicBean? = null
-        graphicList.forEach {
-            if (it.isGraphicInTouch(pointF.x - contentTransX, pointF.y - contentTransY)) {
-                sketchPadGraphicBean = it
-                return@forEach
-            }
-        }
-        return sketchPadGraphicBean
+    fun showSite(){
+        drawSite = true
+        //判断此坐标集合的界址点个数
+        invalidate()
     }
 
     /**
@@ -366,15 +385,15 @@ class SketchPadContentView @JvmOverloads constructor(
         val maxPoint = graphicList.getMax()
         val viewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         draw(Canvas(viewBitmap))
-//        val divider = SketchPadConstant.backgroundGridSpace
-//        val cutBitmap = Bitmap.createBitmap(
-//            viewBitmap,
-//            (minPoint.x - divider).toInt(),
-//            (minPoint.y - divider).toInt(),
-//            (maxPoint.x - minPoint.x + divider * 2).toInt(),
-//            (maxPoint.y - minPoint.y + divider * 2).toInt()
-//        )
-
+        val file = context.filesDir.path
+        //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
+        val s = "$file/sketch/draw.jpg"
+        try {
+           Runnable {
+               viewBitmap.compress(Bitmap.CompressFormat.JPEG,100,FileOutputStream(ZXFileUtil.createNewFile(s)))
+           }.run()
+        }catch (e:FileNotFoundException){
+        }
         callBack()
     }
 

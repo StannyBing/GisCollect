@@ -18,6 +18,7 @@ import com.gt.entrypad.module.project.mvp.model.ResultShowModel
 import com.gt.entrypad.module.project.mvp.presenter.ResultShowPresenter
 import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
 import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewModel
+import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewModel
 import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
