@@ -15,11 +15,13 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.R
 import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
 import com.stanny.sketchpad.bean.SketchLabelBean
+import com.stanny.sketchpad.bean.SketchPadFloorBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
@@ -64,9 +66,11 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var graphicList = arrayListOf<SketchPadGraphicBean>()
     private var labelList = arrayListOf<SketchPadLabelBean>()
+    private var floorList = arrayListOf<SketchPadFloorBean>()
 
     private var drawLabel = false//开启标注绘制
     private var drawSite = false //界址
+    private var drawFloor= false //楼层
 
     init {
         setWillNotDraw(false)
@@ -156,6 +160,14 @@ class SketchPadContentView @JvmOverloads constructor(
                it.drawSite(canvas)
            }
         }
+        floorList.forEach {
+           /* if (it.sketchPadGraphicBean==selectGraphic){
+                it.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
+            }else{
+
+            }*/
+            it.drawFill(canvas)
+        }
         canvas?.restore()
     }
 
@@ -191,9 +203,16 @@ class SketchPadContentView @JvmOverloads constructor(
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
-//                        val vibrator =
-//                            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-//                        vibrator.vibrate(50L)
+                        if (drawFloor){
+                            //楼层
+                            floorList.forEach {
+                                if (it.sketchPadGraphicBean==selectGraphic){
+                                    return true
+                                }
+                            }
+                            floorList.add(SketchPadFloorBean(System.currentTimeMillis().toString(),"${floorList.size+1}楼","",it))
+                            refreshGraphic()
+                        }
                         return@forEach
                     }
                 }
@@ -217,7 +236,7 @@ class SketchPadContentView @JvmOverloads constructor(
         //TODO 双指缩放 隐藏
 //        selectGraphic == null && !scaleGestureDetector.onTouchEvent(event) && return true
         //单指移动 标注不允许移动
-        if (!drawLabel)!gestureListener.onTouchEvent(event) && return true
+        if (!drawLabel&&!drawFloor)!gestureListener.onTouchEvent(event) && return true
         return false
     }
     private fun showInDialog(labelPoint:PointF,data:ArrayList<SketchLabelBean>){
@@ -375,6 +394,18 @@ class SketchPadContentView @JvmOverloads constructor(
         drawSite = true
         //判断此坐标集合的界址点个数
         invalidate()
+    }
+
+    fun floorSetting(){
+        drawFloor= true
+        ZXToastUtil.showToast("请点击图形")
+    }
+
+    /**
+     * 完成操作
+     */
+    fun finish(){
+        ZXToastUtil.showToast("完成")
     }
 
     /**

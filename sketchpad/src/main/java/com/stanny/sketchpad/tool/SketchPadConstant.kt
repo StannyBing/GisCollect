@@ -26,6 +26,13 @@ object SketchPadConstant {
     @ColorInt
     var graphicSiteColor = Color.parseColor("#FF0000")
 
+    //图形填充颜色
+    @ColorInt
+    var graphicFillColor = Color.parseColor("#33FF0000")
+    //图形填充全透明颜色
+    @ColorInt
+    var graphicTransparentColor = Color.parseColor("#00000000")
+
     //图形边框宽度
     var graphicLineWidth = 2f
 

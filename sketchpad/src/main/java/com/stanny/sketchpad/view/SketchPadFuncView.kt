@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.R
@@ -57,11 +58,11 @@ class SketchPadFuncView @JvmOverloads constructor(
     @SuppressLint("ClickableViewAccessibility")
     private fun initFuncList() {
         val rvList = RecyclerView(context).apply {
+            overScrollMode = View.OVER_SCROLL_NEVER
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             setPadding(0, ZXSystemUtil.dp2px(20f), 0, 0)
         }
         addView(rvList)
-
         funcList.add(
             SketchPadFuncBean(
                 "保存",
@@ -133,6 +134,9 @@ class SketchPadFuncView @JvmOverloads constructor(
                 }
                 "标注" -> {
                     sketchPadListener?.drawLabel()
+                }
+                "楼层"->{
+                    sketchPadListener?.floorSetting()
                 }
             }
             funcAdapter.notifyDataSetChanged()

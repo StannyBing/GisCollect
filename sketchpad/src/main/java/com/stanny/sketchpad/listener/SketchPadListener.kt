@@ -20,4 +20,8 @@ interface SketchPadListener {
     fun saveGraphicInfo()
 
     fun showSite()
+
+    fun floorSetting()
+
+    fun finish()
 }

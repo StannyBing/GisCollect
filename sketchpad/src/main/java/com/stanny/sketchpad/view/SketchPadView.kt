@@ -47,6 +47,7 @@ class SketchPadView @JvmOverloads constructor(
         sketch_func.sketchPadListener = this
         sketch_graphic.sketchPadListener = this
         sketch_propedit.sketchPadListener = this
+        sketch_operation.sketchPadListener = this
     }
 
     /**
@@ -106,5 +107,17 @@ class SketchPadView @JvmOverloads constructor(
      */
     override fun showSite() {
         sketch_content.showSite()
+    }
+
+    /**
+     * 楼层设置
+     */
+    override fun floorSetting() {
+        sketch_operation.visibility=View.VISIBLE
+        sketch_content.floorSetting()
+    }
+
+    override fun finish() {
+        sketch_content.finish()
     }
 }

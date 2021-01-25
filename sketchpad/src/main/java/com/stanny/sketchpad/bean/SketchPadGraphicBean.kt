@@ -58,6 +58,9 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
         }
     }
 
+
+
+
     /**
      * 根据类型绘制图形
      * @param canvas 画笔
@@ -88,6 +91,7 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
                     close()
                 }
                 canvas?.drawPath(path, graphicPaint)
+
             }
         }
         //绘制标记
