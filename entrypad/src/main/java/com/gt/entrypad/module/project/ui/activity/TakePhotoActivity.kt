@@ -74,7 +74,7 @@ class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),Tak
             setData(TitleViewViewModel(getString(R.string.nextStep)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                    DrawSketchActivity.startAction(this@TakePhotoActivity,false)
+                    ResultShowActivity.startAction(this@TakePhotoActivity,false)
                 }
 
             })

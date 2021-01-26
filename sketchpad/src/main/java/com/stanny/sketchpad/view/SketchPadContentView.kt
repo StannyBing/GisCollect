@@ -8,6 +8,7 @@ import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -58,12 +59,13 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var graphicList = arrayListOf<SketchPadGraphicBean>()
     private var labelList = arrayListOf<SketchPadLabelBean>()
-    private var floorList = arrayListOf<SketchPadFloorBean>()
+    private var floorList = arrayListOf<SketchPadFloorBean>() //点击修改数据
 
     private var drawLabel = false//开启标注绘制
     private var drawSite = false //界址
     private var drawFloor= false //楼层
     private var selectFloorBean:SketchPadFloorBean?=null
+    private var isChange = false
     init {
         setWillNotDraw(false)
 
@@ -153,6 +155,7 @@ class SketchPadContentView @JvmOverloads constructor(
            }
         }
         floorList.forEach {
+            //如果包含某一个
             if (it==selectFloorBean){
                 it.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
             }else{
@@ -191,22 +194,28 @@ class SketchPadContentView @JvmOverloads constructor(
                         return@forEach
                     }
                 }
+                if (isChange){
+                    floorList.forEach {
+                        if (it.isFloorInTouch(event.x - contentTransX, event.y - contentTransY)) {
+                            selectFloorBean = it
+                            return@forEach
+                        }
+                    }
+                    isChange =false
+                    return true
+                }
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
                         if (drawFloor){
                             //楼层
-                            floorList.forEach {
-                                if (it.sketchPadGraphicBean==selectGraphic){
-                                    return true
-                                }
-                            }
                             floorList.add(SketchPadFloorBean(System.currentTimeMillis().toString(),"${floorList.size+1}楼","",it))
                             refreshGraphic()
                         }
                         return@forEach
                     }
                 }
+
             }
 //            MotionEvent.ACTION_MOVE -> {
 //                if (isInsertGraphic) {
@@ -430,6 +439,7 @@ class SketchPadContentView @JvmOverloads constructor(
                     data.forEachIndexed { index, sketchPadFloorBean ->
                         if (sketchPadFloorBean==data[it]){
                             sketchPadFloorBean.isChecked=!sketchPadFloorBean.isChecked
+
                         }else{
                             sketchPadFloorBean.isChecked = false
                         }
@@ -439,7 +449,7 @@ class SketchPadContentView @JvmOverloads constructor(
             }
         }
         ZXDialogUtil.showCustomViewDialog(context,"",view,{ dialog, which ->
-
+            isChange = true
         },{dialog, which ->
 
         }).apply {
