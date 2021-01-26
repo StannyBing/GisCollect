@@ -17,8 +17,8 @@ class InfoInputAdapter :ZXMultiItemQuickAdapter<InputInfoBean,ZXBaseHolder>{
     constructor(dataList:List<InputInfoBean>):super(dataList){
         addItemType(1, R.layout.item_title_layout)
         addItemType(2,R.layout.item_input_layout)
-        addItemType(3,R.layout.item_spinner_layout)
-        addItemType(4,R.layout.item_info_dialog_layout)
+       // addItemType(3,R.layout.item_spinner_layout)
+       // addItemType(4,R.layout.item_info_dialog_layout)
     }
     override fun convert(helper: ZXBaseHolder, item: InputInfoBean) {
         setData(helper,item)
@@ -46,7 +46,7 @@ class InfoInputAdapter :ZXMultiItemQuickAdapter<InputInfoBean,ZXBaseHolder>{
                     setData(item.data as EditTextViewViewModel)
                 }
             }
-            3->{
+     /*       3->{
                 //下拉选择框
                 helper.getView<SpinnerView>(R.id.itemSpinnerView).apply {
                     setData(item.data as SpinnerViewViewModel)
@@ -57,7 +57,7 @@ class InfoInputAdapter :ZXMultiItemQuickAdapter<InputInfoBean,ZXBaseHolder>{
                 helper.getView<InfoDialogView>(R.id.itemInfoDialogView).apply {
                     setData(item.data as InfoDialogViewViewModel)
                 }
-            }
+            }*/
         }
     }
 }

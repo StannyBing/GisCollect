@@ -8,11 +8,14 @@ import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
 import com.gt.entrypad.app.RouterPath
+import com.gt.entrypad.module.project.bean.IDCardInfoBean
 import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.func.InfoInputAdapter
 import com.gt.entrypad.module.project.mvp.contract.InfoInputContract
@@ -77,6 +80,7 @@ class InfoInputActivity : BaseActivity<InfoInputPresenter, InfoInputModel>(),Inf
             setData(TitleViewViewModel(getString(R.string.nextStep)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    mSharedPrefUtil.putString("infoData",Gson().toJson(dataList))
                     TakePhotoActivity.startAction(this@InfoInputActivity,false)
                 }
 
@@ -105,48 +109,60 @@ class InfoInputActivity : BaseActivity<InfoInputPresenter, InfoInputModel>(),Inf
     }
 
     private fun initData(){
+        //先获取身份信息
+        val cardInfo = mSharedPrefUtil.getString("cardInfo")
+        var name = ""
+        var sex = ""
+        var card =""
+        var address =""
+        var cardInfoData:List<IDCardInfoBean>?=null
+        if (cardInfo.isNotEmpty()){
+           cardInfoData = Gson().fromJson<List<IDCardInfoBean>>(cardInfo,object :TypeToken<List<IDCardInfoBean>>(){}.type)
+        }
+        if (!cardInfoData.isNullOrEmpty()&&cardInfoData.size==5){
+            name =  cardInfoData?.get(0)?.data?.worlds?:""
+            sex =  cardInfoData?.get(1)?.data?.worlds?:""
+            card =  cardInfoData?.get(5)?.data?.worlds?:""
+            address =  cardInfoData?.get(4)?.data?.worlds?:""
+        }
+
+
         dataList.apply {
             add(InputInfoBean(1,TitleViewViewModel("基础登记信息").apply {
                 resId = R.style.titleText
             }))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "权利人姓名",isRequired = true,requiredContent = "(必填)",hint = "请输入姓名")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "权利人身份证号",hint = "请输入身份证号码")))
+
+            add(InputInfoBean(2,EditTextViewViewModel("姓名","请输入姓名",inputContent = name)))
+            add(InputInfoBean(2,EditTextViewViewModel("性别","请输入性别",inputContent = sex)))
+            add(InputInfoBean(2,EditTextViewViewModel("身份证号码","请输入身份证号码",inputContent = card)))
+            add(InputInfoBean(2,EditTextViewViewModel("联系电话","请输入联系电话")))
+            add(InputInfoBean(2,EditTextViewViewModel("乡镇街道","请输入乡镇街道")))
+            add(InputInfoBean(2,EditTextViewViewModel("村名","请输入村名")))
+            add(InputInfoBean(2,EditTextViewViewModel("村小组","请输入村小组")))
+            add(InputInfoBean(2,EditTextViewViewModel("家庭住址","请输入家庭住址",inputContent = address)))
+            add(InputInfoBean(2,EditTextViewViewModel("申请理由","请输入申请理由")))
+
             add(InputInfoBean(1,TitleViewViewModel("房屋基本信息").apply {
                 resId=R.style.titleText
             }))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "宗地代码",hint = "请输入宗地代码")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "栋号",hint = "请输入栋号")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "户号",hint = "请输入户号")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "房屋坐落",isRequired = true,requiredContent = "(必填，注意修改)")))
-            add(InputInfoBean(3,SpinnerViewViewModel(title = "登记类型",entries = arrayListOf<KeyValueEntity>().apply {
-                add(KeyValueEntity("请选择登记类型","0"))
-                add(KeyValueEntity("首次登记","1"))
-            })))
-            add(InputInfoBean(4,InfoDialogViewViewModel(title = "房屋结构",hint = "请选择房屋结构")))
-            add(InputInfoBean(3,SpinnerViewViewModel(title = "层数",entries = arrayListOf<KeyValueEntity>().apply {
-                add(KeyValueEntity("请选择层数","0"))
-                add(KeyValueEntity("1","1"))
-                add(KeyValueEntity("2","2"))
-                add(KeyValueEntity("3","3"))
-                add(KeyValueEntity("4","4"))
-                add(KeyValueEntity("5","5"))
-            })))
-            add(InputInfoBean(3,SpinnerViewViewModel(title = "所在名义层",entries = arrayListOf<KeyValueEntity>().apply {
-                add(KeyValueEntity("请选择层数","0"))
-                add(KeyValueEntity("第1层","1"))
-                add(KeyValueEntity("第2层","2"))
-                add(KeyValueEntity("第3层","3"))
-                add(KeyValueEntity("第4层","4"))
-                add(KeyValueEntity("第5层","5"))
-            })))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "批准土地面积",hint = "请输入批准使用面积(m²)")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "批准建筑面积",hint = "请输入批准建筑面积(m²)")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "专有建筑面积",hint = "请输入专有建筑面积(m²)")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "分摊面积",hint = "请输入分摊面积(m²)")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "原土地使用面积",hint = "请输入原土地使用面积(m²)")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "乡村房屋所有权证号",hint = "请输入乡村房屋所有权证号")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "实际土地使用面积",hint = "请输入实际土地使用面积(m²)")))
-            add(InputInfoBean(2,EditTextViewViewModel(title = "集体土地使用证号",hint = "请输入集体土地使用证号")))
+            add(InputInfoBean(2,EditTextViewViewModel("宅基地面积","请输入宅基地面积(㎡)")))
+            add(InputInfoBean(2,EditTextViewViewModel("房基占地面积","请输入宅基地面积(㎡)")))
+            add(InputInfoBean(2,EditTextViewViewModel("拟批地址","请输入拟批地址")))
+            add(InputInfoBean(2,EditTextViewViewModel("占建设用地","请输入占建设用地")))
+            add(InputInfoBean(2,EditTextViewViewModel("占未利用地","请输入占建设未利用地")))
+            add(InputInfoBean(2,EditTextViewViewModel("占农用地","请输入占农用地")))
+            add(InputInfoBean(2,EditTextViewViewModel("住宅建筑面积","请输入住宅建筑面积(㎡)")))
+            add(InputInfoBean(2,EditTextViewViewModel("建筑层数","请输入建筑层数")))
+            add(InputInfoBean(2,EditTextViewViewModel("建筑高度","请输入建筑高度")))
+            add(InputInfoBean(2,EditTextViewViewModel("性质","请输入性质")))
+            add(InputInfoBean(2,EditTextViewViewModel("占地面积","请输入占地面积(㎡)")))
+            add(InputInfoBean(2,EditTextViewViewModel("东至","请输入东至")))
+            add(InputInfoBean(2,EditTextViewViewModel("南至","请输入南至")))
+            add(InputInfoBean(2,EditTextViewViewModel("西至","请输入西至")))
+            add(InputInfoBean(2,EditTextViewViewModel("北至","请输入北至")))
+            add(InputInfoBean(2,EditTextViewViewModel("选址日期","请输入选址日期")))
+            add(InputInfoBean(2,EditTextViewViewModel("备注","请输入")))
+
 
         }
     }
