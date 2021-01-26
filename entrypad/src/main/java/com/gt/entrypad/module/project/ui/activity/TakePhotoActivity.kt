@@ -91,7 +91,7 @@ class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),Tak
         }
         finishTv.apply {
             setData(TitleViewViewModel(getString(R.string.finish)))
-            visibility = View.VISIBLE
+            visibility = View.GONE
         }
     }
     override fun onViewListener() {

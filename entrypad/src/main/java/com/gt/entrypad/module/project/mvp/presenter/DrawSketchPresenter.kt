@@ -25,7 +25,11 @@ class DrawSketchPresenter : DrawSketchContract.Presenter() {
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         if (!info.isNullOrEmpty()&&info.size==28){
             builder.addFormDataPart("txt8",info[3] )
-            Log.e("editData","${info[3]}")
+            builder.addFormDataPart("east",info[20] )
+            builder.addFormDataPart("south",info[21] )
+            builder.addFormDataPart("west",info[22] )
+            builder.addFormDataPart("north",info[23] )
+
         }
 
 

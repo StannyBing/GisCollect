@@ -67,7 +67,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         }
         finishTv.apply {
             setData(TitleViewViewModel(getString(R.string.finish)))
-            visibility = View.VISIBLE
+            visibility = View.GONE
         }
     }
     override fun onViewListener() {
@@ -98,6 +98,6 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
      * 上传回调接口
      */
     override fun uploadResult(uploadResult: String?) {
-
+        ResultShowActivity.startAction(this,false)
     }
 }
