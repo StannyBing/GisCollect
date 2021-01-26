@@ -17,6 +17,7 @@
         android:layout_height="40dp"
         android:layout_width="match_parent"
         android:layout_marginTop="4dp"
+        android:visibility="gone"
         android:hint="@string/otherHint"
         android:textSize="10sp"
         />

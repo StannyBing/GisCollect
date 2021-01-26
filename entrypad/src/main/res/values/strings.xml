@@ -6,6 +6,8 @@
     <string name="lastStep">上一步</string>
     <string name="nextStep">下一步</string>
     <string name="finish">完成</string>
+    <string name="save">保存</string>
+    <string name="print">打印</string>
     <string name="registrationPlatform">农村不动产登记平台</string>
     <string name="registrationInfo">登记信息</string>
     <string name="takePhoto">现场拍照</string>

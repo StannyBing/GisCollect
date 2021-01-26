@@ -18,6 +18,7 @@ import com.gt.entrypad.module.project.mvp.model.ResultShowModel
 import com.gt.entrypad.module.project.mvp.presenter.ResultShowPresenter
 import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
 import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewModel
+import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewModel
 import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
@@ -112,11 +113,12 @@ class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),
             })
         }
         rightTv.apply {
-            visibility = View.GONE
+            visibility = View.VISIBLE
+            setData(TitleViewViewModel(getString(R.string.save)))
         }
-        finishTv.apply {
+        right2Tv.apply {
             visibility=View.VISIBLE
-            setData(TitleViewViewModel(getString(R.string.finish)))
+            setData(TitleViewViewModel(getString(R.string.print)))
             setActionListener(object :ICustomViewActionListener{
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
                     

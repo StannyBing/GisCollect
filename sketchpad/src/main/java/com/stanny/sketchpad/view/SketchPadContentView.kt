@@ -1,27 +1,31 @@
 package com.stanny.sketchpad.view
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.*
 import android.os.Vibrator
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
+import android.view.*
+import android.widget.EditText
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.stanny.sketchpad.R
+import com.stanny.sketchpad.adapter.SketchPadFloorAdapter
+import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
 import com.stanny.sketchpad.bean.SketchLabelBean
+import com.stanny.sketchpad.bean.SketchPadFloorBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
-import com.stanny.sketchpad.tool.SketchPointTool
-import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXLogUtil
-import com.zx.zxutils.util.ZXSystemUtil
-import com.zx.zxutils.util.ZXToastUtil
+import com.zx.zxutils.util.*
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
 import kotlin.math.max
 import kotlin.math.min
 
@@ -55,9 +59,13 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var graphicList = arrayListOf<SketchPadGraphicBean>()
     private var labelList = arrayListOf<SketchPadLabelBean>()
+    private var floorList = arrayListOf<SketchPadFloorBean>() //点击修改数据
 
     private var drawLabel = false//开启标注绘制
-
+    private var drawSite = false //界址
+    private var drawFloor= false //楼层
+    private var selectFloorBean:SketchPadFloorBean?=null
+    private var isChange = false
     init {
         setWillNotDraw(false)
 
@@ -141,6 +149,19 @@ class SketchPadContentView @JvmOverloads constructor(
         labelList.forEach {
             it.drawLabel(canvas)
         }
+        if (drawSite){
+           graphicList.forEach {
+               it.drawSite(canvas)
+           }
+        }
+        floorList.forEach {
+            //如果包含某一个
+            if (it==selectFloorBean){
+                it.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
+            }else{
+                it.drawFill(canvas)
+            }
+        }
         canvas?.restore()
     }
 
@@ -152,20 +173,17 @@ class SketchPadContentView @JvmOverloads constructor(
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (drawLabel) {
-                    //TODO 替换成可编辑标注内容的弹窗，单独提出去作为一个方法
                     val labelPoint = PointF(event.x, event.y)
-                    ZXDialogUtil.showInfoDialog(
-                        context,
-                        "提示",
-                        "需要替换此处代码，当前只添加了“测试”字符串"
-                    ) { dialog, which ->
-                        labelList.add(SketchPadLabelBean("测试", labelPoint).apply {
-                            offsetX = -contentTransX
-                            offsetY = -contentTransY
-                        })
-                        refreshGraphic()
-                        drawLabel = false
+                    graphicList.forEach {
+                        if (it.isGraphicContainsPoint(event.x - contentTransX, event.y - contentTransY)) {
+                            showInDialog(labelPoint,showInData())
+                            return true
+                        }else if (it.isGraphicContainsPoint(event.x-40,event.y-40)||it.isGraphicContainsPoint(event.x+40,event.y+40)){
+                           showInDialog(labelPoint,showBoundaryData())
+                            return true
+                        }
                     }
+                    showOutDialog(labelPoint)
                     return true
                 }
                 selectGraphic = null
@@ -176,15 +194,28 @@ class SketchPadContentView @JvmOverloads constructor(
                         return@forEach
                     }
                 }
+                if (isChange){
+                    floorList.forEach {
+                        if (it.isFloorInTouch(event.x - contentTransX, event.y - contentTransY)) {
+                            selectFloorBean = it
+                            return@forEach
+                        }
+                    }
+                    isChange =false
+                    return true
+                }
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
-//                        val vibrator =
-//                            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-//                        vibrator.vibrate(50L)
+                        if (drawFloor){
+                            //楼层
+                            floorList.add(SketchPadFloorBean(System.currentTimeMillis().toString(),"${floorList.size+1}楼","",it))
+                            refreshGraphic()
+                        }
                         return@forEach
                     }
                 }
+
             }
 //            MotionEvent.ACTION_MOVE -> {
 //                if (isInsertGraphic) {
@@ -199,13 +230,133 @@ class SketchPadContentView @JvmOverloads constructor(
 //                    insertGraphic(insertGraphic!!)
 //                    return true
 //                }
+                return true
             }
         }
         //TODO 双指缩放 隐藏
 //        selectGraphic == null && !scaleGestureDetector.onTouchEvent(event) && return true
-        //单指移动
-        !gestureListener.onTouchEvent(event) && return true
+        //单指移动 标注不允许移动
+        if (!drawLabel&&!drawFloor)!gestureListener.onTouchEvent(event) && return true
         return false
+    }
+    private fun showInDialog(labelPoint:PointF,data:ArrayList<SketchLabelBean>){
+        var content = ""
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = SketchPadLabelAdapter(data).apply {
+            addCheckedChangeListener {
+                val list = data as ArrayList<SketchLabelBean>
+                list.forEachIndexed { index, sketchLabelBean ->
+                    if (sketchLabelBean==list[it]){
+                        content = sketchLabelBean.value
+                        sketchLabelBean.isChecked=!sketchLabelBean.isChecked
+                    }else{
+                        sketchLabelBean.isChecked = false
+                    }
+                }
+                notifyDataSetChanged()
+            }
+        }
+            ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
+                labelList.add(SketchPadLabelBean(content, labelPoint).apply {
+                    offsetX = -contentTransX
+                    offsetY = -contentTransY
+                })
+                refreshGraphic()
+                drawLabel = false
+            },{dialog, which ->  }).apply {
+                val layoutParams = window?.attributes
+                layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+                layoutParams?.gravity = Gravity.RIGHT
+                window?.attributes = layoutParams
+            }
+    }
+
+    private fun showInData():ArrayList<SketchLabelBean>{
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1","阳台"))
+            add(SketchLabelBean("2","内阳台"))
+            add(SketchLabelBean("3","砖湿"))
+            add(SketchLabelBean("4","砖瓦"))
+            add(SketchLabelBean("5","滴水"))
+            add(SketchLabelBean("6","猪圈"))
+        }
+    }
+
+    private fun showOutData():ArrayList<SketchLabelBean>{
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1","坝"))
+            add(SketchLabelBean("2","人行道"))
+            add(SketchLabelBean("3","水沟"))
+            add(SketchLabelBean("4","巷道"))
+            add(SketchLabelBean("5","林地"))
+            add(SketchLabelBean("6","耕地"))
+        }
+    }
+
+    private fun showBoundaryData():ArrayList<SketchLabelBean>{
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1","自墙"))
+            add(SketchLabelBean("2","共墙"))
+            add(SketchLabelBean("3","借墙"))
+        }
+    }
+
+    private fun showOutDialog(labelPoint:PointF){
+        var content = ""
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
+        view.findViewById<EditText>(R.id.otherEt).apply {
+            visibility=View.VISIBLE
+            addTextChangedListener(object :TextWatcher{
+                override fun afterTextChanged(s: Editable?) {
+                    content = s?.toString()?.trim()?:""
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                }
+
+            })
+        }
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = SketchPadLabelAdapter(showOutData()).apply {
+            addCheckedChangeListener {
+                val list = data as ArrayList<SketchLabelBean>
+                list.forEachIndexed { index, sketchLabelBean ->
+                    if (sketchLabelBean==list[it]){
+                        content = sketchLabelBean.value
+                        sketchLabelBean.isChecked=!sketchLabelBean.isChecked
+                    }else{
+                        sketchLabelBean.isChecked = false
+                    }
+                }
+                notifyDataSetChanged()
+            }
+        }
+        ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
+            labelList.add(SketchPadLabelBean(content, labelPoint).apply {
+                offsetX = -contentTransX
+                offsetY = -contentTransY
+            })
+            refreshGraphic()
+            drawLabel = false
+        },{dialog, which ->  }).apply {
+            val layoutParams = window?.attributes
+            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+            layoutParams?.gravity = Gravity.RIGHT
+            window?.attributes = layoutParams
+        }
     }
 
     /**
@@ -253,17 +404,60 @@ class SketchPadContentView @JvmOverloads constructor(
     }
 
     /**
-     * 获取当前图形
+     * 展示界址
      */
-    fun getCurrentGraphic(pointF: PointF): SketchPadGraphicBean? {
-        var sketchPadGraphicBean: SketchPadGraphicBean? = null
-        graphicList.forEach {
-            if (it.isGraphicInTouch(pointF.x - contentTransX, pointF.y - contentTransY)) {
-                sketchPadGraphicBean = it
-                return@forEach
+    fun showSite(){
+        drawSite = true
+        //判断此坐标集合的界址点个数
+        invalidate()
+    }
+
+    fun floorSetting(){
+        drawFloor= true
+        ZXToastUtil.showToast("请点击图形")
+    }
+
+    /**
+     * 完成操作
+     */
+    fun finish(){
+        val data = arrayListOf<SketchPadFloorBean>()
+        floorList.forEach {
+            if (it==selectFloorBean){
+                selectFloorBean?.let { data.add(it) }
+            }else{
+                data.add(it)
             }
         }
-        return sketchPadGraphicBean
+        floorList.clear()
+        floorList.addAll(data)
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog, null).apply {
+            val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.adapter = SketchPadFloorAdapter(floorList).apply {
+                addCheckedChangeListener {
+                    data.forEachIndexed { index, sketchPadFloorBean ->
+                        if (sketchPadFloorBean==data[it]){
+                            sketchPadFloorBean.isChecked=!sketchPadFloorBean.isChecked
+
+                        }else{
+                            sketchPadFloorBean.isChecked = false
+                        }
+                    }
+                    notifyDataSetChanged()
+                }
+            }
+        }
+        ZXDialogUtil.showCustomViewDialog(context,"",view,{ dialog, which ->
+            isChange = true
+        },{dialog, which ->
+
+        }).apply {
+            val layoutParams = window?.attributes
+            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+            layoutParams?.gravity = Gravity.RIGHT
+            window?.attributes = layoutParams
+        }
     }
 
     /**
@@ -274,15 +468,15 @@ class SketchPadContentView @JvmOverloads constructor(
         val maxPoint = graphicList.getMax()
         val viewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         draw(Canvas(viewBitmap))
-//        val divider = SketchPadConstant.backgroundGridSpace
-//        val cutBitmap = Bitmap.createBitmap(
-//            viewBitmap,
-//            (minPoint.x - divider).toInt(),
-//            (minPoint.y - divider).toInt(),
-//            (maxPoint.x - minPoint.x + divider * 2).toInt(),
-//            (maxPoint.y - minPoint.y + divider * 2).toInt()
-//        )
-
+        val file = context.filesDir.path
+        //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
+        val s = "$file/sketch/draw.jpg"
+        try {
+           Runnable {
+               viewBitmap.compress(Bitmap.CompressFormat.JPEG,100,FileOutputStream(ZXFileUtil.createNewFile(s)))
+           }.run()
+        }catch (e:FileNotFoundException){
+        }
         callBack()
     }
 

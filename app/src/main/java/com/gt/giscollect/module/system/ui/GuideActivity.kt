@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.base.activity.BaseActivity
+import com.gt.entrypad.module.project.ui.activity.DrawSketchActivity
 import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
@@ -90,13 +91,15 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         guideAdapter.setChildCall {
-            if (it.itemName.contains("竣工")) {
-                ProjectListActivity.startAction(this, false)
-            } else {
-                ConstStrings.appfuncList.clear()
-                ConstStrings.appfuncList.addAll(it.appFuncs)
-                ConstStrings.bussinessId = it.templateId ?: ""
-                MainActivity.startAction(this, false)
+            when {
+                it.itemName.contains("竣工") -> ProjectListActivity.startAction(this, false)
+                it.itemName.contains("草图") -> DrawSketchActivity.startAction(this,false)
+                else -> {
+                    ConstStrings.appfuncList.clear()
+                    ConstStrings.appfuncList.addAll(it.appFuncs)
+                    ConstStrings.bussinessId = it.templateId ?: ""
+                    MainActivity.startAction(this, false)
+                }
             }
 //            when (it.itemName) {
 //                "农房选址测绘", "农房地基测绘", "农房竣工测绘" -> {

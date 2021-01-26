@@ -30,6 +30,8 @@ data class SketchPadLabelBean(var name: String, var pointF: PointF) {
             })
     }
 
+
+
     fun drawLabel(canvas: Canvas?) {
         val textPaint = Paint().apply {
             isAntiAlias = true

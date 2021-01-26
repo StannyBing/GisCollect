@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.R
@@ -57,11 +58,11 @@ class SketchPadFuncView @JvmOverloads constructor(
     @SuppressLint("ClickableViewAccessibility")
     private fun initFuncList() {
         val rvList = RecyclerView(context).apply {
+            overScrollMode = View.OVER_SCROLL_NEVER
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             setPadding(0, ZXSystemUtil.dp2px(20f), 0, 0)
         }
         addView(rvList)
-
         funcList.add(
             SketchPadFuncBean(
                 "保存",
@@ -76,9 +77,10 @@ class SketchPadFuncView @JvmOverloads constructor(
                 R.drawable.icon_sketch_normal_recenter
             )
         )
+
         funcList.add(
             SketchPadFuncBean(
-                "配置",
+                "界址",
                 R.drawable.icon_sketch_setting,
                 R.drawable.icon_sketch_normal_setting
             )
@@ -86,6 +88,20 @@ class SketchPadFuncView @JvmOverloads constructor(
         funcList.add(
             SketchPadFuncBean(
                 "标注",
+                R.drawable.icon_sketch_setting,
+                R.drawable.icon_sketch_normal_setting
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "楼层",
+                R.drawable.icon_sketch_setting,
+                R.drawable.icon_sketch_normal_setting
+            )
+        )
+        funcList.add(
+            SketchPadFuncBean(
+                "备注",
                 R.drawable.icon_sketch_setting,
                 R.drawable.icon_sketch_normal_setting
             )
@@ -113,8 +129,14 @@ class SketchPadFuncView @JvmOverloads constructor(
                 "配置" -> {
                     showSetting()
                 }
+                "界址"->{
+                    sketchPadListener?.showSite()
+                }
                 "标注" -> {
                     sketchPadListener?.drawLabel()
+                }
+                "楼层"->{
+                    sketchPadListener?.floorSetting()
                 }
             }
             funcAdapter.notifyDataSetChanged()
