@@ -36,26 +36,34 @@ object GeoPackageTool {
     }
 
     fun getFeatureFromGpkgWithNull(name: String, featureCall: (FeatureLayer?) -> Unit) {
-        val geoPackage = getGpkg(ConstStrings.getInnerLocalMapPath())
-        if (geoPackage == null){
+        val geoPackages = getGpkgs(ConstStrings.getInnerLocalMapPath())
+        if (geoPackages.isEmpty()) {
             featureCall(null)
             return
         }
-        geoPackage.loadAsync()
-        geoPackage.addDoneLoadingListener {
-            if (geoPackage.loadStatus == LoadStatus.LOADED) {
-                val gepTables = geoPackage.geoPackageFeatureTables
-                gepTables.forEach {
-                    if (it != null) {
-                        val featureLayer = FeatureLayer(it)
+        geoPackages.forEach { geoPackage ->
+            geoPackage.loadAsync()
+            geoPackage.addDoneLoadingListener {
+                if (geoPackage.loadStatus == LoadStatus.LOADED) {
+                    val gepTables = geoPackage.geoPackageFeatureTables
+                    var hasSameLayer = false
+                    gepTables.forEach {
+                        if (it != null) {
+                            val featureLayer = FeatureLayer(it)
 //                        UniqueValueRenderer.fromJson()
 //                        featureLayer.renderer = Renderer.fromJson()
-                        if (name == featureLayer.name) {
-                            featureLayer.loadAsync()
-                            featureLayer.addDoneLoadingListener {
-                                featureCall(featureLayer)
+                            ZXLogUtil.loge("name:${name},  layerName:${featureLayer.name}, tableName:${featureLayer.featureTable.tableName}")
+                            if (name == featureLayer.name) {
+                                hasSameLayer = true
+                                featureLayer.loadAsync()
+                                featureLayer.addDoneLoadingListener {
+                                    featureCall(featureLayer)
 //                                return@forEach
+                                }
                             }
+                        }
+                        if (!hasSameLayer) {
+                            featureCall(null)
                         }
                     }
                 }
@@ -122,6 +130,21 @@ object GeoPackageTool {
             return GeoPackage((path))
         }
         return null
+    }
+
+    private fun getGpkgs(path: String = ConstStrings.getLocalMapPath()): List<GeoPackage> {
+        val gpkgs = arrayListOf<GeoPackage>()
+        val file = File(path)
+        if (file.exists() && file.isDirectory && file.listFiles().isNotEmpty()) {
+            file.listFiles().forEach {
+                if (it.isFile && it.name.endsWith("gpkg")) {
+                    gpkgs.add(GeoPackage(it.path))
+                }
+            }
+        } else if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
+            gpkgs.add(GeoPackage((path)))
+        }
+        return gpkgs
     }
 
 }

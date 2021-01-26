@@ -211,8 +211,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                 )
                             } else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
                                     "itemName"
-                                )) || ((layer is ArcGISTiledLayer) && (layer as ArcGISTiledLayer).name == obj.getString(
-                                    "itemName"
                                 ))
                             ) {
                                 checkCount++
