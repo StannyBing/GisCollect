@@ -44,17 +44,35 @@
         android:gravity="center"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
+        android:text="部分图形（如正方形、矩形）无法单独修改对边，将同步设置"
         android:textColor="@color/gray_8f"
-        android:textSize="12sp"
-        android:text="部分图形（如正方形、矩形）无法单独修改对边，将同步设置" />
+        android:textSize="12sp" />
 
-    <Button
-        android:id="@+id/btn_propedit_submit"
-        style="@style/Widget.AppCompat.Button.Colored"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_margin="5dp"
-        android:text="保存"
-        android:textSize="14sp" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_propedit_delete"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="45dp"
+            android:textColor="@color/red8e"
+            android:layout_margin="5dp"
+            android:text="删除"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btn_propedit_submit"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="45dp"
+            android:layout_margin="5dp"
+            android:text="保存"
+            android:textSize="14sp" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -81,29 +81,29 @@ class SketchPadFuncView @JvmOverloads constructor(
         funcList.add(
             SketchPadFuncBean(
                 "界址",
-                R.drawable.icon_sketch_setting,
-                R.drawable.icon_sketch_normal_setting
+                R.drawable.icon_sketch_border,
+                R.drawable.icon_sketch_normal_border
             )
         )
         funcList.add(
             SketchPadFuncBean(
                 "标注",
-                R.drawable.icon_sketch_setting,
-                R.drawable.icon_sketch_normal_setting
+                R.drawable.icon_sketch_mark,
+                R.drawable.icon_sketch_normal_mark
             )
         )
         funcList.add(
             SketchPadFuncBean(
                 "楼层",
-                R.drawable.icon_sketch_setting,
-                R.drawable.icon_sketch_normal_setting
+                R.drawable.icon_sketch_floor,
+                R.drawable.icon_sketch_normal_floor
             )
         )
         funcList.add(
             SketchPadFuncBean(
-                "备注",
-                R.drawable.icon_sketch_setting,
-                R.drawable.icon_sketch_normal_setting
+                "长度",
+                R.drawable.icon_sketch_size,
+                R.drawable.icon_sketch_normal_size
             )
         )
         rvList.apply {
@@ -118,7 +118,7 @@ class SketchPadFuncView @JvmOverloads constructor(
     private fun initListener() {
         funcAdapter.setOnItemClickListener { adapter, view, position ->
             val funcBean = funcList[position]
-//            funcBean.isChecked = !funcBean.isChecked
+            funcBean.isChecked = !funcBean.isChecked
             when (funcBean.name) {
                 "保存" -> {
                     sketchPadListener?.saveGraphicInfo()
@@ -129,14 +129,17 @@ class SketchPadFuncView @JvmOverloads constructor(
                 "配置" -> {
                     showSetting()
                 }
-                "界址"->{
-                    sketchPadListener?.showSite()
+                "界址" -> {
+                    sketchPadListener?.showSite(funcBean.isChecked)
                 }
                 "标注" -> {
                     sketchPadListener?.drawLabel()
                 }
-                "楼层"->{
-                    sketchPadListener?.floorSetting()
+                "楼层" -> {
+                    sketchPadListener?.floorSetting(funcBean.isChecked)
+                }
+                "长度" -> {
+                    sketchPadListener?.showSizeInfo(funcBean.isChecked)
                 }
             }
             funcAdapter.notifyDataSetChanged()

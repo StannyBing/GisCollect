@@ -2,6 +2,7 @@ package com.stanny.sketchpad.listener
 
 import android.graphics.PointF
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
+import java.util.*
 
 interface SketchPadListener {
 
@@ -19,9 +20,13 @@ interface SketchPadListener {
 
     fun saveGraphicInfo()
 
-    fun showSite()
+    fun showSite(isCheck: Boolean)
 
-    fun floorSetting()
+    fun floorSetting(isCheck: Boolean)
 
     fun finish()
+
+    fun showSizeInfo(checked: Boolean)
+
+    fun deleteGraphic(id: UUID)
 }

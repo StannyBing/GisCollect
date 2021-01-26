@@ -13,8 +13,8 @@ import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
 import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.main.func.tool.GeoPackageTool
 import com.gt.giscollect.module.main.func.tool.MapTool

@@ -1,6 +1,5 @@
 package com.stanny.sketchpad.view
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.*
@@ -8,9 +7,9 @@ import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.R
@@ -25,7 +24,8 @@ import com.stanny.sketchpad.tool.SketchPadConstant
 import com.zx.zxutils.util.*
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 
@@ -63,9 +63,11 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var drawLabel = false//开启标注绘制
     private var drawSite = false //界址
-    private var drawFloor= false //楼层
-    private var selectFloorBean:SketchPadFloorBean?=null
+    private var drawFloor = false //楼层
+    private var showMeters: Boolean = false//尺寸
+    private var selectFloorBean: SketchPadFloorBean? = null
     private var isChange = false
+
     init {
         setWillNotDraw(false)
 
@@ -149,16 +151,16 @@ class SketchPadContentView @JvmOverloads constructor(
         labelList.forEach {
             it.drawLabel(canvas)
         }
-        if (drawSite){
-           graphicList.forEach {
-               it.drawSite(canvas)
-           }
+        if (drawSite) {
+            graphicList.forEach {
+                it.drawSite(canvas)
+            }
         }
         floorList.forEach {
             //如果包含某一个
-            if (it==selectFloorBean){
-                it.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
-            }else{
+            if (it == selectFloorBean) {
+                it.drawFill(canvas, SketchPadConstant.graphicTransparentColor)
+            } else {
                 it.drawFill(canvas)
             }
         }
@@ -175,11 +177,19 @@ class SketchPadContentView @JvmOverloads constructor(
                 if (drawLabel) {
                     val labelPoint = PointF(event.x, event.y)
                     graphicList.forEach {
-                        if (it.isGraphicContainsPoint(event.x - contentTransX, event.y - contentTransY)) {
-                            showInDialog(labelPoint,showInData())
+                        if (it.isGraphicContainsPoint(
+                                event.x - contentTransX,
+                                event.y - contentTransY
+                            )
+                        ) {
+                            showInDialog(labelPoint, showInData())
                             return true
-                        }else if (it.isGraphicContainsPoint(event.x-40,event.y-40)||it.isGraphicContainsPoint(event.x+40,event.y+40)){
-                           showInDialog(labelPoint,showBoundaryData())
+                        } else if (it.isGraphicContainsPoint(
+                                event.x - 40,
+                                event.y - 40
+                            ) || it.isGraphicContainsPoint(event.x + 40, event.y + 40)
+                        ) {
+                            showInDialog(labelPoint, showBoundaryData())
                             return true
                         }
                     }
@@ -194,22 +204,29 @@ class SketchPadContentView @JvmOverloads constructor(
                         return@forEach
                     }
                 }
-                if (isChange){
+                if (isChange) {
                     floorList.forEach {
                         if (it.isFloorInTouch(event.x - contentTransX, event.y - contentTransY)) {
                             selectFloorBean = it
                             return@forEach
                         }
                     }
-                    isChange =false
+                    isChange = false
                     return true
                 }
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
-                        if (drawFloor){
+                        if (drawFloor) {
                             //楼层
-                            floorList.add(SketchPadFloorBean(System.currentTimeMillis().toString(),"${floorList.size+1}楼","",it))
+                            floorList.add(
+                                SketchPadFloorBean(
+                                    System.currentTimeMillis().toString(),
+                                    "${floorList.size + 1}楼",
+                                    "",
+                                    it
+                                )
+                            )
                             refreshGraphic()
                         }
                         return@forEach
@@ -236,81 +253,82 @@ class SketchPadContentView @JvmOverloads constructor(
         //TODO 双指缩放 隐藏
 //        selectGraphic == null && !scaleGestureDetector.onTouchEvent(event) && return true
         //单指移动 标注不允许移动
-        if (!drawLabel&&!drawFloor)!gestureListener.onTouchEvent(event) && return true
+        if (!drawLabel && !drawFloor) !gestureListener.onTouchEvent(event) && return true
         return false
     }
-    private fun showInDialog(labelPoint:PointF,data:ArrayList<SketchLabelBean>){
+
+    private fun showInDialog(labelPoint: PointF, data: ArrayList<SketchLabelBean>) {
         var content = ""
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog, null)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = SketchPadLabelAdapter(data).apply {
             addCheckedChangeListener {
                 val list = data as ArrayList<SketchLabelBean>
                 list.forEachIndexed { index, sketchLabelBean ->
-                    if (sketchLabelBean==list[it]){
+                    if (sketchLabelBean == list[it]) {
                         content = sketchLabelBean.value
-                        sketchLabelBean.isChecked=!sketchLabelBean.isChecked
-                    }else{
+                        sketchLabelBean.isChecked = !sketchLabelBean.isChecked
+                    } else {
                         sketchLabelBean.isChecked = false
                     }
                 }
                 notifyDataSetChanged()
             }
         }
-            ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
-                labelList.add(SketchPadLabelBean(content, labelPoint).apply {
-                    offsetX = -contentTransX
-                    offsetY = -contentTransY
-                })
-                refreshGraphic()
-                drawLabel = false
-            },{dialog, which ->  }).apply {
-                val layoutParams = window?.attributes
-                layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
-                layoutParams?.gravity = Gravity.RIGHT
-                window?.attributes = layoutParams
-            }
-    }
-
-    private fun showInData():ArrayList<SketchLabelBean>{
-        return arrayListOf<SketchLabelBean>().apply {
-            add(SketchLabelBean("1","阳台"))
-            add(SketchLabelBean("2","内阳台"))
-            add(SketchLabelBean("3","砖湿"))
-            add(SketchLabelBean("4","砖瓦"))
-            add(SketchLabelBean("5","滴水"))
-            add(SketchLabelBean("6","猪圈"))
+        ZXDialogUtil.showCustomViewDialog(context, "", view, { dialog, which ->
+            labelList.add(SketchPadLabelBean(content, labelPoint).apply {
+                offsetX = -contentTransX
+                offsetY = -contentTransY
+            })
+            refreshGraphic()
+            drawLabel = false
+        }, { dialog, which -> }).apply {
+            val layoutParams = window?.attributes
+            layoutParams?.width = ZXScreenUtil.getScreenWidth() / 3
+            layoutParams?.gravity = Gravity.RIGHT
+            window?.attributes = layoutParams
         }
     }
 
-    private fun showOutData():ArrayList<SketchLabelBean>{
+    private fun showInData(): ArrayList<SketchLabelBean> {
         return arrayListOf<SketchLabelBean>().apply {
-            add(SketchLabelBean("1","坝"))
-            add(SketchLabelBean("2","人行道"))
-            add(SketchLabelBean("3","水沟"))
-            add(SketchLabelBean("4","巷道"))
-            add(SketchLabelBean("5","林地"))
-            add(SketchLabelBean("6","耕地"))
+            add(SketchLabelBean("1", "阳台"))
+            add(SketchLabelBean("2", "内阳台"))
+            add(SketchLabelBean("3", "砖湿"))
+            add(SketchLabelBean("4", "砖瓦"))
+            add(SketchLabelBean("5", "滴水"))
+            add(SketchLabelBean("6", "猪圈"))
         }
     }
 
-    private fun showBoundaryData():ArrayList<SketchLabelBean>{
+    private fun showOutData(): ArrayList<SketchLabelBean> {
         return arrayListOf<SketchLabelBean>().apply {
-            add(SketchLabelBean("1","自墙"))
-            add(SketchLabelBean("2","共墙"))
-            add(SketchLabelBean("3","借墙"))
+            add(SketchLabelBean("1", "坝"))
+            add(SketchLabelBean("2", "人行道"))
+            add(SketchLabelBean("3", "水沟"))
+            add(SketchLabelBean("4", "巷道"))
+            add(SketchLabelBean("5", "林地"))
+            add(SketchLabelBean("6", "耕地"))
         }
     }
 
-    private fun showOutDialog(labelPoint:PointF){
+    private fun showBoundaryData(): ArrayList<SketchLabelBean> {
+        return arrayListOf<SketchLabelBean>().apply {
+            add(SketchLabelBean("1", "自墙"))
+            add(SketchLabelBean("2", "共墙"))
+            add(SketchLabelBean("3", "借墙"))
+        }
+    }
+
+    private fun showOutDialog(labelPoint: PointF) {
         var content = ""
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog,null)
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog, null)
         view.findViewById<EditText>(R.id.otherEt).apply {
-            visibility=View.VISIBLE
-            addTextChangedListener(object :TextWatcher{
+            visibility = View.VISIBLE
+            addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    content = s?.toString()?.trim()?:""
+                    content = s?.toString()?.trim() ?: ""
                 }
 
                 override fun beforeTextChanged(
@@ -334,26 +352,26 @@ class SketchPadContentView @JvmOverloads constructor(
             addCheckedChangeListener {
                 val list = data as ArrayList<SketchLabelBean>
                 list.forEachIndexed { index, sketchLabelBean ->
-                    if (sketchLabelBean==list[it]){
+                    if (sketchLabelBean == list[it]) {
                         content = sketchLabelBean.value
-                        sketchLabelBean.isChecked=!sketchLabelBean.isChecked
-                    }else{
+                        sketchLabelBean.isChecked = !sketchLabelBean.isChecked
+                    } else {
                         sketchLabelBean.isChecked = false
                     }
                 }
                 notifyDataSetChanged()
             }
         }
-        ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
+        ZXDialogUtil.showCustomViewDialog(context, "", view, { dialog, which ->
             labelList.add(SketchPadLabelBean(content, labelPoint).apply {
                 offsetX = -contentTransX
                 offsetY = -contentTransY
             })
             refreshGraphic()
             drawLabel = false
-        },{dialog, which ->  }).apply {
+        }, { dialog, which -> }).apply {
             val layoutParams = window?.attributes
-            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+            layoutParams?.width = ZXScreenUtil.getScreenWidth() / 3
             layoutParams?.gravity = Gravity.RIGHT
             window?.attributes = layoutParams
         }
@@ -366,6 +384,7 @@ class SketchPadContentView @JvmOverloads constructor(
         graphicList.add(SketchPadGraphicBean(graphicBean.graphicType).apply {
             offsetX = -contentTransX + 50
             offsetY = -contentTransY + 50
+            this.showMeters = this@SketchPadContentView.showMeters
         })
         invalidate()
     }
@@ -406,26 +425,26 @@ class SketchPadContentView @JvmOverloads constructor(
     /**
      * 展示界址
      */
-    fun showSite(){
-        drawSite = true
+    fun showSite(check: Boolean) {
+        drawSite = check
         //判断此坐标集合的界址点个数
         invalidate()
     }
 
-    fun floorSetting(){
-        drawFloor= true
-        ZXToastUtil.showToast("请点击图形")
+    fun floorSetting(open: Boolean) {
+        drawFloor = open
+        ZXToastUtil.showToast("请点击图形选择楼层")
     }
 
     /**
      * 完成操作
      */
-    fun finish(){
+    fun finish() {
         val data = arrayListOf<SketchPadFloorBean>()
         floorList.forEach {
-            if (it==selectFloorBean){
+            if (it == selectFloorBean) {
                 selectFloorBean?.let { data.add(it) }
-            }else{
+            } else {
                 data.add(it)
             }
         }
@@ -437,10 +456,10 @@ class SketchPadContentView @JvmOverloads constructor(
             recyclerView.adapter = SketchPadFloorAdapter(floorList).apply {
                 addCheckedChangeListener {
                     data.forEachIndexed { index, sketchPadFloorBean ->
-                        if (sketchPadFloorBean==data[it]){
-                            sketchPadFloorBean.isChecked=!sketchPadFloorBean.isChecked
+                        if (sketchPadFloorBean == data[it]) {
+                            sketchPadFloorBean.isChecked = !sketchPadFloorBean.isChecked
 
-                        }else{
+                        } else {
                             sketchPadFloorBean.isChecked = false
                         }
                     }
@@ -448,34 +467,69 @@ class SketchPadContentView @JvmOverloads constructor(
                 }
             }
         }
-        ZXDialogUtil.showCustomViewDialog(context,"",view,{ dialog, which ->
+        ZXDialogUtil.showCustomViewDialog(context, "", view, { dialog, which ->
             isChange = true
-        },{dialog, which ->
+        }, { dialog, which ->
 
         }).apply {
             val layoutParams = window?.attributes
-            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+            layoutParams?.width = ZXScreenUtil.getScreenWidth() / 3
             layoutParams?.gravity = Gravity.RIGHT
             window?.attributes = layoutParams
         }
     }
 
     /**
+     * 显示尺寸
+     */
+    fun showSizeInfo(isCheck: Boolean) {
+        this.showMeters = isCheck
+        graphicList.forEach {
+            it.showMeters = isCheck
+        }
+        refreshGraphic()
+    }
+
+    /**
+     * 删除
+     */
+    fun deleteGraphic(id: UUID) {
+        graphicList.removeAll { it.id == id }
+        refreshGraphic()
+    }
+
+    /**
      * 保存图形
      */
     fun saveGraphicInfo(callBack: () -> Unit) {
-        val minPoint = graphicList.getMin()
-        val maxPoint = graphicList.getMax()
+        showSizeInfo(true)
+        showSite(true)
+        resetCenter()
+        val minPoint = getDrawMin()
+        val maxPoint = getDrawMax()
         val viewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         draw(Canvas(viewBitmap))
+        val ivDraw = ImageView(context)
+        ivDraw.setImageBitmap(viewBitmap)
+        ZXDialogUtil.showCustomViewDialog(
+            context,
+            "",
+            ivDraw
+        ) { dialog: DialogInterface?, which: Int ->
+
+        }
         val file = context.filesDir.path
         //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
         val s = "$file/sketch/draw.jpg"
         try {
-           Runnable {
-               viewBitmap.compress(Bitmap.CompressFormat.JPEG,100,FileOutputStream(ZXFileUtil.createNewFile(s)))
-           }.run()
-        }catch (e:FileNotFoundException){
+            Runnable {
+                viewBitmap.compress(
+                    Bitmap.CompressFormat.JPEG,
+                    100,
+                    FileOutputStream(ZXFileUtil.createNewFile(s))
+                )
+            }.run()
+        } catch (e: FileNotFoundException) {
         }
         callBack()
     }
@@ -505,14 +559,24 @@ class SketchPadContentView @JvmOverloads constructor(
     /**
      * 获取所有图形的左上角的点（x， y皆是最小点）
      */
-    private fun ArrayList<SketchPadGraphicBean>.getMin(): PointF {
+    private fun getDrawMin(): PointF {
         var minX: Float? = null
         var minY: Float? = null
-        forEach { bean ->
+        graphicList.forEach { bean ->
             bean.points.forEach {
                 minX = if (minX == null) (it.x + bean.offsetX) else min(minX!!, it.x + bean.offsetX)
                 minY = if (minY == null) (it.y + bean.offsetY) else min(minY!!, it.y + bean.offsetY)
             }
+        }
+        labelList.forEach { bean ->
+            minX = if (minX == null) (bean.pointF.x + bean.offsetX) else min(
+                minX!!,
+                bean.pointF.x + bean.offsetX
+            )
+            minY = if (minY == null) (bean.pointF.y + bean.offsetY) else min(
+                minY!!,
+                bean.pointF.y + bean.offsetY
+            )
         }
         if (minX == null || minY == null) {
             return PointF(0f, 0f)
@@ -523,14 +587,24 @@ class SketchPadContentView @JvmOverloads constructor(
     /**
      * 获取所有图形的左上角的点（x， y皆是最大点）
      */
-    private fun ArrayList<SketchPadGraphicBean>.getMax(): PointF {
+    private fun getDrawMax(): PointF {
         var maxX: Float? = null
         var maxY: Float? = null
-        forEach { bean ->
+        graphicList.forEach { bean ->
             bean.points.forEach {
                 maxX = if (maxX == null) (it.x + bean.offsetX) else max(maxX!!, it.x + bean.offsetX)
                 maxY = if (maxY == null) (it.y + bean.offsetY) else max(maxY!!, it.y + bean.offsetY)
             }
+        }
+        labelList.forEach { bean ->
+            maxX = if (maxX == null) (bean.pointF.x + bean.offsetX) else max(
+                maxX!!,
+                bean.pointF.x + bean.offsetX
+            )
+            maxY = if (maxY == null) (bean.pointF.y + bean.offsetY) else max(
+                maxY!!,
+                bean.pointF.y + bean.offsetY
+            )
         }
         if (maxX == null || maxY == null) {
             return PointF(0f, 0f)
@@ -566,6 +640,9 @@ class SketchPadContentView @JvmOverloads constructor(
         override fun onLongPress(event: MotionEvent) {
             graphicList.forEach {
                 if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
+                    graphicList.forEach {
+                        it.showMeters = false
+                    }
                     editGraphic = it
                     sketchPadListener?.graphicEdit(editGraphic!!)
                     invalidate()

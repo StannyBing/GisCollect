@@ -34,11 +34,12 @@
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true" />
+
     <com.stanny.sketchpad.view.SketchPadOperationView
         android:id="@+id/sketch_operation"
         android:layout_width="60dp"
-        android:visibility="gone"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:visibility="gone" />
 </RelativeLayout>

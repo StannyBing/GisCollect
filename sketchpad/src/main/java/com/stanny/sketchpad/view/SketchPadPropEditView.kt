@@ -75,6 +75,11 @@ class SketchPadPropEditView @JvmOverloads constructor(
             visibility = View.GONE
             sketchPadListener?.closeEdit()
         }
+        //删除
+        btn_propedit_delete.setOnClickListener {
+            sketchPadListener?.deleteGraphic(selectGraphic!!.id)
+            iv_propedit_close.performClick()
+        }
         //保存按钮
         btn_propedit_submit.setOnClickListener {
             selectGraphic?.setGraphicInfo(propEditList)

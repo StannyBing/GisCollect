@@ -45,7 +45,7 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
         setGraphicInfo(arrayListOf())
     }
 
-    fun drawSite(canvas: Canvas?){
+    fun drawSite(canvas: Canvas?) {
         val textPaint = Paint().apply {
             isAntiAlias = true
             style = Paint.Style.FILL
@@ -54,11 +54,9 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
             this.color = SketchPadConstant.graphicSiteColor
         }
         points.forEachIndexed { index, pointF ->
-            canvas?.drawText("JF${index+1}",pointF.x+offsetX,pointF.y+offsetY,textPaint)
+            canvas?.drawText("JF${index + 1}", pointF.x + offsetX, pointF.y + offsetY, textPaint)
         }
     }
-
-
 
 
     /**
@@ -94,8 +92,39 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
 
             }
         }
+        //显示米
+        if (showMeters) {
+            val meters = getGraphicMetreList(true)
+            points.forEachIndexed { index, it ->
+                val lastIndex = if (index + 1 < points.size) {
+                    index + 1
+                } else {
+                    0
+                }
+                val textPaint = Paint().apply {
+                    isAntiAlias = true
+                    style = Paint.Style.FILL
+                    strokeWidth = 5f
+                    textSize = 30f
+                    this.color = SketchPadConstant.graphicMarkNumColor
+                }
+                val textBounds = Rect()
+                textPaint.getTextBounds(
+                    meters[index].toString(),
+                    0,
+                    meters[index].toString().length,
+                    textBounds
+                )
+                canvas?.drawText(
+                    meters[index].toString(),
+                    (points[index].x + points[lastIndex].x) / 2 + offsetX - textBounds.width() / 2,
+                    (points[index].y + points[lastIndex].y) / 2 + offsetY + textBounds.height() / 2,
+                    textPaint
+                )
+            }
+        }
         //绘制标记
-        if (withMark) {
+        if (!showMeters && withMark) {
             points.forEachIndexed { index, it ->
                 if (graphicType == GraphicType.RECTANGE && index >= 2) {
                     return@forEachIndexed
@@ -125,26 +154,6 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
                 )
             }
         }
-        //显示米
-        if (showMeters) {
-            val meters = getGraphicMetreList()
-            points.forEachIndexed { index, it ->
-                val lastIndex = if (index + 1 < points.size) {
-                    index + 1
-                } else {
-                    0
-                }
-                val textPaint = Paint().apply {
-                    isAntiAlias = true
-                    style = Paint.Style.FILL
-                    strokeWidth = 5f
-                    textSize = 30f
-                    this.color = SketchPadConstant.graphicMarkNumColor
-                }
-                val textBounds = Rect()
-//                textPaint.getTextBounds(meters[index], 0, meters[index].length, textBounds)
-            }
-        }
     }
 
     /**
@@ -160,21 +169,23 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
     /**
      * 判断点是否在图形内
      */
-    fun isGraphicContainsPoint(x:Float,y: Float):Boolean{
-        return SketchPointTool.isPolygonContainsPoint(PointF(x-offsetX,y-offsetY),points)
+    fun isGraphicContainsPoint(x: Float, y: Float): Boolean {
+        return SketchPointTool.isPolygonContainsPoint(PointF(x - offsetX, y - offsetY), points)
     }
 
     /**
      * 获取图形的边长列表（米）
      */
-    fun getGraphicMetreList(): List<Float> {
+    fun getGraphicMetreList(getAll: Boolean = false): List<Float> {
         val metreList = arrayListOf<Float>()
         points.forEachIndexed { index, it ->
-            if (graphicType == GraphicType.RECTANGE && index >= 2) {
-                return@forEachIndexed
-            }
-            if (graphicType == GraphicType.SQUARE && index >= 1) {
-                return@forEachIndexed
+            if (!getAll) {
+                if (graphicType == GraphicType.RECTANGE && index >= 2) {
+                    return@forEachIndexed
+                }
+                if (graphicType == GraphicType.SQUARE && index >= 1) {
+                    return@forEachIndexed
+                }
             }
             val lastIndex = if (index + 1 < points.size) {
                 index + 1

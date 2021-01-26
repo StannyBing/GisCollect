@@ -1,27 +1,15 @@
 package com.stanny.sketchpad.view
 
 import android.content.Context
-import android.content.DialogInterface
-import android.graphics.PointF
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.AttributeSet
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.R
-import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
-import com.stanny.sketchpad.bean.SketchLabelBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.listener.SketchPadListener
-import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXScreenUtil
 import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.layout_sketchpad_view.view.*
+import java.util.*
 
 /**
  * 房屋画板主View
@@ -105,16 +93,25 @@ class SketchPadView @JvmOverloads constructor(
     /**
      * 显示界址
      */
-    override fun showSite() {
-        sketch_content.showSite()
+    override fun showSite(isCheck : Boolean) {
+        sketch_content.showSite(isCheck)
     }
 
     /**
      * 楼层设置
      */
-    override fun floorSetting() {
-        sketch_operation.visibility=View.VISIBLE
-        sketch_content.floorSetting()
+    override fun floorSetting(isCheck : Boolean) {
+        sketch_operation.visibility =
+            if (isCheck) View.VISIBLE else View.GONE
+        sketch_content.floorSetting(isCheck)
+    }
+
+    override fun showSizeInfo(checked: Boolean) {
+        sketch_content.showSizeInfo(checked)
+    }
+
+    override fun deleteGraphic(id: UUID) {
+        sketch_content.deleteGraphic(id)
     }
 
     override fun finish() {
