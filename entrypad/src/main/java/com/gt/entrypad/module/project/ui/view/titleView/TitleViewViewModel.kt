@@ -2,7 +2,8 @@ package com.gt.entrypad.module.project.ui.view.titleView
 
 import com.gt.entrypad.R
 import com.gt.base.viewModel.BaseCustomViewModel
+import java.io.Serializable
 
-class TitleViewViewModel(var title:String) : BaseCustomViewModel(resId = R.style.titleNormalText){
+class TitleViewViewModel(var title:String) : BaseCustomViewModel(resId = R.style.titleNormalText),Serializable{
 
 }

@@ -3,9 +3,10 @@ package com.gt.entrypad.module.project.ui.view.editText
 import android.text.Editable
 import android.text.TextWatcher
 import com.gt.base.viewModel.BaseCustomViewModel
+import java.io.Serializable
 
 class EditTextViewViewModel (var title:String="",var hint:String="",var inputContent:String="",var isRequired:Boolean=false,var requiredContent:String="",var isFocus:Boolean=false):
-    BaseCustomViewModel(){
+    BaseCustomViewModel(),Serializable{
 
     var textWatcher = object :TextWatcher{
        override fun afterTextChanged(p0: Editable?) {

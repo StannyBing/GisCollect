@@ -80,8 +80,13 @@ class InfoInputActivity : BaseActivity<InfoInputPresenter, InfoInputModel>(),Inf
             setData(TitleViewViewModel(getString(R.string.nextStep)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                    mSharedPrefUtil.putString("infoData",Gson().toJson(dataList))
-                    TakePhotoActivity.startAction(this@InfoInputActivity,false)
+                    var infoList = arrayListOf<String>()
+                    dataList.forEach {
+                        if (it.itemType==2){
+                            infoList.add((it.data as EditTextViewViewModel).inputContent)
+                        }
+                    }
+                    TakePhotoActivity.startAction(this@InfoInputActivity,false,infoList)
                 }
 
             })
