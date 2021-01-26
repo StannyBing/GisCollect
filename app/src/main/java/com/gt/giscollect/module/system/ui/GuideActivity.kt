@@ -91,16 +91,24 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         guideAdapter.setChildCall {
-            when {
-              //  it.itemName.contains("竣工") -> ProjectListActivity.startAction(this, false)
-                it.itemName.contains("草图") -> ProjectListActivity.startAction(this,false)
-                else -> {
-                    ConstStrings.appfuncList.clear()
-                    ConstStrings.appfuncList.addAll(it.appFuncs)
-                    ConstStrings.bussinessId = it.templateId ?: ""
-                    MainActivity.startAction(this, false)
-                }
+            if (it.itemName.contains("草图")){
+                ProjectListActivity.startAction(this,false)
+            }else{
+                ConstStrings.appfuncList.clear()
+                ConstStrings.appfuncList.addAll(it.appFuncs)
+                ConstStrings.bussinessId = it.templateId ?: ""
+                MainActivity.startAction(this, false)
             }
+//            when {
+//              //  it.itemName.contains("竣工") -> ProjectListActivity.startAction(this, false)
+//                it.itemName.contains("草图") -> ProjectListActivity.startAction(this,false)
+//                else -> {
+//                    ConstStrings.appfuncList.clear()
+//                    ConstStrings.appfuncList.addAll(it.appFuncs)
+//                    ConstStrings.bussinessId = it.templateId ?: ""
+//                    MainActivity.startAction(this, false)
+//                }
+//            }
 //            when (it.itemName) {
 //                "农房选址测绘", "农房地基测绘", "农房竣工测绘" -> {
 //                    ConstEntryStrings.bussinessId = getBussinessId(it.itemName)
