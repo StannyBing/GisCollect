@@ -54,7 +54,7 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
             this.color = SketchPadConstant.graphicSiteColor
         }
         points.forEachIndexed { index, pointF ->
-            canvas?.drawText("JF${index + 1}", pointF.x + offsetX, pointF.y + offsetY, textPaint)
+            canvas?.drawText("j$index", pointF.x + offsetX, pointF.y + offsetY, textPaint)
         }
     }
 
