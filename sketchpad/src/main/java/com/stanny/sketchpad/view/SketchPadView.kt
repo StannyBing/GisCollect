@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import com.stanny.sketchpad.R
+import com.stanny.sketchpad.bean.SketchPadFloorBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.zx.zxutils.util.ZXToastUtil
@@ -35,7 +36,7 @@ class SketchPadView @JvmOverloads constructor(
         sketch_func.sketchPadListener = this
         sketch_graphic.sketchPadListener = this
         sketch_propedit.sketchPadListener = this
-        sketch_operation.sketchPadListener = this
+        sketch_floor.sketchPadListener = this
     }
 
     /**
@@ -101,20 +102,21 @@ class SketchPadView @JvmOverloads constructor(
      * 楼层设置
      */
     override fun floorSetting(isCheck : Boolean) {
-        sketch_operation.visibility =
-            if (isCheck) View.VISIBLE else View.GONE
-        sketch_content.floorSetting(isCheck)
+       sketch_floor.editFloor()
     }
 
+    /**
+     * 点击图形
+     */
+    override fun floorEdit(sketchPadFloorBean: SketchPadFloorBean) {
+        sketch_content.floorEdit(sketchPadFloorBean)
+        ZXToastUtil.showToast("请点击图形")
+    }
     override fun showSizeInfo(checked: Boolean) {
         sketch_content.showSizeInfo(checked)
     }
 
     override fun deleteGraphic(id: UUID) {
         sketch_content.deleteGraphic(id)
-    }
-
-    override fun finish() {
-        sketch_content.finish()
     }
 }

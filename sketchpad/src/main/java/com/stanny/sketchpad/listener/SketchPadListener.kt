@@ -1,6 +1,7 @@
 package com.stanny.sketchpad.listener
 
 import android.graphics.PointF
+import com.stanny.sketchpad.bean.SketchPadFloorBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import java.util.*
 
@@ -24,7 +25,7 @@ interface SketchPadListener {
 
     fun floorSetting(isCheck: Boolean)
 
-    fun finish()
+    fun floorEdit(sketchPadFloorBean: SketchPadFloorBean)
 
     fun showSizeInfo(checked: Boolean)
 

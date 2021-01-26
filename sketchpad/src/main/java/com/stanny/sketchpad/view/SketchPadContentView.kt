@@ -59,15 +59,12 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var graphicList = arrayListOf<SketchPadGraphicBean>()
     private var labelList = arrayListOf<SketchPadLabelBean>()
-    private var floorList = arrayListOf<SketchPadFloorBean>() //点击修改数据
 
     private var drawLabel = false//开启标注绘制
     private var drawSite = false //界址
-    private var drawFloor = false //楼层
     private var showMeters: Boolean = false//尺寸
-    private var selectFloorBean: SketchPadFloorBean? = null
-    private var isChange = false
-
+    private var drawHighlight = false//是否高亮
+    private var sketchPadFloorBean:SketchPadFloorBean?=null
     init {
         setWillNotDraw(false)
 
@@ -156,13 +153,10 @@ class SketchPadContentView @JvmOverloads constructor(
                 it.drawSite(canvas)
             }
         }
-        floorList.forEach {
-            //如果包含某一个
-            if (it == selectFloorBean) {
-                it.drawFill(canvas, SketchPadConstant.graphicTransparentColor)
-            } else {
-                it.drawFill(canvas)
-            }
+        //高亮显示
+        if (drawHighlight){
+            sketchPadFloorBean?.drawFill(canvas)
+            drawHighlight = false
         }
         canvas?.restore()
     }
@@ -204,29 +198,11 @@ class SketchPadContentView @JvmOverloads constructor(
                         return@forEach
                     }
                 }
-                if (isChange) {
-                    floorList.forEach {
-                        if (it.isFloorInTouch(event.x - contentTransX, event.y - contentTransY)) {
-                            selectFloorBean = it
-                            return@forEach
-                        }
-                    }
-                    isChange = false
-                    return true
-                }
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
-                        if (drawFloor) {
-                            //楼层
-                            floorList.add(
-                                SketchPadFloorBean(
-                                    System.currentTimeMillis().toString(),
-                                    "${floorList.size + 1}楼",
-                                    "",
-                                    it
-                                )
-                            )
+                        if (drawHighlight){
+                            sketchPadFloorBean?.sketchList?.toMutableList()?.add(selectGraphic!!)
                             refreshGraphic()
                         }
                         return@forEach
@@ -253,7 +229,7 @@ class SketchPadContentView @JvmOverloads constructor(
         //TODO 双指缩放 隐藏
 //        selectGraphic == null && !scaleGestureDetector.onTouchEvent(event) && return true
         //单指移动 标注不允许移动
-        if (!drawLabel && !drawFloor) !gestureListener.onTouchEvent(event) && return true
+        if (!drawLabel&&!drawHighlight) !gestureListener.onTouchEvent(event) && return true
         return false
     }
 
@@ -431,53 +407,6 @@ class SketchPadContentView @JvmOverloads constructor(
         invalidate()
     }
 
-    fun floorSetting(open: Boolean) {
-        drawFloor = open
-        ZXToastUtil.showToast("请点击图形选择楼层")
-    }
-
-    /**
-     * 完成操作
-     */
-    fun finish() {
-        val data = arrayListOf<SketchPadFloorBean>()
-        floorList.forEach {
-            if (it == selectFloorBean) {
-                selectFloorBean?.let { data.add(it) }
-            } else {
-                data.add(it)
-            }
-        }
-        floorList.clear()
-        floorList.addAll(data)
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog, null).apply {
-            val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-            recyclerView.layoutManager = LinearLayoutManager(context)
-            recyclerView.adapter = SketchPadFloorAdapter(floorList).apply {
-                addCheckedChangeListener {
-                    data.forEachIndexed { index, sketchPadFloorBean ->
-                        if (sketchPadFloorBean == data[it]) {
-                            sketchPadFloorBean.isChecked = !sketchPadFloorBean.isChecked
-
-                        } else {
-                            sketchPadFloorBean.isChecked = false
-                        }
-                    }
-                    notifyDataSetChanged()
-                }
-            }
-        }
-        ZXDialogUtil.showCustomViewDialog(context, "", view, { dialog, which ->
-            isChange = true
-        }, { dialog, which ->
-
-        }).apply {
-            val layoutParams = window?.attributes
-            layoutParams?.width = ZXScreenUtil.getScreenWidth() / 3
-            layoutParams?.gravity = Gravity.RIGHT
-            window?.attributes = layoutParams
-        }
-    }
 
     /**
      * 显示尺寸
@@ -498,6 +427,13 @@ class SketchPadContentView @JvmOverloads constructor(
         refreshGraphic()
     }
 
+    /**
+     * 楼层编辑
+     */
+    fun floorEdit(sketchPadFloorBean: SketchPadFloorBean){
+        this.sketchPadFloorBean = sketchPadFloorBean
+        drawHighlight = true
+    }
     /**
      * 保存图形
      */

@@ -20,6 +20,9 @@ class SketchPadFloorAdapter(data:List<SketchPadFloorBean>) :ZXRecyclerQuickAdapt
                 checkedChangeListener(helper.adapterPosition)
             }
         }
+        helper.itemView. setOnClickListener {
+            checkedChangeListener(helper.adapterPosition)
+        }
     }
 
     fun addCheckedChangeListener( checkedChangeListener:(Int)->Unit={position->}){
