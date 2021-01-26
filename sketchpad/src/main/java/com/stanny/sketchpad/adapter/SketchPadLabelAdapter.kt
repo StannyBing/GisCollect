@@ -13,10 +13,10 @@ class SketchPadLabelAdapter(data:List<SketchLabelBean>) :ZXRecyclerQuickAdapter<
     override fun quickConvert(helper: ZXBaseHolder, item: SketchLabelBean) {
         helper.setText(R.id.itemContentTv,item.value)
         helper.getView<CheckBox>(R.id.itemLabelCb).apply {
-            setOnCheckedChangeListener { buttonView, isChecked ->
-                item.isChecked=isChecked
-                if (item.isChecked)checkedChangeListener(helper.adapterPosition)
-            }
+            isChecked = item.isChecked
+           setOnClickListener {
+               checkedChangeListener(helper.adapterPosition)
+           }
         }
     }
 

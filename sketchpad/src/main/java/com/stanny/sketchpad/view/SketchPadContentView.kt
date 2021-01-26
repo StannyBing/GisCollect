@@ -4,21 +4,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.*
-import android.os.Environment
 import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.R
+import com.stanny.sketchpad.adapter.SketchPadFloorAdapter
 import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
 import com.stanny.sketchpad.bean.SketchLabelBean
 import com.stanny.sketchpad.bean.SketchPadFloorBean
@@ -26,12 +21,9 @@ import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
-import com.stanny.sketchpad.tool.SketchPointTool
 import com.zx.zxutils.util.*
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import kotlin.math.max
 import kotlin.math.min
@@ -71,7 +63,7 @@ class SketchPadContentView @JvmOverloads constructor(
     private var drawLabel = false//开启标注绘制
     private var drawSite = false //界址
     private var drawFloor= false //楼层
-
+    private var selectFloorBean:SketchPadFloorBean?=null
     init {
         setWillNotDraw(false)
 
@@ -161,12 +153,11 @@ class SketchPadContentView @JvmOverloads constructor(
            }
         }
         floorList.forEach {
-           /* if (it.sketchPadGraphicBean==selectGraphic){
+            if (it==selectFloorBean){
                 it.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
             }else{
-
-            }*/
-            it.drawFill(canvas)
+                it.drawFill(canvas)
+            }
         }
         canvas?.restore()
     }
@@ -247,7 +238,15 @@ class SketchPadContentView @JvmOverloads constructor(
         recyclerView.adapter = SketchPadLabelAdapter(data).apply {
             addCheckedChangeListener {
                 val list = data as ArrayList<SketchLabelBean>
-                content = list[it].value
+                list.forEachIndexed { index, sketchLabelBean ->
+                    if (sketchLabelBean==list[it]){
+                        content = sketchLabelBean.value
+                        sketchLabelBean.isChecked=!sketchLabelBean.isChecked
+                    }else{
+                        sketchLabelBean.isChecked = false
+                    }
+                }
+                notifyDataSetChanged()
             }
         }
             ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
@@ -325,7 +324,15 @@ class SketchPadContentView @JvmOverloads constructor(
         recyclerView.adapter = SketchPadLabelAdapter(showOutData()).apply {
             addCheckedChangeListener {
                 val list = data as ArrayList<SketchLabelBean>
-                content = list[it].value
+                list.forEachIndexed { index, sketchLabelBean ->
+                    if (sketchLabelBean==list[it]){
+                        content = sketchLabelBean.value
+                        sketchLabelBean.isChecked=!sketchLabelBean.isChecked
+                    }else{
+                        sketchLabelBean.isChecked = false
+                    }
+                }
+                notifyDataSetChanged()
             }
         }
         ZXDialogUtil.showCustomViewDialog(context,"",view,{dialog, which ->
@@ -405,7 +412,42 @@ class SketchPadContentView @JvmOverloads constructor(
      * 完成操作
      */
     fun finish(){
-        ZXToastUtil.showToast("完成")
+        val data = arrayListOf<SketchPadFloorBean>()
+        floorList.forEach {
+            if (it==selectFloorBean){
+                selectFloorBean?.let { data.add(it) }
+            }else{
+                data.add(it)
+            }
+        }
+        floorList.clear()
+        floorList.addAll(data)
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_label_dialog, null).apply {
+            val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.adapter = SketchPadFloorAdapter(floorList).apply {
+                addCheckedChangeListener {
+                    data.forEachIndexed { index, sketchPadFloorBean ->
+                        if (sketchPadFloorBean==data[it]){
+                            sketchPadFloorBean.isChecked=!sketchPadFloorBean.isChecked
+                        }else{
+                            sketchPadFloorBean.isChecked = false
+                        }
+                    }
+                    notifyDataSetChanged()
+                }
+            }
+        }
+        ZXDialogUtil.showCustomViewDialog(context,"",view,{ dialog, which ->
+
+        },{dialog, which ->
+
+        }).apply {
+            val layoutParams = window?.attributes
+            layoutParams?.width = ZXScreenUtil.getScreenWidth()/3
+            layoutParams?.gravity = Gravity.RIGHT
+            window?.attributes = layoutParams
+        }
     }
 
     /**
