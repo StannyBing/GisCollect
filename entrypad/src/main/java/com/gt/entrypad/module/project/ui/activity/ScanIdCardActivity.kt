@@ -22,6 +22,7 @@ import com.baidu.ocr.sdk.model.IDCardResult
 import com.baidu.ocr.ui.camera.CameraActivity
 import com.baidu.ocr.ui.camera.CameraNativeHelper
 import com.baidu.ocr.ui.camera.CameraView
+import com.google.gson.Gson
 import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -209,6 +210,8 @@ class ScanIdCardActivity : BaseActivity<ScanIdCardPresenter, ScanIdCardModel>(),
                        add(IDCardInfoBean(data = IdCardViewViewModel("公民身份证号码",it.idNumber.toString())))
 
                    }
+                   //保存用户身份信息
+                   mSharedPrefUtil.putString("cardInfo", Gson().toJson(cardData))
                }
             }
 
