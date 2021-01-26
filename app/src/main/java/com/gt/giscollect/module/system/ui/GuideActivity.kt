@@ -92,8 +92,8 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
 
         guideAdapter.setChildCall {
             when {
-                it.itemName.contains("竣工") -> ProjectListActivity.startAction(this, false)
-                it.itemName.contains("草图") -> DrawSketchActivity.startAction(this,false)
+              //  it.itemName.contains("竣工") -> ProjectListActivity.startAction(this, false)
+                it.itemName.contains("草图") -> ProjectListActivity.startAction(this,false)
                 else -> {
                     ConstStrings.appfuncList.clear()
                     ConstStrings.appfuncList.addAll(it.appFuncs)

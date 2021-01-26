@@ -38,6 +38,7 @@ import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
 import kotlinx.android.synthetic.main.activity_info_input.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1
+import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -52,8 +53,9 @@ class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),Tak
         /**
          * 启动器
          */
-        fun startAction(activity: Activity, isFinish: Boolean) {
+        fun startAction(activity: Activity, isFinish: Boolean,data:ArrayList<String>) {
             val intent = Intent(activity, TakePhotoActivity::class.java)
+            intent.putExtra("infoData",data)
             activity.startActivity(intent)
             if (isFinish) activity.finish()
         }
@@ -82,10 +84,7 @@ class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),Tak
             setData(TitleViewViewModel(getString(R.string.nextStep)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                    //信息上传
-                    ZXDialogUtil.showYesNoDialog(mContext,"提示","确认上传?",DialogInterface.OnClickListener { dialog, which ->
-                        uploadInfo()
-                    })
+                   DrawSketchActivity.startAction(this@TakePhotoActivity,false,photoList,if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData")as ArrayList<String> else arrayListOf())
                 }
 
             })
@@ -161,29 +160,5 @@ class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),Tak
             }
             photoAdapter.notifyDataSetChanged()
         }
-    }
-
-    /**
-     * 上传填写信息
-     */
-    private fun uploadInfo(){
-        val infoData = mSharedPrefUtil.getString("infoData")
-        var fileData = arrayListOf<String>()
-        var inputInfoData:List<InputInfoBean>?=null
-        if (infoData.isNotEmpty()){
-            inputInfoData = Gson().fromJson<List<InputInfoBean>>(infoData,object : TypeToken<List<InputInfoBean>>(){}.type)
-        }
-        //获取文件信息
-        photoList.forEach {
-            fileData.add(it.url)
-        }
-        mPresenter.uploadInfo(inputInfoData,fileData)
-    }
-
-    /**
-     * 上传回调接口
-     */
-    override fun uploadResult(uploadResult: String?) {
-        Log.e("fdfdf","${uploadResult?:"是viu"}")
     }
 }

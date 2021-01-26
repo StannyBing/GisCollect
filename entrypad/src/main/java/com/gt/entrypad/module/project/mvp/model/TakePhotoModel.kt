@@ -16,12 +16,7 @@ import rx.Observable
  * 功能：
  */
 class TakePhotoModel : BaseModel(), TakePhotoContract.Model{
-    override fun uploadInfo(body: RequestBody): Observable<String> {
-        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
-            .uploadInfo(body)
-            .compose(RxHelper.handleResult())
-            .compose(RxSchedulers.io_main())
-    }
+
 
 
 }
