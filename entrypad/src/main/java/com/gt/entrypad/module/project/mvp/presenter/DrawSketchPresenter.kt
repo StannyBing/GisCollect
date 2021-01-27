@@ -23,7 +23,7 @@ class DrawSketchPresenter : DrawSketchContract.Presenter() {
 
     override fun uploadInfo(info: List<String>?, files: List<String>,tplName:String) {
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
-        if (!info.isNullOrEmpty()&&info.size==28){
+        if (!info.isNullOrEmpty()&&info.size==26){
             builder.addFormDataPart("txt2",info[0])
             builder.addFormDataPart("xb",info[1])
             builder.addFormDataPart("sfzh",info[2])
@@ -42,8 +42,8 @@ class DrawSketchPresenter : DrawSketchContract.Presenter() {
             builder.addFormDataPart("txt17",info[20] )
             builder.addFormDataPart("txt19",info[21] )
             builder.addFormDataPart("txt18",info[22] )
-            builder.addFormDataPart("txt20",info[23] )
-            builder.addFormDataPart("txt21",info[26] )
+            builder.addFormDataPart("txt20",info[24] )
+            builder.addFormDataPart("txt21",info[25] )
             builder.addFormDataPart("tplName",tplName)
         }
 
