@@ -20,9 +20,13 @@ import com.gt.entrypad.module.project.mvp.model.DrawSketchModel
 import com.gt.entrypad.module.project.mvp.presenter.DrawSketchPresenter
 import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
+import com.gt.entrypad.tool.CopyAssetsToSd
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXSystemUtil
+import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
 import kotlinx.android.synthetic.main.layout_tool_bar.*
+import java.io.File
 
 @Route(path =RouterPath.DRAW_SKETCH)
 class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),DrawSketchContract.View{
@@ -63,7 +67,23 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     }
                     //信息上传
                     ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList,DialogInterface.OnClickListener { dialog, which ->
-                        uploadInfo(arrayList[which])
+                        //uploadInfo(arrayList[which])
+                        when(arrayList[which]){
+                            "房屋图.docx"->{
+                               CopyAssetsToSd.copy(mContext,"房屋图.docx",ZXSystemUtil.getSDCardPath()+"/fangwu","fangwu.docx")
+                               ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/fangwu/fangwu.docx"}"))
+                            }
+                            "宗地图.docx"->{
+                                CopyAssetsToSd.copy(mContext,"宗地图.docx",ZXSystemUtil.getSDCardPath()+"/zongdi","zongdi.docx")
+                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/zongdi/zongdi.docx"}"))
+
+                            }
+                            "渝北现场查勘表.docx"->{
+                                CopyAssetsToSd.copy(mContext,"渝北现场查勘表app.docx",ZXSystemUtil.getSDCardPath()+"/chankan","chankan.docx")
+                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/chankan/chankan.docx"}"))
+
+                            }
+                        }
                     },DialogInterface.OnClickListener { dialog, which ->
 
                     })
@@ -106,4 +126,5 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
     override fun uploadResult(uploadResult: String?) {
         ResultShowActivity.startAction(this,false)
     }
+
 }
