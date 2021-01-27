@@ -212,6 +212,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                             } else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
                                     "itemName"
                                 ))
+//                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
+//                                    "itemName"
+//                                ))
                             ) {
                                 checkCount++
                                 GeoPackageTool.getFeatureFromGpkgWithNull(obj.getString("itemName")) { layer2 ->
@@ -263,22 +266,24 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 }
                 features.forEach {
                     //获取裁剪的 feature
-                    val cutGeometry =
-                        GeometryEngine.intersection(it.geometry, sketchEditor.geometry)
-                    if (cutGeometry != null && cutGeometry.geometryType == checkGemetry!!.geometryType) {
-                        //被裁减部分
-                        when (cutGeometry.geometryType) {
-                            GeometryType.POLYLINE -> {
-                                overlayBean.value =
-                                    (overlayBean.value as Double) + GeometrySizeTool.getLength(
-                                        cutGeometry
-                                    ).toDouble()
-                            }
-                            GeometryType.POLYGON -> {
-                                overlayBean.value =
-                                    (overlayBean.value as Double) + GeometrySizeTool.getArea(
-                                        cutGeometry
-                                    ).toDouble()
+                    if (it.geometry != null && sketchEditor.geometry != null) {
+                        val cutGeometry =
+                            GeometryEngine.intersection(it.geometry, sketchEditor.geometry)
+                        if (cutGeometry != null && cutGeometry.geometryType == checkGemetry!!.geometryType) {
+                            //被裁减部分
+                            when (cutGeometry.geometryType) {
+                                GeometryType.POLYLINE -> {
+                                    overlayBean.value =
+                                        (overlayBean.value as Double) + GeometrySizeTool.getLength(
+                                            cutGeometry
+                                        ).toDouble()
+                                }
+                                GeometryType.POLYGON -> {
+                                    overlayBean.value =
+                                        (overlayBean.value as Double) + GeometrySizeTool.getArea(
+                                            cutGeometry
+                                        ).toDouble()
+                                }
                             }
                         }
                     }
@@ -798,7 +803,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                }
 
                 featureAdapter.notifyItemInserted(startNum)
-                tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
+                tv_collect_feature_title.text =
+                    "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
             }
             //                }
             tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"

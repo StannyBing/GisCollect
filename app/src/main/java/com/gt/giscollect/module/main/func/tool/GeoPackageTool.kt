@@ -36,39 +36,39 @@ object GeoPackageTool {
     }
 
     fun getFeatureFromGpkgWithNull(name: String, featureCall: (FeatureLayer?) -> Unit) {
-        val geoPackages = getGpkgs(ConstStrings.getInnerLocalMapPath())
-        if (geoPackages.isEmpty()) {
+        val geoPackage = getGpkg(ConstStrings.getInnerLocalMapPath())
+        if (geoPackage == null) {
             featureCall(null)
             return
         }
-        geoPackages.forEach { geoPackage ->
-            geoPackage.loadAsync()
-            geoPackage.addDoneLoadingListener {
-                if (geoPackage.loadStatus == LoadStatus.LOADED) {
-                    val gepTables = geoPackage.geoPackageFeatureTables
-                    var hasSameLayer = false
-                    gepTables.forEach {
-                        if (it != null) {
-                            val featureLayer = FeatureLayer(it)
+//        geoPackages.forEach { geoPackage ->
+        geoPackage.loadAsync()
+        geoPackage.addDoneLoadingListener {
+            if (geoPackage.loadStatus == LoadStatus.LOADED) {
+                val gepTables = geoPackage.geoPackageFeatureTables
+                var hasSameLayer = false
+                gepTables.forEach {
+                    if (it != null) {
+                        val featureLayer = FeatureLayer(it)
 //                        UniqueValueRenderer.fromJson()
 //                        featureLayer.renderer = Renderer.fromJson()
-                            ZXLogUtil.loge("name:${name},  layerName:${featureLayer.name}, tableName:${featureLayer.featureTable.tableName}")
-                            if (name == featureLayer.name) {
-                                hasSameLayer = true
-                                featureLayer.loadAsync()
-                                featureLayer.addDoneLoadingListener {
-                                    featureCall(featureLayer)
-//                                return@forEach
-                                }
+                        if (name == featureLayer.name) {
+                            hasSameLayer = true
+                            featureLayer.loadAsync()
+                            featureLayer.addDoneLoadingListener {
+                                featureCall(featureLayer)
                             }
                         }
-                        if (!hasSameLayer) {
-                            featureCall(null)
-                        }
                     }
+//                    if (!hasSameLayer) {
+//                        featureCall(null)
+//                    }
                 }
+            }else{
+                featureCall(null)
             }
         }
+//        }
     }
 
     val shipList = arrayListOf(
