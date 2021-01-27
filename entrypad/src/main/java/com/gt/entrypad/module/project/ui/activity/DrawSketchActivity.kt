@@ -59,7 +59,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     val arrayList = arrayListOf<String>().apply {
                         add("房屋图.docx")
                         add("宗地图.docx")
-                        add("现场查勘表app.docx")
+                        add("渝北现场查勘表.docx")
                     }
                     //信息上传
                     ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList,DialogInterface.OnClickListener { dialog, which ->
