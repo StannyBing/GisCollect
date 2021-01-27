@@ -56,11 +56,17 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
             setData(TitleViewViewModel(getString(R.string.submit)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    val arrayList = arrayListOf<String>().apply {
+                        add("房屋图.docx")
+                        add("宗地图.docx")
+                        add("现场查勘表app.docx")
+                    }
                     //信息上传
-                    ZXDialogUtil.showYesNoDialog(mContext,"提示","确认上传?",
-                        DialogInterface.OnClickListener { dialog, which ->
-                            uploadInfo()
-                        })
+                    ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList,DialogInterface.OnClickListener { dialog, which ->
+                        uploadInfo(arrayList[which])
+                    },DialogInterface.OnClickListener { dialog, which ->
+
+                    })
                 }
 
             })
@@ -80,7 +86,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
     /**
      * 上传填写信息
      */
-    private fun uploadInfo(){
+    private fun uploadInfo(tplName:String){
         var fileData = arrayListOf<String>()
         val photoList = intent?.getSerializableExtra("photoData") as ArrayList<PhotoViewViewModel>
         var infoData = if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData") as ArrayList<String> else arrayListOf()
@@ -91,7 +97,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         //获取草图
         val sketch = mContext.filesDir.path + "/sketch/draw.jpg"
         if (ZXFileUtil.isFileExists(sketch)) fileData.add(sketch)
-        mPresenter.uploadInfo(infoData,fileData)
+        mPresenter.uploadInfo(infoData,fileData,tplName)
     }
 
     /**

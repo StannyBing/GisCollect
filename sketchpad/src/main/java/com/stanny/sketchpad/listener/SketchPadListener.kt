@@ -4,6 +4,7 @@ import android.graphics.PointF
 import com.stanny.sketchpad.bean.SketchPadFloorBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import java.util.*
+import kotlin.collections.ArrayList
 
 interface SketchPadListener {
 
@@ -26,6 +27,8 @@ interface SketchPadListener {
     fun floorSetting(isCheck: Boolean)
 
     fun floorEdit(sketchPadFloorBean: SketchPadFloorBean)
+
+    fun saveFloor(sketchPadFloorBean: SketchPadFloorBean)
 
     fun showSizeInfo(checked: Boolean)
 

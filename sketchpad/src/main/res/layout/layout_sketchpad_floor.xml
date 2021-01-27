@@ -29,13 +29,28 @@
             android:text="楼层"
             android:textColor="@color/colorPrimary"
             android:textSize="16sp" />
-
+        <ImageView
+            android:id="@+id/floorBackIv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:padding="12dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/icon_graphic_back"/>
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/floorRv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/floorGraphicRv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
         android:layout_weight="1" />
     <LinearLayout
         android:layout_width="match_parent"

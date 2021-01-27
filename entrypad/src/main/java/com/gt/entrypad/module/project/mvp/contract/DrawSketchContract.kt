@@ -24,7 +24,7 @@ interface DrawSketchContract {
 	
 	//方法
 	abstract class Presenter : BasePresenter<View, Model>(){
-        abstract fun uploadInfo(info: List<String>?, files:List<String>)
+        abstract fun uploadInfo(info: List<String>?, files:List<String>,tplName:String)
 
     }
 }

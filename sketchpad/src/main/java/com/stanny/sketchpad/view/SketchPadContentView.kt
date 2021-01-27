@@ -7,11 +7,13 @@ import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.stanny.sketchpad.R
 import com.stanny.sketchpad.adapter.SketchPadFloorAdapter
 import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
@@ -155,8 +157,19 @@ class SketchPadContentView @JvmOverloads constructor(
         }
         //高亮显示
         if (drawHighlight){
-            sketchPadFloorBean?.drawFill(canvas)
-            drawHighlight = false
+            val sketchList = sketchPadFloorBean?.sketchList
+            var tempSketchList = sketchList?.filter { it.id==selectGraphic?.id }
+            if (!tempSketchList.isNullOrEmpty()){
+                selectGraphic?.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
+                sketchPadFloorBean?.sketchList?.remove(selectGraphic)
+            }else{
+                selectGraphic?.drawFill(canvas)
+                selectGraphic?.let { sketchList?.add(it) }
+            }
+            //保存图层信息
+            sketchPadFloorBean?.let {
+                sketchPadListener?.saveFloor(it)
+            }
         }
         canvas?.restore()
     }
@@ -202,7 +215,6 @@ class SketchPadContentView @JvmOverloads constructor(
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
                         if (drawHighlight){
-                            sketchPadFloorBean?.sketchList?.toMutableList()?.add(selectGraphic!!)
                             refreshGraphic()
                         }
                         return@forEach

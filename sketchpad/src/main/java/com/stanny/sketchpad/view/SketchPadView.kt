@@ -2,6 +2,7 @@ package com.stanny.sketchpad.view
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import com.stanny.sketchpad.R
@@ -111,6 +112,13 @@ class SketchPadView @JvmOverloads constructor(
     override fun floorEdit(sketchPadFloorBean: SketchPadFloorBean) {
         sketch_content.floorEdit(sketchPadFloorBean)
         ZXToastUtil.showToast("请点击图形")
+    }
+
+    /**
+     * 保存添加的图层信息
+     */
+    override fun saveFloor(sketchPadFloorBean: SketchPadFloorBean) {
+       sketch_floor.insertFloorGraphic(sketchPadFloorBean)
     }
     override fun showSizeInfo(checked: Boolean) {
         sketch_content.showSizeInfo(checked)

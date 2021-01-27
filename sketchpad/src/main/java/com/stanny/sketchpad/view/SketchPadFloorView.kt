@@ -6,20 +6,25 @@ import android.content.Context.VIBRATOR_SERVICE
 import android.graphics.Color
 import android.os.Vibrator
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.animation.TranslateAnimation
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.stanny.sketchpad.R
 import com.stanny.sketchpad.adapter.SketchPadFloorAdapter
+import com.stanny.sketchpad.adapter.SketchPadFloorGraphicAdapter
 import com.stanny.sketchpad.adapter.SketchPadGraphicAdapter
 import com.stanny.sketchpad.adapter.SketchPadPropEditAdapter
 import com.stanny.sketchpad.bean.SketchPadFloorBean
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.zx.zxutils.util.ZXScreenUtil
+import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXSystemUtil
+import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.layout_sketchpad_floor.view.*
 import kotlinx.android.synthetic.main.layout_sketchpad_propedit.view.*
 
@@ -36,6 +41,9 @@ class SketchPadFloorView @JvmOverloads constructor(
     var sketchPadListener: SketchPadListener? = null
     private var floorData = arrayListOf<SketchPadFloorBean>()
     private var floorAdapter = SketchPadFloorAdapter(floorData)
+
+    private var floorGraphicData = arrayListOf<SketchPadGraphicBean>()
+    private var floorGraphicAdapter = SketchPadFloorGraphicAdapter(floorGraphicData)
     init {
         setWillNotDraw(false)
 
@@ -57,16 +65,25 @@ class SketchPadFloorView @JvmOverloads constructor(
             layoutManager = LinearLayoutManager(context)
             adapter = floorAdapter
         }
+        floorGraphicRv.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = floorGraphicAdapter
+        }
         floorAdapter.addCheckedChangeListener {position->
             floorData.forEach {
                 if (it==floorData[position]){
                     it.isChecked = !it.isChecked
                     sketchPadListener?.floorEdit(it)
+                    titleFloorTv.text =it.name
                 }else{
                     it.isChecked =false
                 }
             }
             floorAdapter.notifyDataSetChanged()
+            floorBackIv.visibility = View.VISIBLE
+            floorGraphicRv.visibility=View.VISIBLE
+            floorRv.visibility=View.GONE
+            floorAddBtn.text="保存"
         }
         initData()
     }
@@ -83,8 +100,21 @@ class SketchPadFloorView @JvmOverloads constructor(
         }
         //添加
         floorAddBtn.setOnClickListener {
-            floorData.add(floorData.size, SketchPadFloorBean(name = "${floorData.size+1}楼",sketchList = arrayListOf()))
-            floorAdapter.notifyDataSetChanged()
+            if (floorRv.visibility==View.VISIBLE){
+                floorData.add(floorData.size, SketchPadFloorBean(name = "${floorData.size+1}楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
+                floorAdapter.notifyDataSetChanged()
+            }else{
+                ZXSharedPrefUtil().putString("floorGraphicList",Gson().toJson(floorGraphicData))
+                ZXToastUtil.showToast("保存成功")
+            }
+        }
+        //返回 更换数据
+        floorBackIv.setOnClickListener {
+            floorBackIv.visibility = View.GONE
+            floorGraphicRv.visibility=View.GONE
+            floorRv.visibility=View.VISIBLE
+            titleFloorTv.text ="楼层"
+            floorAddBtn.text="添加"
         }
     }
 
@@ -102,13 +132,23 @@ class SketchPadFloorView @JvmOverloads constructor(
     }
 
     /**
+     * 保存添加楼层下的图形信息
+     */
+    fun insertFloorGraphic(sketchPadFloorBean: SketchPadFloorBean){
+        floorGraphicData.clear()
+        floorGraphicData.addAll(sketchPadFloorBean.sketchList)
+        floorGraphicAdapter.notifyDataSetChanged()
+    }
+
+
+    /**
      * 默认初始化数据 三层
      */
     private fun initData(){
         floorData.apply {
-            add(SketchPadFloorBean(name = "1楼",sketchList = arrayListOf()))
-            add(SketchPadFloorBean(name = "2楼",sketchList = arrayListOf()))
-            add(SketchPadFloorBean(name = "3楼",sketchList = arrayListOf()))
+            add(SketchPadFloorBean(name = "1楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
+            add(SketchPadFloorBean(name = "2楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
+            add(SketchPadFloorBean(name = "3楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
         }
     }
     fun dismiss(){

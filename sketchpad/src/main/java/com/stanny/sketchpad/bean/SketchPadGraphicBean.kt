@@ -15,7 +15,7 @@ import kotlin.math.*
 /**
  * 图形构造类
  */
-data class SketchPadGraphicBean(var graphicType: GraphicType) {
+data class SketchPadGraphicBean(var graphicType: GraphicType,var isChecked:Boolean=false) {
 
     enum class GraphicType {
         RECTANGE,//矩形
@@ -58,6 +58,34 @@ data class SketchPadGraphicBean(var graphicType: GraphicType) {
         }
     }
 
+    /**
+     * 绘制图形填充颜色
+     * @param canvas 画笔
+     * @param color 颜色
+     */
+    fun drawFill(canvas: Canvas?,@ColorInt color: Int= SketchPadConstant.graphicFillColor){
+        //绘制图形
+        val fillPaint = Paint().apply {
+            style = Paint.Style.FILL
+            this.color =color
+            isAntiAlias = true
+        }
+        val path = Path().apply {
+            val points = points
+            val offsetX = offsetX ?: 0f
+            val offsetY = offsetY ?: 0f
+            points?.forEachIndexed { index, it ->
+                if (index == 0) {
+                    moveTo(it.x + offsetX, it.y + offsetY)
+                } else {
+                    lineTo(it.x + offsetX, it.y + offsetY)
+                }
+            }
+            close()
+        }
+        canvas?.drawPath(path, fillPaint)
+
+    }
 
     /**
      * 根据类型绘制图形
