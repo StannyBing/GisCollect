@@ -24,6 +24,7 @@ import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
 import com.zx.zxutils.util.*
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.util.*
@@ -464,7 +465,7 @@ class SketchPadContentView @JvmOverloads constructor(
             "",
             ivDraw
         ) { dialog: DialogInterface?, which: Int ->
-
+            ZXBitmapUtil.bitmapToFile(viewBitmap, File(ZXSystemUtil.getSDCardPath() + "test.jpg"))
         }
         val file = context.filesDir.path
         //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
