@@ -8,6 +8,7 @@ import com.frame.zxmvp.http.AppDelegate
 import com.frame.zxmvp.http.GlobalHttpHandler
 import com.frame.zxmvp.integration.ConfigModule
 import com.frame.zxmvp.integration.IRepositoryManager
+import com.gt.entrypad.app.ConstString
 import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import okhttp3.Interceptor
@@ -52,6 +53,20 @@ class ApiConfigModule : ConfigModule {
                         ZXLogUtil.loge("Response : ${url.substring(url.lastIndexOf("/") + 1)} : $httpResult")
                         if (httpResult.contains("<!DOCTYPE html>")) {
                             RxManager().post("do_relogin", true)
+                        }
+                    }
+                    if (ConstString.Cookie.isEmpty()) {
+//                            ZXSharedPrefUtil().putString("request_list", "")
+                        if (response.headers("Set-Cookie").isNotEmpty()) {
+                            val cookies = response.headers("Set-Cookie")[0].split(";")
+                            if (cookies.isNotEmpty()) {
+                                cookies.forEach {
+                                    if (it.contains("JSESSIONID")) {
+                                        ConstString.Cookie = it
+                                        return@forEach
+                                    }
+                                }
+                            }
                         }
                     }
                     return response

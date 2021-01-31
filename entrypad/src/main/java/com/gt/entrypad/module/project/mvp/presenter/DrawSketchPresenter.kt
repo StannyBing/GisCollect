@@ -3,15 +3,26 @@ package com.gt.entrypad.module.project.mvp.presenter
 import android.util.Log
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
+import com.frame.zxmvp.http.download.DownInfo
+import com.frame.zxmvp.http.download.listener.DownloadOnNextListener
+import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.frame.zxmvp.http.upload.UploadRequestBody
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.gt.entrypad.api.ApiConfigModule
+import com.gt.entrypad.app.ConstString
+import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.mvp.contract.DrawSketchContract
 import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
+import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXSystemUtil
+import com.zx.zxutils.util.ZXToastUtil
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONObject
 import java.io.File
 
 
@@ -68,8 +79,8 @@ class DrawSketchPresenter : DrawSketchContract.Presenter() {
                 })
         mModel.uploadInfo(uploadRequestBody)
             .compose(RxHelper.bindToLifecycle(mView))
-            .subscribe(object : RxSubscriber<String>(mView) {
-                override fun _onNext(t: String?) {
+            .subscribe(object : RxSubscriber<HouseTableBean>(mView) {
+                override fun _onNext(t: HouseTableBean?) {
                     mView.uploadResult(t)
                     mView.dismissLoading()
                     mView.showToast("上传成功")
@@ -80,5 +91,50 @@ class DrawSketchPresenter : DrawSketchContract.Presenter() {
                     mView.dismissLoading()
                 }
             })
+    }
+
+    override fun downloadFile(name: String, downUrl: String) {
+        val downInfo = DownInfo(downUrl)
+        val savePath = ZXSystemUtil.getSDCardPath() + "GisCollect/houseEntry/" + name
+        downInfo.baseUrl = ApiConfigModule.BASE_IP
+        downInfo.savePath = savePath
+        downInfo.listener = object : DownloadOnNextListener<Any>() {
+            override fun onNext(o: Any) {
+                mView.showToast(o.toString())
+                ZXDialogUtil.dismissLoadingDialog()
+            }
+
+            override fun onStart() {
+                ZXDialogUtil.showLoadingDialog(mContext, "正在下载中，请稍后...", 0)
+
+            }
+
+            override fun onComplete(file: File) {
+                mView.onFileDownloadResult(file)
+                ZXDialogUtil.dismissLoadingDialog()
+
+            }
+
+            override fun onError(message: String?) {
+                mView.showToast(message)
+                mView.dismissLoading()
+
+            }
+
+            override fun updateProgress(progress: Int) {
+                ZXDialogUtil.showLoadingDialog(mContext, "正在下载中，请稍后...", progress)
+            }
+        }
+        if (ZXFileUtil.isFileExists(savePath)) {
+            mView.onFileDownloadResult(File(savePath))
+        } else {
+            HttpDownManager.getInstance().startDown(downInfo) { chain ->
+                val original = chain.request()
+                val request = original.newBuilder()
+                    .header("Cookie", ConstString.Cookie)
+                    .build()
+                chain.proceed(request)
+            }
+        }
     }
 }
