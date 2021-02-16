@@ -9,6 +9,7 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.frame.zxmvp.http.unzip.ZipUtils
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.app.MyApplication

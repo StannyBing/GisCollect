@@ -18,7 +18,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters "armeabi", "armeabi-v7a"
+            abiFilters "armeabi", "armeabi-v7a","x86"
         }
 
         lintOptions {
@@ -44,6 +44,9 @@ android {
                 includeCompileClasspath true
             }
         }
+    }
+    dataBinding {
+        enabled true
     }
     compileOptions {
         incremental = true  //开启增量编译
@@ -101,11 +104,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation 'com.github.bumptech.glide:okhttp3-integration:4.9.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
     implementation project(':zxmvp')
     implementation project(':module_map')
-    implementation('com.github.StannyBing:ZXUtils:2.3.7') {
+    implementation('com.github.StannyBing:ZXUtils:2.3.8') {
         exclude group: 'com.squareup.okhttp3'
     }
 //    implementation 'me.jessyan:autosize:1.1.2'
@@ -115,6 +118,9 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'com.tencent.bugly:crashreport:3.0.0'
+    implementation project(path: ':entrypad')
+    implementation project(path: ':camera')
+    implementation project(path: ':base')
 
 //    implementation "mil.nga.geopackage:geopackage-android:3.5.0"
 }

@@ -3,7 +3,7 @@ package com.gt.giscollect.module.collect.ui
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.base.toJson
 import com.gt.giscollect.module.collect.bean.CheckBean

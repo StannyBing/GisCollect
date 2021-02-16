@@ -143,11 +143,11 @@ class CollectListPresenter : CollectListContract.Presenter() {
                     }
                 })
 
-//            val destDir = File(ConstStrings.getOperationalLayersPath() + name)
+//            val destDir = File(ConstEntryStrings.getOperationalLayersPath() + name)
 //            destDir.mkdirs()
 //            ZXUnZipRarUtil.unZip(
 //                file.path,
-//                ConstStrings.getCachePath(),
+//                ConstEntryStrings.getCachePath(),
 //                object : ZXUnZipRarListener {
 //                    override fun onComplete(outputpath: String?) {
 //                        mView.dismissLoading()

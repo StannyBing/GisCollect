@@ -2,6 +2,7 @@ package com.gt.giscollect.module.system.ui
 
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.*

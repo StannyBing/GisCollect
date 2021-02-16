@@ -8,6 +8,7 @@ import android.widget.AdapterView
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.*
+import com.esri.arcgisruntime.layers.ArcGISTiledLayer
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
@@ -20,7 +21,7 @@ import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.func.adapter.CollectFeatureAdapter
 import com.gt.giscollect.module.collect.func.tool.CollectDistanceTool
@@ -208,9 +209,12 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                     layer,
                                     obj.getString("itemName")
                                 )
-                            } else if ((layer is ArcGISVectorTiledLayer) && layer.name == obj.getString(
+                            } else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
                                     "itemName"
-                                )
+                                ))
+//                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
+//                                    "itemName"
+//                                ))
                             ) {
                                 checkCount++
                                 GeoPackageTool.getFeatureFromGpkgWithNull(obj.getString("itemName")) { layer2 ->
@@ -262,18 +266,24 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 }
                 features.forEach {
                     //获取裁剪的 feature
-                    val cutGeometry =
-                        GeometryEngine.intersection(it.geometry, sketchEditor.geometry)
-                    if (cutGeometry != null && cutGeometry.geometryType == checkGemetry!!.geometryType) {
-                        //被裁减部分
-                        when (cutGeometry.geometryType) {
-                            GeometryType.POLYLINE -> {
-                                overlayBean.value =
-                                    (overlayBean.value as Double) + GeometrySizeTool.getLength(cutGeometry).toDouble()
-                            }
-                            GeometryType.POLYGON -> {
-                                overlayBean.value =
-                                    (overlayBean.value as Double) + GeometrySizeTool.getArea(cutGeometry).toDouble()
+                    if (it.geometry != null && sketchEditor.geometry != null) {
+                        val cutGeometry =
+                            GeometryEngine.intersection(it.geometry, sketchEditor.geometry)
+                        if (cutGeometry != null && cutGeometry.geometryType == checkGemetry!!.geometryType) {
+                            //被裁减部分
+                            when (cutGeometry.geometryType) {
+                                GeometryType.POLYLINE -> {
+                                    overlayBean.value =
+                                        (overlayBean.value as Double) + GeometrySizeTool.getLength(
+                                            cutGeometry
+                                        ).toDouble()
+                                }
+                                GeometryType.POLYGON -> {
+                                    overlayBean.value =
+                                        (overlayBean.value as Double) + GeometrySizeTool.getArea(
+                                            cutGeometry
+                                        ).toDouble()
+                                }
                             }
                         }
                     }
@@ -355,7 +365,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                         editPosition = pos
                         sv_collect_feature.smoothScrollTo(0, 0)
                         currentLayer?.clearSelection()
-                        MapTool.mapListener?.getMapView()?.setViewpointGeometryAsync(featureList[pos].geometry, 80.0)
+                        MapTool.mapListener?.getMapView()
+                            ?.setViewpointGeometryAsync(featureList[pos].geometry, 80.0)
                         sketchEditor.start(
                             featureList[pos].geometry,
                             when (currentLayer?.featureTable?.geometryType) {
@@ -440,7 +451,12 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                         }
                     }
                 }
-                mPresenter.checkMultiName(hashMapOf("templateId" to nowTemplateId, "layerName" to et_collect_rename.text.toString()), beforeName, afterName)
+                mPresenter.checkMultiName(
+                    hashMapOf(
+                        "templateId" to nowTemplateId,
+                        "layerName" to et_collect_rename.text.toString()
+                    ), beforeName, afterName
+                )
 
 //                renameLayer(beforeName, afterName)
             } else {
@@ -597,7 +613,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     val featureLayer = FeatureLayer(table)
                     featureLayer.loadAsync()
                     featureLayer.addDoneLoadingListener {
-                        featureLayer.name = gpkgFile?.name?.substring(0, gpkgFile?.name?.lastIndexOf(".") ?: 0)
+                        featureLayer.name =
+                            gpkgFile?.name?.substring(0, gpkgFile?.name?.lastIndexOf(".") ?: 0)
                         MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
                     }
                 }
@@ -630,12 +647,13 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     return@forEach
                 }
             }
-            currentLayer?.featureTable?.updateFeatureAsync(featureList[editPosition])?.addDoneListener {
-                applyLayerUpdateInfo()
-                sketchEditor.clearGeometry()
-                sketchEditor.stop()
-                feature?.refresh()
-            }
+            currentLayer?.featureTable?.updateFeatureAsync(featureList[editPosition])
+                ?.addDoneListener {
+                    applyLayerUpdateInfo()
+                    sketchEditor.clearGeometry()
+                    sketchEditor.stop()
+                    feature?.refresh()
+                }
             return
         }
         feature = currentLayer?.featureTable?.createFeature()
@@ -785,7 +803,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                }
 
                 featureAdapter.notifyItemInserted(startNum)
-                tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
+                tv_collect_feature_title.text =
+                    "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
             }
             //                }
             tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"

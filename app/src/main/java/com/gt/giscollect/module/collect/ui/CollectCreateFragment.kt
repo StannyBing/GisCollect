@@ -13,7 +13,7 @@ import com.esri.arcgisruntime.geometry.GeometryType
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.bean.CollectBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldCreateAdapter
@@ -31,14 +31,13 @@ import com.zx.zxutils.util.*
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import com.zx.zxutils.views.ZXSpinner
 import kotlinx.android.synthetic.main.fragment_collect_create.*
-import kotlinx.android.synthetic.main.view_camera.*
 import java.io.File
 
 /**
  * Create By XB
  * 功能：新增采集
  */
-class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreateModel>(),
+class CollectCreateFragment : com.gt.base.fragment.BaseFragment<CollectCreatePresenter, CollectCreateModel>(),
     CollectCreateContract.View {
     companion object {
         /**
@@ -303,7 +302,7 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
 //    private fun createShape(): String {
 //        val shapePath = ShapeTool.createShape(
 //            MapTool.mapListener?.getMap()!!,
-//            ConstStrings.getOperationalLayersPath(),
+//            ConstEntryStrings.getOperationalLayersPath(),
 //            et_create_layer_name.text.toString(),
 ////            when (sp_create_layer_type.selectedValue) {
 ////                "1" -> ShapeTool.ShapeType.Point

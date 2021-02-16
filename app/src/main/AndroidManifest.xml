@@ -37,9 +37,6 @@
             android:name=".module.collect.ui.FilePreviewActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".module.collect.ui.CameraVedioActivity"
-            android:screenOrientation="landscape" />
-        <activity
             android:name=".module.main.ui.MainActivity"
             android:screenOrientation="landscape" />
         <activity

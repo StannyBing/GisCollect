@@ -11,7 +11,12 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/base" />
+            <option value="$PROJECT_DIR$/camera" />
+            <option value="$PROJECT_DIR$/entrypad" />
             <option value="$PROJECT_DIR$/module_map" />
+            <option value="$PROJECT_DIR$/ocr_ui" />
+            <option value="$PROJECT_DIR$/sketchpad" />
             <option value="$PROJECT_DIR$/zxmvp" />
           </set>
         </option>

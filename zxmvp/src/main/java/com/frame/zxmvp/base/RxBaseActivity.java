@@ -30,7 +30,6 @@ public abstract class RxBaseActivity<T extends BasePresenter, E extends BaseMode
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mRxManager = new RxManager();
         mApp = (App) getApplication();
         doBeforeSetcontentView();

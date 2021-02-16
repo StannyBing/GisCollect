@@ -2,18 +2,14 @@ package com.gt.giscollect.module.main.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.RelativeLayout
-import androidx.core.view.marginLeft
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.esri.arcgisruntime.mapping.view.MapView
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.main.bean.FuncBean
 import com.gt.giscollect.module.main.func.adapter.BtnFuncAdapter
-import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.gt.giscollect.module.main.mvp.contract.BtnFuncContract
@@ -22,14 +18,13 @@ import com.gt.giscollect.module.main.mvp.presenter.BtnFuncPresenter
 import com.gt.giscollect.module.query.ui.IdentifyFragment
 import com.gt.giscollect.module.system.ui.SplashActivity
 import com.gt.giscollect.tool.SimpleDecoration
-import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.fragment_btn_func.*
 
 /**
  * Create By XB
  * 功能：按钮栏目
  */
-class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncContract.View {
+class BtnFuncFragment :BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncContract.View {
     companion object {
         /**
          * 启动器

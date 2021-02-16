@@ -16,7 +16,7 @@ import com.esri.arcgisruntime.symbology.*
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.main.func.maplayer.GoogleLayer
 import com.gt.giscollect.module.main.func.maplayer.TdtLayerTool
@@ -26,16 +26,12 @@ import com.gt.giscollect.module.main.mvp.contract.MapContract
 import com.gt.giscollect.module.main.mvp.model.MapModel
 import com.gt.giscollect.module.main.mvp.presenter.MapPresenter
 import com.gt.giscollect.base.UserManager
-import com.gt.giscollect.module.collect.func.tool.GeometrySizeTool
-import com.tencent.bugly.crashreport.BuglyLog
-import com.tencent.bugly.crashreport.CrashReport
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.json.JSONObject
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.io.File
-import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
 
@@ -353,7 +349,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
      * 初始化stylx文件
      */
     private fun initStylx() {
-//        val symbolStyle = DictionarySymbolStyle.createFromFile(ConstStrings.getStylxPath() + "mil2525d.stylx")
+//        val symbolStyle = DictionarySymbolStyle.createFromFile(ConstEntryStrings.getStylxPath() + "mil2525d.stylx")
 //        symbolStyle.loadAsync()
 //        symbolStyle.addDoneLoadingListener {
 //

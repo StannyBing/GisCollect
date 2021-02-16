@@ -2,7 +2,7 @@ package com.gt.giscollect.module.system.ui
 
 import android.os.Bundle
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.system.mvp.contract.ChangePwdContract
 import com.gt.giscollect.module.system.mvp.model.ChangePwdModel

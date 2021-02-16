@@ -5,11 +5,11 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
+import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.BaseActivity
 import com.gt.giscollect.base.UserBean
 import com.gt.giscollect.base.toJson
 
@@ -74,8 +74,8 @@ class LoginActivity : BaseActivity<LoginPresenter, LoginModel>(), LoginContract.
             if (!ZXFileUtil.isFileExists(ConstStrings.getLocalPath())) {
                 File(ConstStrings.getLocalPath()).mkdirs()
             }
-//            if (!ZXFileUtil.isFileExists(ConstStrings.getStylePath())) {
-//                File(ConstStrings.getStylePath()).mkdirs()
+//            if (!ZXFileUtil.isFileExists(ConstEntryStrings.getStylePath())) {
+//                File(ConstEntryStrings.getStylePath()).mkdirs()
 //            }
             if (!ZXFileUtil.isFileExists(ConstStrings.getLocalMapPath())) {
                 File(ConstStrings.getLocalMapPath()).mkdirs()

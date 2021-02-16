@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.TranslateAnimation
 import androidx.fragment.app.Fragment
-import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.MapView
+import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.BaseActivity
 import com.gt.giscollect.module.collect.ui.CollectMainFragment
 import com.gt.giscollect.module.layer.ui.LayerFragment
 import com.gt.giscollect.module.main.func.listener.MapListener

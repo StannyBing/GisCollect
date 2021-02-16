@@ -4,9 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gt.base.activity.BaseActivity
+import com.gt.entrypad.module.project.ui.activity.DrawSketchActivity
+import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.base.BaseActivity
 import com.gt.giscollect.module.main.ui.MainActivity
 import com.gt.giscollect.module.system.bean.GuideBean
 import com.gt.giscollect.module.system.func.adapter.GuideAdapter
@@ -15,7 +17,6 @@ import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
 import com.gt.giscollect.base.UserManager
-import com.gt.giscollect.base.toJson
 import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.activity_guide.*
@@ -90,13 +91,27 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         guideAdapter.setChildCall {
-            ConstStrings.appfuncList.clear()
-            ConstStrings.appfuncList.addAll(it.appFuncs)
-            ConstStrings.bussinessId = it.templateId?:""
-            MainActivity.startAction(this, false)
+            if (it.itemName.contains("草图")){
+                ProjectListActivity.startAction(this,false)
+            }else{
+                ConstStrings.appfuncList.clear()
+                ConstStrings.appfuncList.addAll(it.appFuncs)
+                ConstStrings.bussinessId = it.templateId ?: ""
+                MainActivity.startAction(this, false)
+            }
+//            when {
+//              //  it.itemName.contains("竣工") -> ProjectListActivity.startAction(this, false)
+//                it.itemName.contains("草图") -> ProjectListActivity.startAction(this,false)
+//                else -> {
+//                    ConstStrings.appfuncList.clear()
+//                    ConstStrings.appfuncList.addAll(it.appFuncs)
+//                    ConstStrings.bussinessId = it.templateId ?: ""
+//                    MainActivity.startAction(this, false)
+//                }
+//            }
 //            when (it.itemName) {
 //                "农房选址测绘", "农房地基测绘", "农房竣工测绘" -> {
-//                    ConstStrings.bussinessId = getBussinessId(it.itemName)
+//                    ConstEntryStrings.bussinessId = getBussinessId(it.itemName)
 //                    MainActivity.startAction(this, false)
 //                }
 //                else -> {
@@ -123,8 +138,20 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
                     itemName = it.label,
                     icon = R.drawable.ydghjd,
                     childList = arrayListOf<GuideBean>().apply {
-                        it.children.forEach {
-                            add(GuideBean(it.label, it.label, type = GuideBean.GUIDE_ITEM, appFuncs = it.children, templateId = it.obj.templateId))
+                        //TODO:
+                        val childeren = it.children.toMutableList().apply {
+                            //                           add(AppFuncBean(id = "m103",label = "竣工验收",obj = AppFuncBean.TemplateInfo(),children = arrayListOf()))
+                        }
+                        childeren.forEach {
+                            add(
+                                GuideBean(
+                                    it.label,
+                                    it.label,
+                                    type = GuideBean.GUIDE_ITEM,
+                                    appFuncs = it.children,
+                                    templateId = it.obj.templateId
+                                )
+                            )
                         }
                     }
                 ).apply {

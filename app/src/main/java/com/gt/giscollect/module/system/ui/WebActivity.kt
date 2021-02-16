@@ -3,9 +3,8 @@ package com.gt.giscollect.module.system.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
-import com.gt.giscollect.base.BaseActivity
 
 import com.gt.giscollect.module.system.mvp.contract.WebContract
 import com.gt.giscollect.module.system.mvp.model.WebModel

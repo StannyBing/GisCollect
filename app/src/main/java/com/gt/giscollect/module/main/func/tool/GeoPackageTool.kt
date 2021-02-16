@@ -37,30 +37,38 @@ object GeoPackageTool {
 
     fun getFeatureFromGpkgWithNull(name: String, featureCall: (FeatureLayer?) -> Unit) {
         val geoPackage = getGpkg(ConstStrings.getInnerLocalMapPath())
-        if (geoPackage == null){
+        if (geoPackage == null) {
             featureCall(null)
             return
         }
+//        geoPackages.forEach { geoPackage ->
         geoPackage.loadAsync()
         geoPackage.addDoneLoadingListener {
             if (geoPackage.loadStatus == LoadStatus.LOADED) {
                 val gepTables = geoPackage.geoPackageFeatureTables
+                var hasSameLayer = false
                 gepTables.forEach {
                     if (it != null) {
                         val featureLayer = FeatureLayer(it)
 //                        UniqueValueRenderer.fromJson()
 //                        featureLayer.renderer = Renderer.fromJson()
                         if (name == featureLayer.name) {
+                            hasSameLayer = true
                             featureLayer.loadAsync()
                             featureLayer.addDoneLoadingListener {
                                 featureCall(featureLayer)
-//                                return@forEach
                             }
                         }
                     }
+//                    if (!hasSameLayer) {
+//                        featureCall(null)
+//                    }
                 }
+            }else{
+                featureCall(null)
             }
         }
+//        }
     }
 
     val shipList = arrayListOf(
@@ -122,6 +130,21 @@ object GeoPackageTool {
             return GeoPackage((path))
         }
         return null
+    }
+
+    private fun getGpkgs(path: String = ConstStrings.getLocalMapPath()): List<GeoPackage> {
+        val gpkgs = arrayListOf<GeoPackage>()
+        val file = File(path)
+        if (file.exists() && file.isDirectory && file.listFiles().isNotEmpty()) {
+            file.listFiles().forEach {
+                if (it.isFile && it.name.endsWith("gpkg")) {
+                    gpkgs.add(GeoPackage(it.path))
+                }
+            }
+        } else if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
+            gpkgs.add(GeoPackage((path)))
+        }
+        return gpkgs
     }
 
 }

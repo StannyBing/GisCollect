@@ -9,7 +9,7 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.google.android.material.tabs.TabLayout
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.base.BaseFragment
+import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFileAdapter
 import com.gt.giscollect.module.collect.func.tool.InScrollGridLayoutManager
@@ -21,18 +21,15 @@ import com.gt.giscollect.module.query.mvp.contract.IdentifyContract
 import com.gt.giscollect.module.query.mvp.model.IdentifyModel
 import com.gt.giscollect.module.query.mvp.presenter.IdentifyPresenter
 import com.gt.giscollect.tool.SimpleDecoration
-import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
-import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXRecordUtil
-import com.zx.zxutils.views.TabViewPager.ZXTabViewPager
 import kotlinx.android.synthetic.main.fragment_identify.*
 
 /**
  * Create By XB
  * 功能：要素查询
  */
-class IdentifyFragment : BaseFragment<IdentifyPresenter, IdentifyModel>(), IdentifyContract.View {
+class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), IdentifyContract.View {
     companion object {
         /**
          * 启动器
@@ -138,7 +135,7 @@ class IdentifyFragment : BaseFragment<IdentifyPresenter, IdentifyModel>(), Ident
                 }
 //                feature.attributes.keys.forEach {
 //                    if (it in arrayOf("camera", "video", "record")) {
-//                        val paths = feature.attributes[it].toString().split(ConstStrings.File_Split_Char)
+//                        val paths = feature.attributes[it].toString().split(ConstEntryStrings.File_Split_Char)
 //                        paths.forEach { path ->
 //                            if (path.length > 1 && path.isNotEmpty() && path != "null") {
 //                                fileList.add(FileInfoBean("", path = path, pathImage = path, type = it))
