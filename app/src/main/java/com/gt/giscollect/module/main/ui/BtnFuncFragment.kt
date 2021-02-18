@@ -4,10 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.SpatialReference
+import com.esri.arcgisruntime.location.LocationDataSource
+import com.gt.base.fragment.BaseFragment
+import com.gt.base.tool.WHandTool
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.main.bean.FuncBean
 import com.gt.giscollect.module.main.func.adapter.BtnFuncAdapter
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
@@ -18,13 +22,15 @@ import com.gt.giscollect.module.main.mvp.presenter.BtnFuncPresenter
 import com.gt.giscollect.module.query.ui.IdentifyFragment
 import com.gt.giscollect.module.system.ui.SplashActivity
 import com.gt.giscollect.tool.SimpleDecoration
+import com.woncan.whand.WHandInfo
 import kotlinx.android.synthetic.main.fragment_btn_func.*
+
 
 /**
  * Create By XB
  * 功能：按钮栏目
  */
-class BtnFuncFragment :BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncContract.View {
+class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncContract.View {
     companion object {
         /**
          * 启动器
@@ -73,14 +79,30 @@ class BtnFuncFragment :BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncCo
             tv_func_offlinemode.visibility = View.GONE
         }
 
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm01" } != null) funcList.add(FuncBean("图层", R.drawable.btn_func_layer))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm02" } != null) funcList.add(FuncBean("查询", R.drawable.btn_func_search))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm03" } != null) funcList.add(FuncBean("统计", R.drawable.btn_func_statistics))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm04" } != null) funcList.add(FuncBean("采集", R.drawable.btn_func_collect))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm05" } != null) funcList.add(FuncBean("查要素", R.drawable.btn_func_identify))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm06" } != null) funcList.add(FuncBean("测量", R.drawable.btn_func_measure))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm07" } != null) funcList.add(FuncBean("定位", R.drawable.btn_func_location))
-        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm08" } != null) funcList.add(FuncBean("设置", R.drawable.btn_func_setting))
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm01" } != null) funcList.add(
+            FuncBean("图层", R.drawable.btn_func_layer)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm02" } != null) funcList.add(
+            FuncBean("查询", R.drawable.btn_func_search)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm03" } != null) funcList.add(
+            FuncBean("统计", R.drawable.btn_func_statistics)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm04" } != null) funcList.add(
+            FuncBean("采集", R.drawable.btn_func_collect)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm05" } != null) funcList.add(
+            FuncBean("查要素", R.drawable.btn_func_identify)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm06" } != null) funcList.add(
+            FuncBean("测量", R.drawable.btn_func_measure)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm07" } != null) funcList.add(
+            FuncBean("定位", R.drawable.btn_func_location)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm08" } != null) funcList.add(
+            FuncBean("设置", R.drawable.btn_func_setting)
+        )
         rv_func_list.apply {
             layoutManager = LinearLayoutManager(requireActivity())
             adapter = funcAdapter
@@ -135,6 +157,64 @@ class BtnFuncFragment :BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncCo
             }
         }
         rv_func_list.setOnClickListener(null)
+
+        WHandTool.addDeviceInfoListener(object : WHandTool.WHandDeviceListener {
+            override fun onDeviceInfoCallBack(info: WHandInfo?) {
+                try {
+                    if (!WHandTool.isOpen) {
+                        tv_rtk_info.visibility = View.GONE
+                        return
+                    }
+                    tv_rtk_info.visibility = View.VISIBLE
+                    if (info?.longitude != null && info.longitude != 0.0) {
+                        val method =
+                            Class.forName("com.esri.arcgisruntime.location.LocationDataSource")
+                                .getDeclaredMethod(
+                                    "updateLocation",
+                                    LocationDataSource.Location::class.java
+                                )
+                        MapTool.mapListener?.getMapView()
+                            ?.locationDisplay?.locationDataSource?.apply {
+                            method.isAccessible = true
+                            method.invoke(
+                                this,
+                                LocationDataSource.Location(
+                                    Point(
+                                        info.longitude,
+                                        info.latitude,
+                                        SpatialReference.create(4326)
+                                    )
+                                )
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                val rtkInfoBuilder = StringBuilder()
+                rtkInfoBuilder.append("GPS收星颗数：${info?.gpsNum}\n")
+                rtkInfoBuilder.append(
+                    "解算精度：${when (info?.rtkType) {
+                        -1 -> "未收到"
+                        1 -> "单点定位"
+                        2 -> "码差分定位"
+                        4 -> "固定定位"
+                        5 -> "浮点定位"
+                        else -> "未收到"
+                    }
+                    }\n"
+                )
+                rtkInfoBuilder.append(
+                    "定位精度：水平:${(info?.accuracyFlat ?: 0) / 1000.0}米,高程:${(info?.accuracyAlt
+                        ?: 0) / 1000.0}米\n"
+                )
+                rtkInfoBuilder.append("经纬度：${info?.longitude},${info?.latitude}\n")
+                rtkInfoBuilder.append("加速度：${info?.accelerationX},${info?.accelerationY},${info?.accelerationZ}\n")
+                rtkInfoBuilder.append("角速度：${info?.spinX},${info?.spinY},${info?.spinZ}")
+                tv_rtk_info.setText(rtkInfoBuilder)
+            }
+        })
     }
 
     fun setDrawerCall(call: (DataType) -> Fragment?) {

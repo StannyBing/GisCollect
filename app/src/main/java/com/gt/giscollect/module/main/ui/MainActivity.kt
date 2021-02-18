@@ -34,6 +34,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_btn_func.*
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.json.JSONObject
+import rx.functions.Action1
 
 
 /**
@@ -88,20 +89,27 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
 
         MapTool.mapListener = this
 
-        ZXHttpTool.getHttp("http://49.233.40.212:20000/nearpal/file/temp/stanny.json", hashMapOf(), object : ZXHttpListener<String>() {
-            override fun onResult(t: String?) {
-                try {
-                    val obj = JSONObject(t)
-                    if (!obj.getBoolean("isCorrect")) {
-                        MyApplication.instance.finishAll()
+        ZXHttpTool.getHttp(
+            "http://49.233.40.212:20000/nearpal/file/temp/stanny.json",
+            hashMapOf(),
+            object : ZXHttpListener<String>() {
+                override fun onResult(t: String?) {
+                    try {
+                        val obj = JSONObject(t)
+                        if (!obj.getBoolean("isCorrect")) {
+                            MyApplication.instance.finishAll()
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            }
 
-            override fun onError(msg: String?) {
-            }
+                override fun onError(msg: String?) {
+                }
+            })
+
+        mRxManager.on("toSettingRtk", Action1<Boolean> {
+            excuteFuncCall(BtnFuncFragment.Companion.DataType.Setting)
         })
 
         super.initView(savedInstanceState)
@@ -112,112 +120,146 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
      */
     override fun onViewListener() {
         btnFuncFragment.setDrawerCall {
-            var showFragment: Fragment? = null
-            layerFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            collectMainFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            searchFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            identifyFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            statisticsFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            settingFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            measureFragment?.let { ZXFragmentUtil.hideFragment(it) }
-            when (it) {
-                BtnFuncFragment.Companion.DataType.Layer -> {
-                    if (layerFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, LayerFragment.newInstance().apply {
-                            layerFragment = this
-                        }, R.id.fm_data)
-                    }
-                    showFragment = layerFragment
-                }
-                BtnFuncFragment.Companion.DataType.Collect -> {
-                    if (collectMainFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, CollectMainFragment.newInstance().apply {
-                            collectMainFragment = this
-                        }, R.id.fm_data)
-                    }
-                    collectMainFragment?.reInit()
-                    showFragment = collectMainFragment
-                }
-                BtnFuncFragment.Companion.DataType.Search -> {
-                    if (searchFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, SearchFragment.newInstance().apply {
-                            searchFragment = this
-                        }, R.id.fm_data)
-                    }
-                    showFragment = searchFragment
-                }
-                BtnFuncFragment.Companion.DataType.Statistics -> {
-                    if (statisticsFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, StatisticsFragment.newInstance().apply {
-                            statisticsFragment = this
-                        }, R.id.fm_data)
-                    }
-                    statisticsFragment?.reInit()
-                    showFragment = statisticsFragment
-                }
-                BtnFuncFragment.Companion.DataType.Identify -> {
-                    if (identifyFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, IdentifyFragment.newInstance().apply {
-                            identifyFragment = this
-                        }, R.id.fm_data)
-                    }
-                    showFragment = identifyFragment
-                }
-                BtnFuncFragment.Companion.DataType.Setting -> {
-                    if (settingFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, SettingMainFragment.newInstance().apply {
-                            settingFragment = this
-                        }, R.id.fm_data)
-                    }
-                    showFragment = settingFragment
-                }
-                BtnFuncFragment.Companion.DataType.Measure -> {
-                    if (measureFragment == null) {
-                        ZXFragmentUtil.addFragment(supportFragmentManager, MeasureFragment.newInstance().apply {
-                            measureFragment = this
-                        }, R.id.fm_data)
-                    }
-                    showFragment = measureFragment
-                }
-            }
-            iv_data_show.performClick()
-            if (showFragment != null) {
-                ZXFragmentUtil.showFragment(showFragment)
-            }
-            //切换菜单，关闭要素模块
-            if (showFragment !is IdentifyFragment) {
-                IdentifyTool.stopQueryIdentify()
-                MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
-            }
-            if (showFragment is MeasureFragment) {
-                measureFragment?.startMeasure()
-            }
-            return@setDrawerCall showFragment
+            return@setDrawerCall excuteFuncCall(it)
         }
         //收起菜单
         iv_data_hide.setOnClickListener {
             IdentifyTool.stopQueryIdentify()
             MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
-            rl_main_data.animation = TranslateAnimation(0f, ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f)
-                .apply {
-                    duration = 500
-                    start()
-                }
+            rl_main_data.animation =
+                TranslateAnimation(0f, ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f)
+                    .apply {
+                        duration = 500
+                        start()
+                    }
             rl_main_data.visibility = View.GONE
             iv_data_show.visibility = View.VISIBLE
         }
         //打开菜单
         iv_data_show.setOnClickListener {
             if (rl_main_data.visibility != View.VISIBLE) {
-                rl_main_data.animation = TranslateAnimation(ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f, 0f)
-                    .apply {
-                        duration = 500
-                        start()
-                    }
+                rl_main_data.animation =
+                    TranslateAnimation(ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f, 0f)
+                        .apply {
+                            duration = 500
+                            start()
+                        }
                 rl_main_data.visibility = View.VISIBLE
             }
             iv_data_show.visibility = View.GONE
         }
+    }
+
+    private fun excuteFuncCall(it: BtnFuncFragment.Companion.DataType): Fragment? {
+        var showFragment: Fragment? = null
+        layerFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        collectMainFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        searchFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        identifyFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        statisticsFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        settingFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        measureFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        when (it) {
+            BtnFuncFragment.Companion.DataType.Layer -> {
+                if (layerFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        LayerFragment.newInstance().apply {
+                            layerFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                showFragment = layerFragment
+            }
+            BtnFuncFragment.Companion.DataType.Collect -> {
+                if (collectMainFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        CollectMainFragment.newInstance().apply {
+                            collectMainFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                collectMainFragment?.reInit()
+                showFragment = collectMainFragment
+            }
+            BtnFuncFragment.Companion.DataType.Search -> {
+                if (searchFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        SearchFragment.newInstance().apply {
+                            searchFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                showFragment = searchFragment
+            }
+            BtnFuncFragment.Companion.DataType.Statistics -> {
+                if (statisticsFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        StatisticsFragment.newInstance().apply {
+                            statisticsFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                statisticsFragment?.reInit()
+                showFragment = statisticsFragment
+            }
+            BtnFuncFragment.Companion.DataType.Identify -> {
+                if (identifyFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        IdentifyFragment.newInstance().apply {
+                            identifyFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                showFragment = identifyFragment
+            }
+            BtnFuncFragment.Companion.DataType.Setting -> {
+                if (settingFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        SettingMainFragment.newInstance().apply {
+                            settingFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                showFragment = settingFragment
+            }
+            BtnFuncFragment.Companion.DataType.Measure -> {
+                if (measureFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        MeasureFragment.newInstance().apply {
+                            measureFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                showFragment = measureFragment
+            }
+        }
+        iv_data_show.performClick()
+        if (showFragment != null) {
+            ZXFragmentUtil.showFragment(showFragment)
+        }
+        //切换菜单，关闭要素模块
+        if (showFragment !is IdentifyFragment) {
+            IdentifyTool.stopQueryIdentify()
+            MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
+        }
+        if (showFragment is MeasureFragment) {
+            measureFragment?.startMeasure()
+        }
+        return showFragment
     }
 
 

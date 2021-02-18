@@ -13,13 +13,22 @@ class SearchIdentifyAdapter(dataList: List<Pair<Field, Any?>>) :
     ZXQuickAdapter<Pair<Field, Any?>, ZXBaseHolder>(R.layout.item_collect_create_field, dataList) {
     override fun convert(helper: ZXBaseHolder, item: Pair<Field, Any?>?) {
         if (item != null) {
-            helper.setText(R.id.tv_collect_create_field_type, item.first.name)
+            helper.setText(
+                R.id.tv_collect_create_field_type, if (item.first.alias.isEmpty()) {
+                    item.first.name
+                } else {
+                    item.first.alias
+                }
+            )
 
             helper.setText(
                 R.id.tv_collect_create_field_name, when (item.first.fieldType) {
                     Field.Type.DATE -> {
                         if (item.second == null || item.second !is GregorianCalendar) "" else {
-                            ZXTimeUtil.getTime((item.second as GregorianCalendar).timeInMillis, SimpleDateFormat("yyyy/MM/dd"))
+                            ZXTimeUtil.getTime(
+                                (item.second as GregorianCalendar).timeInMillis,
+                                SimpleDateFormat("yyyy/MM/dd")
+                            )
                         }
                     }
                     else -> {

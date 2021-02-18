@@ -133,7 +133,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                                 Manifest.permission.RECORD_AUDIO
                             )
                         ) {
-                           CameraVedioActivity.startAction(this, false, 2, 0x002, filePath)
+                            CameraVedioActivity.startAction(this, false, 2, 0x002, filePath)
                         }
                     }
                     "record", "RECORD" -> {
@@ -173,15 +173,17 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             if (view.id == R.id.iv_collect_file_delete) {
                 if (currentFeature is ArcGISFeature) {
                     showLoading("删除中...")
-                    (currentFeature as ArcGISFeature).deleteAttachmentAsync(fileList[position].attachment).addDoneListener {
-                        dismissLoading()
-                        loadServiceFeatureFiles()
-                        applyFeatureUpdateInfo()
-                    }
+                    (currentFeature as ArcGISFeature).deleteAttachmentAsync(fileList[position].attachment)
+                        .addDoneListener {
+                            dismissLoading()
+                            loadServiceFeatureFiles()
+                            applyFeatureUpdateInfo()
+                        }
                 } else {
                     val type = fileList[position].type
                     fileList.removeAt(position)
                     fileAdapter.notifyItemRemoved(position)
+                    fileAdapter.notifyItemRangeChanged(position, 5)
                     saveField(type)
                 }
             }
@@ -295,7 +297,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     }
                 }
                 if (fieldValue.isNotEmpty()) {
-                    fieldValue = fieldValue.substring(0, fieldValue.length - ConstStrings.File_Split_Char.length)
+                    fieldValue = fieldValue.substring(
+                        0,
+                        fieldValue.length - ConstStrings.File_Split_Char.length
+                    )
                 }
                 if (currentFeature is ArcGISFeature && uploadTempFile != null) {
                     applyEdit(name, uploadTempFile, Field.Type.TEXT)
@@ -333,7 +338,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         if (currentFeature?.attributes?.get(name) == fieldValue) {
             return
         }
-        val fields = currentFeature?.featureTable?.fields?.filter { it.name.toUpperCase() == name.toUpperCase() && it.isEditable }
+        val fields =
+            currentFeature?.featureTable?.fields?.filter { it.name.toUpperCase() == name.toUpperCase() && it.isEditable }
         if (fields.isNullOrEmpty()) {
             return
         }
@@ -350,7 +356,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 "amr" -> "audio/amr"
                 else -> "*/*"
             }
-            (currentFeature as ArcGISFeature).addAttachmentAsync(fileByte, contentType, fieldValue.name).addDoneListener {
+            (currentFeature as ArcGISFeature).addAttachmentAsync(
+                fileByte,
+                contentType,
+                fieldValue.name
+            ).addDoneListener {
                 dismissLoading()
                 applyFeatureUpdateInfo()
                 loadServiceFeatureFiles()
@@ -508,7 +518,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 }
                 fileList.add(
                     FileInfoBean(
-                        it.name, file.name, file.name, type = if (it.contentType.contains("image")) {
+                        it.name,
+                        file.name,
+                        file.name,
+                        type = if (it.contentType.contains("image")) {
                             "camera"
                         } else if (it.contentType.contains("audio") || it.contentType.contains("mp3")) {
                             "record"
@@ -516,7 +529,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                             "video"
                         } else {
                             "camera"
-                        }, attachment = it
+                        },
+                        attachment = it
                     )
                 )
             }

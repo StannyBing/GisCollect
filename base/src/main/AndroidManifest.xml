@@ -1,2 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gt.base" />
+    package="com.gt.base" >
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+</manifest>

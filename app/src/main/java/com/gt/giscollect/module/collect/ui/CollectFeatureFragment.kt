@@ -8,7 +8,6 @@ import android.widget.AdapterView
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.*
-import com.esri.arcgisruntime.layers.ArcGISTiledLayer
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
@@ -22,6 +21,7 @@ import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.tool.WHandTool
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.func.adapter.CollectFeatureAdapter
 import com.gt.giscollect.module.collect.func.tool.CollectDistanceTool
@@ -36,12 +36,15 @@ import com.gt.giscollect.module.query.func.tool.HighLightLayerTool
 import com.gt.giscollect.tool.SimpleDecoration
 import com.gt.giscollect.base.UserManager
 import com.gt.giscollect.module.collect.func.tool.GeometrySizeTool
+import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.system.bean.TempIdsBean
+import com.gt.module_map.tool.PointTool
+import com.woncan.whand.WHandInfo
 import com.zx.zxutils.entity.KeyValueEntity
-import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXToastUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_feature.*
 import org.json.JSONObject
@@ -229,7 +232,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                             }
                             return@map
                         }
-
                     }
                 }
                 postOverlayStatus()
@@ -292,7 +294,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 postOverlayStatus()
             }
         }
-        postOverlayStatus()
+//        postOverlayStatus()
     }
 
     /**
@@ -394,7 +396,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                     applyLayerUpdateInfo()
                                 }
                             featureList.removeAt(pos)
+//                            featureAdapter.notifyDataSetChanged()
                             featureAdapter.notifyItemRemoved(pos)
+                            featureAdapter.notifyItemRangeChanged(pos, 5)
                         }
                     }
                 }
@@ -519,12 +523,33 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             ) {
-                val location = MapTool.mapListener?.getMapView()?.locationDisplay?.mapLocation
+                val location = if (WHandTool.isRegister() && WHandTool.isOpen) {
+                    val info = WHandTool.getDeviceInfoOneTime()
+                    if (info == null) {
+                        null
+                    } else {
+                        PointTool.change4326To3857(Point(info.longitude, info.latitude, SpatialReference.create(4326)))
+                    }
+                } else {
+                    MapTool.mapListener?.getMapView()?.locationDisplay?.mapLocation
+                }
                 if (sketchEditor.isVisible && location != null) {
                     sketchEditor.insertVertexAfterSelectedVertex(location)
                 } else {
                     showToast("GPS打点失败")
                 }
+//                if (!WHandTool.isRegister()) {
+//                    WHandTool.registerWHand(requireActivity())
+//                    WHandTool.setDeviceInfoListener(object :
+//                        WHandTool.WHandDeviceListener {
+//                        override fun onDeviceInfoCallBack(info: WHandInfo?) {
+////                            ZXToastUtil.showToast("获取到定位信息：${info?.longitude},${info?.latitude}")
+//                        }
+//                    })
+//                } else {
+//                    val info = WHandTool.getDeviceInfoOneTime()
+//                    ZXToastUtil.showToast("获取到定位信息：${info?.longitude},${info?.latitude}")
+//                }
             }
         }
         //清除
@@ -802,7 +827,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 featureList.addAll(list)
 //                }
 
-                featureAdapter.notifyItemInserted(startNum)
+                if (startNum > 0) {
+                    featureAdapter.notifyItemInserted(startNum)
+                }
                 tv_collect_feature_title.text =
                     "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
             }

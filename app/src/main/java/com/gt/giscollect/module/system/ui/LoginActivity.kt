@@ -53,7 +53,7 @@ class LoginActivity : BaseActivity<LoginPresenter, LoginModel>(), LoginContract.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ZXStatusBarCompat.setStatusBarDarkMode(this)
-//        tv_login_name.text = AppInfoManager.appInfo?.appInfo?.name ?: "数据采集系统"
+        tv_login_name.text = AppInfoManager.appInfo?.appInfo?.name ?: "清河CIM移动端数据采集系统"
 //        tv_login_enname.text = AppInfoManager.appInfo?.appInfo?.enName ?: "Data Collect System"
 
         et_login_username.setText(UserManager.userName)

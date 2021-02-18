@@ -120,6 +120,7 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
                     }
                     dataList.removeAt(pos)
                     dataAdapter.notifyItemRemoved(pos)
+                    dataAdapter.notifyItemRangeChanged(pos, 5)
                 }
             }
         //数据

@@ -7,9 +7,11 @@ import android.view.MotionEvent
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.GeometryType
+import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.layers.*
 import com.esri.arcgisruntime.loadable.LoadStatus
+import com.esri.arcgisruntime.location.LocationDataSource
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.*
 import com.esri.arcgisruntime.symbology.*
@@ -17,6 +19,7 @@ import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.tool.WHandTool
 import com.gt.giscollect.module.main.func.listener.MapListener
 import com.gt.giscollect.module.main.func.maplayer.GoogleLayer
 import com.gt.giscollect.module.main.func.maplayer.TdtLayerTool
@@ -26,6 +29,7 @@ import com.gt.giscollect.module.main.mvp.contract.MapContract
 import com.gt.giscollect.module.main.mvp.model.MapModel
 import com.gt.giscollect.module.main.mvp.presenter.MapPresenter
 import com.gt.giscollect.base.UserManager
+import com.gt.module_map.tool.PointTool
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.json.JSONObject
@@ -332,9 +336,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         getPermission(
             arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         ) {
             //加载在线的
@@ -502,6 +504,21 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 //                )
 //                return@getPermission
 //            }
+            if (WHandTool.isOpen && WHandTool.isRegister()) {
+                val info = WHandTool.getDeviceInfoOneTime()
+                if (info != null) {
+                    map_view.setViewpointCenterAsync(
+                        PointTool.change4326To3857(
+                            Point(
+                                info.longitude,
+                                info.latitude,
+                                SpatialReference.create(4326)
+                            )
+                        )
+                    )
+                    return@getPermission
+                }
+            }
             if (locationDisplay == null) {
                 locationDisplay = map_view.locationDisplay
             }

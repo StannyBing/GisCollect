@@ -16,7 +16,8 @@ import kotlinx.android.synthetic.main.fragment_setting_main.*
  * Create By XB
  * 功能：设置
  */
-class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>(), SettingMainContract.View, FragChangeListener {
+class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>(),
+    SettingMainContract.View, FragChangeListener {
     companion object {
         /**
          * 启动器
@@ -33,12 +34,14 @@ class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>
         const val Setting_Pwd = "密码修改"
         const val Template_List = "模板下载"
         const val Data_List = "数据下载"
+        const val RTK_Set = "定位设置"
     }
 
     private lateinit var settingListFragment: SettingListFragment
     private lateinit var templateDownloadFragment: TemplateDownloadFragment
     private lateinit var dataDownloadFragment: DataDownloadFragment
     private lateinit var changePwdFragment: ChangePwdFragment
+    private lateinit var rtkDeviceFragment: RtkDeviceFragment
 
     private var currentFragType = Setting_List
 
@@ -57,16 +60,19 @@ class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>
         templateDownloadFragment = TemplateDownloadFragment.newInstance()
         dataDownloadFragment = DataDownloadFragment.newInstance()
         changePwdFragment = ChangePwdFragment.newInstance()
+        rtkDeviceFragment = RtkDeviceFragment.newInstance()
 
         settingListFragment.fragChangeListener = this
         templateDownloadFragment.fragChangeListener = this
         dataDownloadFragment.fragChangeListener = this
+        rtkDeviceFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
             add(settingListFragment)
             add(templateDownloadFragment)
             add(dataDownloadFragment)
             add(changePwdFragment)
+            add(rtkDeviceFragment)
         }, R.id.fm_setting_main, 0)
         tv_setting_title_name.text = "设置"
         super.initView(savedInstanceState)
@@ -96,6 +102,9 @@ class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>
             Data_List -> {
                 onFragGoto(Setting_List)
             }
+            RTK_Set -> {
+                onFragGoto(Setting_List)
+            }
         }
     }
 
@@ -119,6 +128,11 @@ class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>
             Data_List -> {
                 iv_setting_title_back.visibility = View.VISIBLE
                 ZXFragmentUtil.hideAllShowFragment(dataDownloadFragment)
+            }
+            RTK_Set -> {
+                iv_setting_title_back.visibility = View.VISIBLE
+                ZXFragmentUtil.hideAllShowFragment(rtkDeviceFragment)
+                rtkDeviceFragment.reInit()
             }
         }
     }

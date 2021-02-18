@@ -177,6 +177,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             )
                             collectList.removeAt(pos)
                             collectAdapter.notifyItemRemoved(pos)
+                            collectAdapter.notifyItemRangeChanged(pos, 5)
                         }
                     }
                 }

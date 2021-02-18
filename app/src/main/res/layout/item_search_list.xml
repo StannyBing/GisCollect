@@ -19,7 +19,6 @@
         android:layout_marginLeft="40dp"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="这里是查询名称"
         android:textSize="@dimen/text_size_small" />
 
     <TextView

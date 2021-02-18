@@ -55,7 +55,6 @@
             android:layout_marginLeft="40dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="查询名称"
             android:textSize="@dimen/text_size_small" />
 
         <TextView

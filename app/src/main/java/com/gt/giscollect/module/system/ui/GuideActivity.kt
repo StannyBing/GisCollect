@@ -1,26 +1,29 @@
 package com.gt.giscollect.module.system.ui
 
 import android.app.Activity
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothProfile
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.base.activity.BaseActivity
-import com.gt.entrypad.module.project.ui.activity.DrawSketchActivity
 import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
+import com.gt.giscollect.base.AppInfoManager
+import com.gt.giscollect.base.UserManager
 import com.gt.giscollect.module.main.ui.MainActivity
+import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.gt.giscollect.module.system.bean.GuideBean
 import com.gt.giscollect.module.system.func.adapter.GuideAdapter
-
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
-import com.gt.giscollect.base.UserManager
-import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXLogUtil
 import kotlinx.android.synthetic.main.activity_guide.*
 import org.json.JSONObject
+import java.lang.Exception
 
 
 /**
@@ -59,6 +62,7 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         super.initView(savedInstanceState)
 
         tv_guide_name.text = UserManager.user?.userName ?: "用户"
+        tv_guide_appinfo.text = "欢迎使用${AppInfoManager.appInfo?.appInfo?.name ?: "清河CIM移动端数据采集系统"}"
 
         rv_guide_step.apply {
             layoutManager = LinearLayoutManager(mContext)
@@ -91,9 +95,9 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         guideAdapter.setChildCall {
-            if (it.itemName.contains("草图")){
-                ProjectListActivity.startAction(this,false)
-            }else{
+            if (it.itemName.contains("草图")) {
+                ProjectListActivity.startAction(this, false)
+            } else {
                 ConstStrings.appfuncList.clear()
                 ConstStrings.appfuncList.addAll(it.appFuncs)
                 ConstStrings.bussinessId = it.templateId ?: ""

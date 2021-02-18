@@ -6,6 +6,7 @@ import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.AppInfoManager
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.tool.WHandTool
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.SettingBean
@@ -26,7 +27,7 @@ import java.io.File
  * Create By XB
  * 功能：设置-列表
  */
-class SettingListFragment :BaseFragment<SettingListPresenter, SettingListModel>(),
+class SettingListFragment : BaseFragment<SettingListPresenter, SettingListModel>(),
     SettingListContract.View {
     companion object {
         /**
@@ -72,9 +73,16 @@ class SettingListFragment :BaseFragment<SettingListPresenter, SettingListModel>(
             )
         )
         settingList.add(SettingBean("服务器切换", R.drawable.icon_setting_server, true))
+        settingList.add(SettingBean("定位设置", R.drawable.icon_setting_rtk, true))
         settingList.add(SettingBean("模板下载", R.drawable.icon_setting_template, true))
         settingList.add(SettingBean("数据下载", R.drawable.icon_setting_data, true))
-        settingList.add(SettingBean("检查更新（${ZXSystemUtil.getVersionName()}）", R.drawable.icon_setting_update, true))
+        settingList.add(
+            SettingBean(
+                "检查更新（${ZXSystemUtil.getVersionName()}）",
+                R.drawable.icon_setting_update,
+                true
+            )
+        )
         settingList.add(SettingBean("密码修改", R.drawable.icon_setting_changepwd, true))
         settingList.add(SettingBean("清除缓存", R.drawable.icon_setting_cache, true))
         settingList.add(SettingBean("退出登录", R.drawable.icon_setting_logout, true))
@@ -103,6 +111,9 @@ class SettingListFragment :BaseFragment<SettingListPresenter, SettingListModel>(
                 }
                 "所属部门" -> {
 
+                }
+                "定位设置" -> {
+                    fragChangeListener?.onFragGoto(SettingMainFragment.RTK_Set)
                 }
                 "服务器切换" -> {
                     if (AppInfoManager.appInfo?.apiInfo == null) {

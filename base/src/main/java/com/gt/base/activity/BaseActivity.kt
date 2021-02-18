@@ -14,6 +14,7 @@ import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.RxBaseActivity
 import com.gt.base.R
+import com.gt.base.tool.WHandTool
 import com.zx.zxutils.util.*
 import com.zx.zxutils.views.ZXStatusBarCompat
 
@@ -44,7 +45,8 @@ abstract class BaseActivity<T : BasePresenter<*, *>, E : BaseModel> : RxBaseActi
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val lp = window.attributes
             // 始终允许窗口延伸到屏幕短边上的刘海区域
-            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            lp.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             window.attributes = lp
         }
     }
@@ -63,7 +65,7 @@ abstract class BaseActivity<T : BasePresenter<*, *>, E : BaseModel> : RxBaseActi
     }
 
     override fun showToast(message: String?) {
-        ZXToastUtil.showToast(message?:"")
+        ZXToastUtil.showToast(message ?: "")
     }
 
     override fun showLoading(message: String) {
@@ -101,12 +103,30 @@ abstract class BaseActivity<T : BasePresenter<*, *>, E : BaseModel> : RxBaseActi
     fun getPermission(permissionArray: Array<String>, permessionBack: () -> Unit) {
         this.permessionBack = permessionBack
         this.permissionArray = permissionArray
-        if (permissionArray.contains(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            if (!ZXLocationUtil.isLocationEnabled()) {
-                ZXLocationUtil.openGPS(this)
-                return
-            }
-        }
+//        if (permissionArray.contains(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+//            if (!ZXLocationUtil.isLocationEnabled()) {
+//                if (WHandTool.isRegister()) {
+//                    this.permessionBack()
+//                    return
+//                }
+//                ZXDialogUtil.showListDialog(
+//                    this,
+//                    "定位信号源选择",
+//                    "取消",
+//                    arrayOf("设备自带GPS(需前往开启GPS)", "外接RTK（需连接RTK设备）")
+//                ) { dialog, which ->
+//                    when (which) {
+//                        0 -> {
+//                            ZXLocationUtil.openGpsSettings()
+//                        }
+//                        1 -> {
+//                            mRxManager.post("toSettingRtk", true)
+//                        }
+//                    }
+//                }
+//                return
+//            }
+//        }
         if (!ZXPermissionUtil.checkPermissionsByArray(permissionArray)) {
             ZXPermissionUtil.requestPermissionsByArray(this)
         } else {

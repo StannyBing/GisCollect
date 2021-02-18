@@ -17,13 +17,14 @@ class CollectFeatureAdapter(dataList: List<Feature>) :
     var showName: String = ""
 
     override fun convert(helper: ZXBaseHolder, item: Feature) {
-        if (item is ArcGISFeature){
+        if (item is ArcGISFeature) {
             (item as ArcGISFeature).loadAsync()
             item.addDoneLoadingListener {
                 setInfo(item, helper)
             }
+        } else {
+            setInfo(item, helper)
         }
-        setInfo(item, helper)
     }
 
     private fun setInfo(item: Feature, helper: ZXBaseHolder) {

@@ -99,7 +99,9 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
             val layerSpinner = arrayListOf<KeyValueEntity>()
             if (!layers.isNullOrEmpty()) {
                 layers.forEach {
-                    layerSpinner.add(KeyValueEntity(it.name, it))
+                    if (it is FeatureLayer) {
+                        layerSpinner.add(KeyValueEntity(it.name, it))
+                    }
                 }
             }
             sp_search_map_layer.dataList.clear()
@@ -138,7 +140,12 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 searchList.clear()
                 searchAdapter.notifyDataSetChanged()
 
@@ -173,7 +180,12 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 if (searchList.isNotEmpty()) {
                     startNum = 0
                     searchInMap(sp_search_map_layer.selectedValue as Layer)
@@ -247,7 +259,10 @@ class SearchFragment : BaseFragment<SearchPresenter, SearchModel>(), SearchContr
             layer.featureTable.loadAsync()
             layer.featureTable.addDoneLoadingListener {
                 if (startNum == 0) {
-                    val countQuery = layer.featureTable.queryFeatureCountAsync(QueryParameters().apply { whereClause = getWhereStrFunction(layer, et_search_text.text.toString()) })
+                    val countQuery =
+                        layer.featureTable.queryFeatureCountAsync(QueryParameters().apply {
+                            whereClause = getWhereStrFunction(layer, et_search_text.text.toString())
+                        })
                     countQuery.addDoneListener {
                         showToast("查询到${countQuery.get()}个结果")
                     }

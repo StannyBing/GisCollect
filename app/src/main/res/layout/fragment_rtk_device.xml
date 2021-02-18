@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:text="接收外部定位"
+            android:textSize="@dimen/text_small_size" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_rtk_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:padding="5dp" />
+
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/sv_rtk_info"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="IP地址"
+                    android:textSize="@dimen/text_small_size" />
+
+                <EditText
+                    android:id="@+id/et_rtk_ip"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_normal_edit"
+                    android:gravity="center_vertical"
+                    android:hint="请输入..."
+                    android:imeOptions="actionNext"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_small_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="端口号"
+                    android:textSize="@dimen/text_small_size" />
+
+                <EditText
+                    android:id="@+id/et_rtk_port"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_normal_edit"
+                    android:gravity="center_vertical"
+                    android:hint="请输入..."
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_small_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="账号"
+                    android:textSize="@dimen/text_small_size" />
+
+                <EditText
+                    android:id="@+id/et_rtk_account"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_normal_edit"
+                    android:gravity="center_vertical"
+                    android:hint="请输入..."
+                    android:imeOptions="actionNext"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_small_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="密码"
+                    android:textSize="@dimen/text_small_size" />
+
+                <EditText
+                    android:id="@+id/et_rtk_password"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_normal_edit"
+                    android:gravity="center_vertical"
+                    android:hint="请输入..."
+                    android:imeOptions="actionNext"
+                    android:inputType="textPassword"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_small_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="挂载点"
+                    android:textSize="@dimen/text_small_size" />
+
+                <EditText
+                    android:id="@+id/et_rtk_point"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_normal_edit"
+                    android:gravity="center_vertical"
+                    android:hint="请输入..."
+                    android:imeOptions="actionNext"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_small_size" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/ll_rtk_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btn_rtk_cancel"
+            style="@style/MyCancelBtnStyle"
+            android:layout_width="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:visibility="gone"
+            android:text="断开连接" />
+
+        <Button
+            android:id="@+id/btn_rtk_connect"
+            style="@style/MyBtnStyle"
+            android:layout_width="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="连接设备" />
+
+    </LinearLayout>
+</LinearLayout>

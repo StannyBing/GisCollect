@@ -13,6 +13,7 @@ import com.frame.zxmvp.di.component.AppComponent
 import com.gt.giscollect.BuildConfig
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.tencent.bugly.crashreport.CrashReport
+import com.woncan.whand.WHandManager
 import com.zx.zxutils.ZXApp
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
@@ -48,6 +49,8 @@ open class MyApplication : BaseApplication() {
 
 //        ZXApp.init(this, true)
         ZXApp.init(this, !BuildConfig.RELEASE)
+
+        WHandManager.getInstance().init(true)
 
         //配置Bugly
         CrashReport.initCrashReport(this, "dcbe01e839", !BuildConfig.RELEASE)

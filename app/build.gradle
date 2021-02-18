@@ -9,8 +9,8 @@ android {
         applicationId "com.gt.giscollect"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 13
-        versionName "1.1.1"
+        versionCode 14
+        versionName "1.1.2"
         multiDexEnabled true
 
         vectorDrawables.useSupportLibrary = true
@@ -121,6 +121,7 @@ dependencies {
     implementation project(path: ':entrypad')
     implementation project(path: ':camera')
     implementation project(path: ':base')
+
 
 //    implementation "mil.nga.geopackage:geopackage-android:3.5.0"
 }

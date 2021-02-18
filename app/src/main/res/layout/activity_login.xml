@@ -25,10 +25,13 @@
 
             <TextView
                 android:id="@+id/tv_login_name"
-                android:layout_width="282dp"
-                android:layout_height="26dp"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
-                android:background="@drawable/app_name" />
+                android:textColor="#1E6AA6"
+                android:textSize="22sp"
+                android:text="清河CIM移动端数据采集系统" />
 
             <EditText
                 android:id="@+id/et_login_username"
