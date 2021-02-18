@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.StrictMode
+import android.util.Log
 import com.baidu.ocr.sdk.OCR
 import com.baidu.ocr.sdk.OnResultListener
 import com.baidu.ocr.sdk.exception.OCRError
@@ -13,6 +14,8 @@ import com.frame.zxmvp.di.component.AppComponent
 import com.gt.giscollect.BuildConfig
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.tencent.bugly.crashreport.CrashReport
+import com.tencent.smtt.export.external.TbsCoreSettings
+import com.tencent.smtt.sdk.QbSdk
 import com.woncan.whand.WHandManager
 import com.zx.zxutils.ZXApp
 import com.zx.zxutils.util.ZXFileUtil
@@ -20,6 +23,10 @@ import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import com.zx.zxutils.util.ZXToastUtil.showToast
 import java.util.*
+
+
+
+
 
 /**
  * Created by Xiangb on 2019/2/26.
@@ -38,7 +45,7 @@ open class MyApplication : BaseApplication() {
         var isOfflineMode = false
     }
 
-    lateinit var mContest: Context
+    lateinit var mContext: Context
     lateinit var component: AppComponent
 
     override fun onCreate() {
@@ -57,7 +64,7 @@ open class MyApplication : BaseApplication() {
 
         mSharedPrefUtil = ZXSharedPrefUtil()
         instance = this
-        mContest = this
+        mContext = this
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val builder = StrictMode.VmPolicy.Builder()
@@ -74,6 +81,7 @@ open class MyApplication : BaseApplication() {
 
         reinit()
         initAccessTokenWithAkSk(this)
+        initTbs()
     }
 
     fun reinit() {
@@ -169,5 +177,21 @@ open class MyApplication : BaseApplication() {
             }
 
         }, context, "A9ja6msDU0GhGusChhtRwZMh", "y2oGeYHrtnkCidGcMIKlSOI4QmlIvdg6")
+    }
+
+
+    private fun initTbs(){
+       val cb =  object :QbSdk.PreInitCallback{
+            override fun onCoreInitFinished() {
+                Log.e("fdfd","加载内核成功111")
+
+            }
+
+            override fun onViewInitFinished(p0: Boolean) {
+                Log.e("fdfd","加载内核成功  $p0")
+            }
+
+        }
+        QbSdk.initX5Environment(mContext,cb)
     }
 }

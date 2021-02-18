@@ -67,7 +67,7 @@ class GroundFigureActivity : BaseActivity<GroundFigureresenter, GroundFigureMode
             setData(TitleViewViewModel(getString(R.string.nextStep)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                    ResultShowActivity.startAction(this@GroundFigureActivity,false)
+
                 }
 
             })

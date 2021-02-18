@@ -1,5 +1,6 @@
 package com.gt.entrypad.module.project.ui.activity
 
+import android.Manifest
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.DialogInterface
@@ -14,6 +15,7 @@ import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
 import com.gt.entrypad.app.RouterPath
+import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.mvp.contract.DrawSketchContract
 import com.gt.entrypad.module.project.mvp.model.DrawSketchModel
@@ -67,21 +69,18 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     }
                     //信息上传
                     ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList,DialogInterface.OnClickListener { dialog, which ->
-                        //uploadInfo(arrayList[which])
                         when(arrayList[which]){
                             "房屋图.docx"->{
-                               CopyAssetsToSd.copy(mContext,"房屋图.docx",ZXSystemUtil.getSDCardPath()+"/fangwu","fangwu.docx")
-                               ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/fangwu/fangwu.docx"}"))
+
                             }
                             "宗地图.docx"->{
-                                CopyAssetsToSd.copy(mContext,"宗地图.docx",ZXSystemUtil.getSDCardPath()+"/zongdi","zongdi.docx")
-                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/zongdi/zongdi.docx"}"))
+
 
                             }
                             "渝北现场查勘表.docx"->{
-                                CopyAssetsToSd.copy(mContext,"渝北现场查勘表app.docx",ZXSystemUtil.getSDCardPath()+"/chankan","chankan.docx")
-                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/chankan/chankan.docx"}"))
-
+                              /*  CopyAssetsToSd.copy(mContext,"渝北现场查勘表app.docx",ZXSystemUtil.getSDCardPath()+"/chankan","chankan.docx")
+                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/chankan/chankan.docx"}"))*/
+                                uploadInfo("渝北现场查勘表.docx")
                             }
                         }
                     },DialogInterface.OnClickListener { dialog, which ->
@@ -107,24 +106,39 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
      * 上传填写信息
      */
     private fun uploadInfo(tplName:String){
-        var fileData = arrayListOf<String>()
-        val photoList = intent?.getSerializableExtra("photoData") as ArrayList<PhotoViewViewModel>
-        var infoData = if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData") as ArrayList<String> else arrayListOf()
-        //获取文件信息
-        photoList.forEach {
-            fileData.add(it.url)
+        getPermission(
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        ){
+            var fileData = arrayListOf<String>()
+            val photoList = intent?.getSerializableExtra("photoData") as ArrayList<PhotoViewViewModel>
+            var infoData = if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData") as ArrayList<String> else arrayListOf()
+            //获取文件信息
+            photoList.forEach {
+                fileData.add(it.url)
+            }
+            //获取草图
+            val sketch = mContext.filesDir.path + "/sketch/draw.jpg"
+            if (ZXFileUtil.isFileExists(sketch)) fileData.add(sketch)
+            mPresenter.uploadInfo(infoData,fileData,tplName)
         }
-        //获取草图
-        val sketch = mContext.filesDir.path + "/sketch/draw.jpg"
-        if (ZXFileUtil.isFileExists(sketch)) fileData.add(sketch)
-        mPresenter.uploadInfo(infoData,fileData,tplName)
     }
 
     /**
      * 上传回调接口
      */
-    override fun uploadResult(uploadResult: String?) {
-        ResultShowActivity.startAction(this,false)
+    override fun uploadResult(uploadResult: HouseTableBean?) {
+       uploadResult?.let {
+           mPresenter.downloadFile("房屋勘查表.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
+       }
     }
 
+    /**
+     * 下载文件成功回调
+     */
+    override fun onFileDownloadResult(file: File) {
+        ResultShowActivity.startAction(this,false,file.absolutePath)
+    }
 }

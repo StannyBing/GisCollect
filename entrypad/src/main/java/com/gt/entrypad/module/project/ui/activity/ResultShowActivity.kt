@@ -3,7 +3,9 @@ package com.gt.entrypad.module.project.ui.activity
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Intent
+import android.graphics.PixelFormat
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -22,10 +24,24 @@ import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewModel
 import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
+import com.tencent.smtt.sdk.QbSdk
+import com.tencent.smtt.sdk.ValueCallback
 import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
 import kotlinx.android.synthetic.main.activity_result_show.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1
+import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import androidx.core.content.ContextCompat.getSystemService
+import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
+import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.os.Environment
+import android.widget.FrameLayout
+import androidx.core.content.ContextCompat.getSystemService
+import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
+import com.tencent.smtt.sdk.TbsReaderView
+
 
 /**
  * create by 96212 on 2021/1/22.
@@ -33,45 +49,21 @@ import rx.functions.Action1
  * desc  成果展示
  */
 class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),ResultShowContract.View{
-    private var data = arrayListOf<InputInfoBean>()
-    private var resultAdapter = ResultShowAdapter(data)
+    private var filePath =""
+    private  var tbsReaderView:TbsReaderView?=null
     companion object {
         /**
          * 启动器
          */
-        fun startAction(activity: Activity, isFinish: Boolean) {
+        fun startAction(activity: Activity, isFinish: Boolean,path:String) {
             val intent = Intent(activity, ResultShowActivity::class.java)
+            intent.putExtra("filePath",path)
             activity.startActivity(intent)
             if (isFinish) activity.finish()
         }
     }
     override fun onViewListener() {
-        mRxManager.on("finish", Action1<ArrayList<InputInfoBean>>{
-            it?.let {
-                initData(it)
-            }
-        })
-        mRxManager.on("attachment", Action1<String> {
-            when(it){
-                "现场勘察表"->{
-                    ZXPhotoPreview.builder()
-                        .setPhotos(arrayListOf<String>().apply {
-                            add(R.drawable.suvery_picture.toString())
-                            add(R.drawable.property_picture.toString())
-                        })
-                        .setCurrentItem(0)
-                        .start(this)
-                }
-                "宗地房屋图"->{
-                    ZXPhotoPreview.builder()
-                        .setPhotos(arrayListOf<String>().apply {
-                            add(R.drawable.ground_picture.toString())
-                        })
-                        .setCurrentItem(0)
-                        .start(this)
-                }
-            }
-        })
+
     }
 
     override fun getLayoutId(): Int {
@@ -79,29 +71,9 @@ class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),
     }
 
     override fun initView(savedInstanceState: Bundle?) {
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
         super.initView(savedInstanceState)
-        recyclerView?.apply {
-            layoutManager= GridLayoutManager(mContext, 6).apply {
-                spanSizeLookup = object :GridLayoutManager.SpanSizeLookup(){
-                    override fun getSpanSize(position: Int): Int {
-                        when(data[position].itemType){
-                            1,4->{
-                                return  6
-                            }
-                            2->{
-                                return 3
-                            }
-                            else ->{
-                                2
-                            }
-                        }
-                        return 1
-                    }
-
-                }
-            }
-            adapter = resultAdapter
-        }
+        filePath =  if (intent?.hasExtra("filePath")==true) intent.getStringExtra("filePath") else ""
         toolBarTitleTv.text = getString(R.string.resultShow)
         leftTv.apply {
             setData(TitleViewViewModel(getString(R.string.lastStep)))
@@ -113,7 +85,7 @@ class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),
             })
         }
         rightTv.apply {
-            visibility = View.VISIBLE
+            visibility = View.GONE
             setData(TitleViewViewModel(getString(R.string.save)))
         }
         right2Tv.apply {
@@ -126,54 +98,25 @@ class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),
 
             })
         }
+        initReaderView()
     }
 
 
-    private fun initData(dataList:ArrayList<InputInfoBean>){
-        data.clear()
-        data.add(InputInfoBean(1,TitleViewViewModel("基础属性数据").apply {
-            resId = R.style.titleText
-        }))
-        dataList.forEach {
-            val tempData = it.data
-        if (it.itemType!=1){
-            when(tempData){
-                is EditTextViewViewModel->{
-                    data.add(InputInfoBean(2,ResultShowViewViewModel(tempData.title,tempData.inputContent)))
-                }
-                is SpinnerViewViewModel->{
-                    data.add(InputInfoBean(2,ResultShowViewViewModel(tempData.title,tempData.inputContent)))
-                }
-                is InfoDialogViewViewModel->{
-                    data.add(InputInfoBean(2,ResultShowViewViewModel(tempData.title,tempData.inputContent)))
-                }
-            }
+    private fun initReaderView(){
+        tbsReaderView = TbsReaderView(this,
+            TbsReaderView.ReaderCallback { p0, p1, p2 -> })
+        tbsReaderFl.addView(tbsReaderView,FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT))
+        val preOpen = tbsReaderView?.preOpen("docx", false)
+        if (preOpen==true){
+            tbsReaderView?.openFile(Bundle().apply {
+                putString("filePath",filePath)
+                putString("tempPath",Environment.getExternalStorageDirectory().path)
+            })
         }
-        }
-        data.add(InputInfoBean(1,TitleViewViewModel("业务附件").apply {
-            resId = R.style.titleText
-        }))
-        data.add(InputInfoBean(3,TitleViewViewModel("现场勘察表").apply {
-            resId = R.style.titleTextShape
-        }))
-        data.add(InputInfoBean(3,TitleViewViewModel("坐标文件").apply {
-            resId = R.style.titleTextShape
-        }))
-        data.add(InputInfoBean(3,TitleViewViewModel("现场图片").apply {
-            resId = R.style.titleTextShape
-        }))
-        data.add(InputInfoBean(3,TitleViewViewModel("宗地房屋图").apply {
-            resId = R.style.titleTextShape
-        }))
-        data.add(InputInfoBean(3,TitleViewViewModel("申请表").apply {
-            resId = R.style.titleTextShape
-        }))
-        data.add(InputInfoBean(3,TitleViewViewModel("权益调查表").apply {
-            resId = R.style.titleTextShape
-        }))
-        data.add(InputInfoBean(4,TitleViewViewModel("权利人签名").apply {
-            resId = R.style.titleText
-        }))
-        resultAdapter.notifyDataSetChanged()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tbsReaderView?.onStop()
     }
 }
