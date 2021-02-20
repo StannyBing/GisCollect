@@ -14,8 +14,6 @@ import com.frame.zxmvp.di.component.AppComponent
 import com.gt.giscollect.BuildConfig
 import com.gt.giscollect.module.main.func.tool.MapTool
 import com.tencent.bugly.crashreport.CrashReport
-import com.tencent.smtt.export.external.TbsCoreSettings
-import com.tencent.smtt.sdk.QbSdk
 import com.zx.zxutils.ZXApp
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
@@ -78,7 +76,6 @@ open class MyApplication : BaseApplication() {
 
         reinit()
         initAccessTokenWithAkSk(this)
-        initTbs()
     }
 
     fun reinit() {
@@ -174,21 +171,5 @@ open class MyApplication : BaseApplication() {
             }
 
         }, context, "A9ja6msDU0GhGusChhtRwZMh", "y2oGeYHrtnkCidGcMIKlSOI4QmlIvdg6")
-    }
-
-
-    private fun initTbs(){
-       val cb =  object :QbSdk.PreInitCallback{
-            override fun onCoreInitFinished() {
-                Log.e("fdfd","加载内核成功111")
-
-            }
-
-            override fun onViewInitFinished(p0: Boolean) {
-                Log.e("fdfd","加载内核成功  $p0")
-            }
-
-        }
-        QbSdk.initX5Environment(mContext,cb)
     }
 }
