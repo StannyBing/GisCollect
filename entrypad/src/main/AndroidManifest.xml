@@ -44,10 +44,5 @@ package="com.gt.entrypad">
             android:screenOrientation="landscape"
             android:theme="@style/MainAppTheme"/>
 
-        <service
-            android:name="com.tencent.smtt.export.external.DexClassLoaderProviderService"
-            android:label="dexopt"
-            android:process=":dexopt" >
-        </service>
     </application>
 </manifest>
