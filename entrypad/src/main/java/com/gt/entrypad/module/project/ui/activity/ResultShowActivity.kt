@@ -13,34 +13,12 @@ import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
-import com.gt.entrypad.module.project.bean.InputInfoBean
-import com.gt.entrypad.module.project.func.ResultShowAdapter
 import com.gt.entrypad.module.project.mvp.contract.ResultShowContract
 import com.gt.entrypad.module.project.mvp.model.ResultShowModel
 import com.gt.entrypad.module.project.mvp.presenter.ResultShowPresenter
-import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
-import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewModel
-import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
-import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewModel
-import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
+
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
-import com.tencent.smtt.sdk.QbSdk
-import com.tencent.smtt.sdk.ValueCallback
-import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
-import kotlinx.android.synthetic.main.activity_result_show.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
-import rx.functions.Action1
-import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import androidx.core.content.ContextCompat.getSystemService
-import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
-import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.os.Environment
-import android.widget.FrameLayout
-import androidx.core.content.ContextCompat.getSystemService
-import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
-import com.tencent.smtt.sdk.TbsReaderView
 
 
 /**
@@ -50,7 +28,6 @@ import com.tencent.smtt.sdk.TbsReaderView
  */
 class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),ResultShowContract.View{
     private var filePath =""
-    private  var tbsReaderView:TbsReaderView?=null
     companion object {
         /**
          * 启动器
@@ -98,25 +75,9 @@ class ResultShowActivity : BaseActivity<ResultShowPresenter, ResultShowModel>(),
 
             })
         }
-        initReaderView()
-    }
-
-
-    private fun initReaderView(){
-        tbsReaderView = TbsReaderView(this,
-            TbsReaderView.ReaderCallback { p0, p1, p2 -> })
-        tbsReaderFl.addView(tbsReaderView,FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT))
-        val preOpen = tbsReaderView?.preOpen("docx", false)
-        if (preOpen==true){
-            tbsReaderView?.openFile(Bundle().apply {
-                putString("filePath",filePath)
-                putString("tempPath",Environment.getExternalStorageDirectory().path)
-            })
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        tbsReaderView?.onStop()
     }
 }
