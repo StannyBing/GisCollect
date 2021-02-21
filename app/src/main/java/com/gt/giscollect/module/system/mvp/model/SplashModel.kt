@@ -4,14 +4,10 @@ import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSchedulers
 import com.gt.giscollect.api.ApiService
-import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.UserBean
+import com.gt.base.manager.UserBean
 
 import com.gt.giscollect.module.system.mvp.contract.SplashContract
-import com.zx.zxutils.http.ZXHttpListener
-import com.zx.zxutils.http.ZXHttpTool
 import okhttp3.RequestBody
-import org.json.JSONObject
 import rx.Observable
 
 /**

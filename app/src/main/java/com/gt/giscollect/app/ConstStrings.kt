@@ -1,6 +1,6 @@
 package com.gt.giscollect.app
 
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.collect.bean.CheckBean
 import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.zx.zxutils.util.ZXSharedPrefUtil
@@ -105,6 +105,7 @@ object ConstStrings {
     fun getOperationalLayersPath(): String {
         return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + bussinessId + "/"
     }
+
 
     //地图默认中心点
     var Longitude = 106.496001

@@ -6,27 +6,20 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
-import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.Field
 import com.gt.giscollect.R
-import com.gt.giscollect.module.collect.bean.CollectBean
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
-import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXTimeUtil
 import com.zx.zxutils.views.ZXSpinner
 import java.text.SimpleDateFormat
 import java.util.*
 
 class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
-    ZXQuickAdapter<Pair<Field, Any?>, ZXBaseHolder>(R.layout.item_collect_edit_field, dataList) {
+    ZXQuickAdapter<Pair<Field, Any?>, ZXBaseHolder>(R.layout.item_sketch_edit_field, dataList) {
 
     public var editable: Boolean = true
 

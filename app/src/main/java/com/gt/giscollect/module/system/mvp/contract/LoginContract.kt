@@ -3,7 +3,7 @@ package com.gt.giscollect.module.system.mvp.contract
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IView
 import com.frame.zxmvp.base.IModel
-import com.gt.giscollect.base.UserBean
+import com.gt.base.manager.UserBean
 import okhttp3.RequestBody
 import rx.Observable
 

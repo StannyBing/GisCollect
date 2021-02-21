@@ -2,11 +2,9 @@ package com.gt.giscollect.api
 
 import com.frame.zxmvp.basebean.BaseRespose
 import com.gt.giscollect.base.NormalList
-import com.gt.giscollect.base.UserBean
+import com.gt.base.manager.UserBean
 import com.gt.giscollect.module.collect.bean.CheckBean
-import com.gt.giscollect.module.collect.bean.UploadFileBean
 import com.gt.giscollect.module.collect.bean.VersionBean
-import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.module.system.bean.TemplateBean
 import okhttp3.RequestBody

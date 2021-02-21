@@ -2,8 +2,7 @@ package com.gt.giscollect.module.system.mvp.presenter
 
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
-import com.gt.giscollect.base.UserBean
-import com.gt.giscollect.module.system.func.tool.NetworkUtils
+import com.gt.base.manager.UserBean
 import com.gt.giscollect.module.system.mvp.contract.SplashContract
 import okhttp3.RequestBody
 

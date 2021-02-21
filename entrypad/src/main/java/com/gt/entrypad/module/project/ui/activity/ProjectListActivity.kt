@@ -3,8 +3,12 @@ package com.gt.entrypad.module.project.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.esri.arcgisruntime.data.GeoPackage
+import com.esri.arcgisruntime.layers.FeatureLayer
+import com.esri.arcgisruntime.loadable.LoadStatus
 import com.gt.base.activity.BaseActivity
 import com.gt.entrypad.app.RouterPath
 import com.gt.base.view.ICustomViewActionListener
@@ -16,7 +20,12 @@ import com.gt.entrypad.module.project.mvp.presenter.ProjectListPresenter
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.views.ZXStatusBarCompat
 import com.gt.entrypad.R
+import com.gt.entrypad.tool.CopyAssetsToSd
+import com.zx.bui.ui.buidialog.BUIDialog
+import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.layout_tool_bar.*
+import java.io.File
 
 /**
  * Create By admin On 2017/7/11
@@ -55,16 +64,28 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   ScanIdCardActivity.startAction(this@ProjectListActivity,false)
+                   DrawSketchActivity.startAction(this@ProjectListActivity,false, arrayListOf(), arrayListOf())
                }
 
            })
        }
         toolBarTitleTv.text = getString(R.string.registrationList)
-
+       getPermission(arrayOf()){
+            downloadModule()
+       }
     }
-
-
-
+    /**
+     * 模板下载
+     */
+    private fun downloadModule(){
+        val absolutePath = ZXSystemUtil.getSDCardPath() + "jungong"
+        if (!ZXFileUtil.isFileExists("${absolutePath}jungong.gpkg")){
+            showLoading("模板下载中...")
+            CopyAssetsToSd.copy(mContext,"jungong.gpkg", absolutePath,"jungong.gpkg")
+            dismissLoading()
+        }
+    }
 }
+
+
 

@@ -106,6 +106,13 @@ class SketchPadFuncView @JvmOverloads constructor(
                 R.drawable.icon_sketch_normal_size
             )
         )
+        /*funcList.add(
+            SketchPadFuncBean(
+                "落地",
+                R.drawable.icon_sketch_load,
+                R.drawable.icon_sketch_normal_load
+            )
+        )*/
         rvList.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = funcAdapter
@@ -140,6 +147,9 @@ class SketchPadFuncView @JvmOverloads constructor(
                 }
                 "长度" -> {
                     sketchPadListener?.showSizeInfo(funcBean.isChecked)
+                }
+                "落地"->{
+
                 }
             }
             funcAdapter.notifyDataSetChanged()

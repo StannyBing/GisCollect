@@ -53,7 +53,6 @@ open class MyApplication : BaseApplication() {
         ZXApp.init(this, !BuildConfig.RELEASE)
 
         WHandManager.getInstance().init(true)
-
         //配置Bugly
         CrashReport.initCrashReport(this, "dcbe01e839", !BuildConfig.RELEASE)
 

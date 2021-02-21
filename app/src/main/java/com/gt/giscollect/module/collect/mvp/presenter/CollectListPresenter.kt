@@ -12,11 +12,10 @@ import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.NormalList
 import com.gt.giscollect.module.collect.bean.CheckBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.tencent.bugly.crashreport.CrashReport
 import com.zx.zxutils.listener.ZXUnZipRarListener
 import com.zx.zxutils.util.ZXFileUtil
-import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXUnZipRarUtil
 import okhttp3.MediaType
 import okhttp3.MultipartBody

@@ -25,6 +25,7 @@ import com.gt.giscollect.module.query.ui.MeasureFragment
 import com.gt.giscollect.module.query.ui.SearchFragment
 import com.gt.giscollect.module.query.ui.StatisticsFragment
 import com.gt.giscollect.module.system.ui.SettingMainFragment
+import com.gt.map.MapFragment
 import com.gt.module_map.view.measure.MeasureView
 import com.zx.zxutils.http.ZXHttpListener
 import com.zx.zxutils.http.ZXHttpTool
@@ -76,7 +77,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
      */
     override fun initView(savedInstanceState: Bundle?) {
         //地图
-        ZXFragmentUtil.addFragment(supportFragmentManager, MapFragment.newInstance().apply {
+        ZXFragmentUtil.addFragment(supportFragmentManager, com.gt.map.MapFragment.newInstance().apply {
             mapFragment = this
         }, R.id.fm_map)
         //功能按钮

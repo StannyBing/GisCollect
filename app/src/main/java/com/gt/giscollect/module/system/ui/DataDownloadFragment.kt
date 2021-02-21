@@ -15,7 +15,7 @@ import com.gt.giscollect.module.system.mvp.contract.DataDownloadContract
 import com.gt.giscollect.module.system.mvp.model.DataDownloadModel
 import com.gt.giscollect.module.system.mvp.presenter.DataDownloadPresenter
 import com.gt.giscollect.tool.SimpleDecoration
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil

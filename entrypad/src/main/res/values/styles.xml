@@ -33,7 +33,13 @@
         <item name="android:textColorHint">@color/colorDeepGray</item>
         <item name="android:hint">@string/emptyText</item>
     </style>
-
+    <style name="MyBtnStyle" parent="TextAppearance.AppCompat.Widget.Button.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/shape_btn_bg</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing" tools:targetApi="lollipop">0.1</item>
+    </style>
     <style name="titleText" parent="titleNormalText">
         <item name="android:textColor">@color/black</item>
         <item name="android:layout_marginTop">8dp</item>

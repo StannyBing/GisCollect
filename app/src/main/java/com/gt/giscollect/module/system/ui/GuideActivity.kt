@@ -1,8 +1,6 @@
 package com.gt.giscollect.module.system.ui
 
 import android.app.Activity
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothProfile
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,7 +9,7 @@ import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.main.ui.MainActivity
 import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.gt.giscollect.module.system.bean.GuideBean
@@ -20,10 +18,8 @@ import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
 import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXLogUtil
 import kotlinx.android.synthetic.main.activity_guide.*
 import org.json.JSONObject
-import java.lang.Exception
 
 
 /**

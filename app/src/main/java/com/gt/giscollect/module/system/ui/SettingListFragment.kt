@@ -6,7 +6,6 @@ import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.AppInfoManager
 import com.gt.base.fragment.BaseFragment
-import com.gt.base.tool.WHandTool
 import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.SettingBean
@@ -15,7 +14,7 @@ import com.gt.giscollect.module.system.mvp.contract.SettingListContract
 import com.gt.giscollect.module.system.mvp.model.SettingListModel
 import com.gt.giscollect.module.system.mvp.presenter.SettingListPresenter
 import com.gt.giscollect.tool.SimpleDecoration
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.zx.zxutils.util.ZXAppUtil
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXSystemUtil

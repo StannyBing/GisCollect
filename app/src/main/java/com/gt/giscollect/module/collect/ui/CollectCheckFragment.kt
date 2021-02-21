@@ -12,7 +12,7 @@ import com.gt.giscollect.module.collect.mvp.contract.CollectCheckContract
 import com.gt.giscollect.module.collect.mvp.model.CollectCheckModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectCheckPresenter
 import com.gt.giscollect.tool.SimpleDecoration
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_check.*
 

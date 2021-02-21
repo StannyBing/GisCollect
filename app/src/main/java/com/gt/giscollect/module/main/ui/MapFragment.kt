@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.main.ui
+package com.gt.map
 
 import android.Manifest
 import android.graphics.Color
@@ -11,7 +11,6 @@ import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.layers.*
 import com.esri.arcgisruntime.loadable.LoadStatus
-import com.esri.arcgisruntime.location.LocationDataSource
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.*
 import com.esri.arcgisruntime.symbology.*
@@ -28,7 +27,7 @@ import com.gt.giscollect.module.main.func.tool.MapTool
 import com.gt.giscollect.module.main.mvp.contract.MapContract
 import com.gt.giscollect.module.main.mvp.model.MapModel
 import com.gt.giscollect.module.main.mvp.presenter.MapPresenter
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.gt.module_map.tool.PointTool
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_map.*

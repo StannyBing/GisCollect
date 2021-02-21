@@ -7,7 +7,7 @@ import com.gt.giscollect.base.FragChangeListener
 import com.gt.giscollect.module.system.mvp.contract.ChangePwdContract
 import com.gt.giscollect.module.system.mvp.model.ChangePwdModel
 import com.gt.giscollect.module.system.mvp.presenter.ChangePwdPresenter
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.fragment_change_pwd.*
 

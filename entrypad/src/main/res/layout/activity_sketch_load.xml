@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout
+        android:id="@+id/mapFl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <ImageView
+        android:id="@+id/iv_data_show"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/shape_data_status"
+        android:padding="11dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/main_show_data" />
+
+    <LinearLayout
+        android:id="@+id/rl_main_data"
+        android:layout_width="260dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <ImageView
+            android:id="@+id/iv_data_hide"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/shape_data_status"
+            android:padding="8dp"
+            app:srcCompat="@drawable/main_hide_data" />
+
+        <FrameLayout
+            android:id="@+id/fm_data"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/content_bg" />
+
+    </LinearLayout>
+</RelativeLayout>

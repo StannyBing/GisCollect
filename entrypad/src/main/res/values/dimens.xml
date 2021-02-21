@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="peekHeight">256dp</dimen>
+    <dimen name="text_size_small">13sp</dimen>
+    <dimen name="text_size_normal">15sp</dimen>
+
 </resources>

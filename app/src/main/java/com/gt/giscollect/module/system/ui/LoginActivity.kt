@@ -10,13 +10,13 @@ import com.gt.giscollect.R
 import com.gt.giscollect.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.AppInfoManager
-import com.gt.giscollect.base.UserBean
+import com.gt.base.manager.UserBean
 import com.gt.giscollect.base.toJson
 
 import com.gt.giscollect.module.system.mvp.contract.LoginContract
 import com.gt.giscollect.module.system.mvp.model.LoginModel
 import com.gt.giscollect.module.system.mvp.presenter.LoginPresenter
-import com.gt.giscollect.base.UserManager
+import com.gt.base.manager.UserManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXUniqueIdUtil

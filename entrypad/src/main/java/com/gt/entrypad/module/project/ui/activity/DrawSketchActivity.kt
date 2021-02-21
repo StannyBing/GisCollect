@@ -10,6 +10,9 @@ import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.esri.arcgisruntime.data.GeoPackage
+import com.esri.arcgisruntime.layers.FeatureLayer
+import com.esri.arcgisruntime.loadable.LoadStatus
 import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -47,7 +50,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        toolBarTitleTv.text = getString(R.string.sketchDraw)
+        toolBarTitleTv.text = getString(R.string.registrationPlatform)
         leftTv.apply {
             setData(TitleViewViewModel(getString(R.string.lastStep)))
             setActionListener(object : ICustomViewActionListener {
@@ -59,10 +62,10 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         }
         rightTv.apply {
             visibility= View.VISIBLE
-            setData(TitleViewViewModel(getString(R.string.submit)))
+            setData(TitleViewViewModel(getString(R.string.load)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                    val arrayList = arrayListOf<String>().apply {
+/*                    val arrayList = arrayListOf<String>().apply {
                         add("房屋图.docx")
                         add("宗地图.docx")
                         add("渝北现场查勘表.docx")
@@ -78,14 +81,15 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
 
                             }
                             "渝北现场查勘表.docx"->{
-                              /*  CopyAssetsToSd.copy(mContext,"渝北现场查勘表app.docx",ZXSystemUtil.getSDCardPath()+"/chankan","chankan.docx")
-                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/chankan/chankan.docx"}"))*/
+                              *//*  CopyAssetsToSd.copy(mContext,"渝北现场查勘表app.docx",ZXSystemUtil.getSDCardPath()+"/chankan","chankan.docx")
+                                ZXFileUtil.openFile(mContext,File("${ZXSystemUtil.getSDCardPath()+"/chankan/chankan.docx"}"))*//*
                                 uploadInfo("渝北现场查勘表.docx")
                             }
                         }
                     },DialogInterface.OnClickListener { dialog, which ->
 
-                    })
+                    })*/
+                    SketchLoadActivity.startAction(this@DrawSketchActivity,false)
                 }
 
             })
