@@ -1,10 +1,8 @@
-package com.gt.giscollect.module.collect.func.tool
+package com.gt.module_map.tool
 
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
-import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.module.main.func.tool.FileUtils
 
 object DeleteLayerFileTool {
 
@@ -12,7 +10,7 @@ object DeleteLayerFileTool {
         feature.attributes.keys.forEach {
             try {
                 if (it in arrayOf("camera", "video", "record","CAMERA", "VIDEO", "RECORD")) {
-                    val paths = feature.attributes[it].toString().split(ConstStrings.File_Split_Char)
+                    val paths = feature.attributes[it].toString().split(",")
                     paths.forEach {
                         if (it.isNotEmpty()) {
                             FileUtils.deleteFiles(parentPath + it)

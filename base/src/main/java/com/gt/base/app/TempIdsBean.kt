@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.system.bean
+package com.gt.base.app
 
 import java.io.Serializable
 

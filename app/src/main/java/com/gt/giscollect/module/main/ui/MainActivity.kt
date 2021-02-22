@@ -13,9 +13,9 @@ import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.module.collect.ui.CollectMainFragment
 import com.gt.giscollect.module.layer.ui.LayerFragment
-import com.gt.giscollect.module.main.func.listener.MapListener
+import com.gt.module_map.listener.MapListener
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 
 import com.gt.giscollect.module.main.mvp.contract.MainContract
 import com.gt.giscollect.module.main.mvp.model.MainModel

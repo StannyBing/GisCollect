@@ -13,6 +13,7 @@ import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.listener.FragChangeListener
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
@@ -39,6 +40,7 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     private var filePath = ""
     private var currentFeature: Feature? = null
     private var uploadTempFile: File? = null
+    var fragChangeListener: FragChangeListener? = null
 
     companion object {
         /**

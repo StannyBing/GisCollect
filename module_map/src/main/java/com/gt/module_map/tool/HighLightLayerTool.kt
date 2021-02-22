@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.query.func.tool
+package com.gt.module_map.tool
 
 import android.graphics.Color
 import com.esri.arcgisruntime.data.Feature
@@ -8,9 +8,7 @@ import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
-import com.gt.giscollect.R
-import com.gt.giscollect.module.main.func.tool.MapTool
-import com.zx.zxutils.util.ZXLogUtil
+import com.gt.module_map.R
 
 object HighLightLayerTool {
 

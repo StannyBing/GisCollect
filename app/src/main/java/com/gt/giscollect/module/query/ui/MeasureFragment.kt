@@ -9,8 +9,8 @@ import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.gt.giscollect.R
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.module.collect.func.tool.GeometrySizeTool
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.GeometrySizeTool
+import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.query.mvp.contract.MeasureContract
 import com.gt.giscollect.module.query.mvp.model.MeasureModel
 import com.gt.giscollect.module.query.mvp.presenter.MeasurePresenter

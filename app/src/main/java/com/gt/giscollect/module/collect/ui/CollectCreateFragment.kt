@@ -12,17 +12,17 @@ import com.esri.arcgisruntime.data.ShapefileFeatureTable
 import com.esri.arcgisruntime.geometry.GeometryType
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.collect.bean.CollectBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldCreateAdapter
 import com.gt.giscollect.module.collect.mvp.contract.CollectCreateContract
 import com.gt.giscollect.module.collect.mvp.model.CollectCreateModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectCreatePresenter
-import com.gt.giscollect.module.main.func.tool.GeoPackageTool
-import com.gt.giscollect.module.main.func.tool.MapTool
-import com.gt.giscollect.module.system.bean.TempIdsBean
+import com.gt.module_map.tool.GeoPackageTool
+import com.gt.module_map.tool.MapTool
+import com.gt.base.app.TempIdsBean
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.listener.ZXRecordListener
@@ -37,7 +37,7 @@ import java.io.File
  * Create By XB
  * 功能：新增采集
  */
-class CollectCreateFragment : com.gt.base.fragment.BaseFragment<CollectCreatePresenter, CollectCreateModel>(),
+class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreateModel>(),
     CollectCreateContract.View {
     companion object {
         /**

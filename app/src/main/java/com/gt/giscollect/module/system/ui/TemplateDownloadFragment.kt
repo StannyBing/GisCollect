@@ -3,10 +3,11 @@ package com.gt.giscollect.module.system.ui
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.base.*
-import com.gt.giscollect.module.system.bean.TempIdsBean
+import com.gt.base.app.TempIdsBean
 import com.gt.giscollect.module.system.bean.TemplateBean
 import com.gt.giscollect.module.system.func.adapter.TempalteListAdapter
 import com.gt.giscollect.module.system.mvp.contract.TemplateDownloadContract
@@ -138,7 +139,8 @@ class TemplateDownloadFragment : BaseFragment<TemplateDownloadPresenter, Templat
                 it.isDownload = ZXFileUtil.isFileExists(ConstStrings.getCollectTemplatePath() + fileName)
                 if (it.isDownload) {
                     val templateIds = arrayListOf<TempIdsBean>()
-                    if (mSharedPrefUtil.contains(ConstStrings.TemplateIdList) && !mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+                    if (mSharedPrefUtil.contains(ConstStrings.TemplateIdList) && !mSharedPrefUtil.getList<TempIdsBean>(
+                            ConstStrings.TemplateIdList)
                             .isNullOrEmpty()
                     ) {
                         templateIds.addAll(mSharedPrefUtil.getList(ConstStrings.TemplateIdList) ?: arrayListOf())
@@ -150,7 +152,13 @@ class TemplateDownloadFragment : BaseFragment<TemplateDownloadPresenter, Templat
                             return@forEach
                         }
                     }
-                    if (!isHasTemplate) templateIds.add(TempIdsBean(fileName, it.templateId, it.catalogId))
+                    if (!isHasTemplate) templateIds.add(
+                        TempIdsBean(
+                            fileName,
+                            it.templateId,
+                            it.catalogId
+                        )
+                    )
                     mSharedPrefUtil.putList(ConstStrings.TemplateIdList, templateIds)
                 }
             } catch (e: Exception) {

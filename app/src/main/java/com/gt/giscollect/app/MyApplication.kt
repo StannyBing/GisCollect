@@ -4,15 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.StrictMode
-import android.util.Log
 import com.baidu.ocr.sdk.OCR
 import com.baidu.ocr.sdk.OnResultListener
 import com.baidu.ocr.sdk.exception.OCRError
 import com.baidu.ocr.sdk.model.AccessToken
 import com.frame.zxmvp.baseapp.BaseApplication
 import com.frame.zxmvp.di.component.AppComponent
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.BuildConfig
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import com.tencent.bugly.crashreport.CrashReport
 import com.woncan.whand.WHandManager
 import com.zx.zxutils.ZXApp

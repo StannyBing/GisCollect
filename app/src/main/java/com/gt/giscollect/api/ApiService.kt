@@ -3,7 +3,7 @@ package com.gt.giscollect.api
 import com.frame.zxmvp.basebean.BaseRespose
 import com.gt.giscollect.base.NormalList
 import com.gt.base.manager.UserBean
-import com.gt.giscollect.module.collect.bean.CheckBean
+import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.module.system.bean.TemplateBean

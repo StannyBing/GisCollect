@@ -1,6 +1,7 @@
 package com.gt.giscollect.module.system.bean
 
 import androidx.annotation.DrawableRes
+import com.gt.base.app.AppFuncBean
 import com.zx.zxutils.other.QuickAdapter.entity.AbstractExpandableItem
 import com.zx.zxutils.other.QuickAdapter.entity.MultiItemEntity
 

@@ -10,10 +10,10 @@ import android.widget.LinearLayout
 import com.esri.arcgisruntime.data.*
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.base.AppInfoManager
+import com.gt.base.app.ConstStrings
+import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldEditAdapter
 import com.gt.giscollect.module.collect.func.adapter.CollectFileAdapter
@@ -21,7 +21,7 @@ import com.gt.giscollect.module.collect.func.tool.InScrollGridLayoutManager
 import com.gt.giscollect.module.collect.mvp.contract.CollectFieldContract
 import com.gt.giscollect.module.collect.mvp.model.CollectFieldModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectFieldPresenter
-import com.gt.giscollect.module.main.func.tool.FileUtils
+import com.gt.module_map.tool.FileUtils
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.listener.ZXRecordListener
 import com.zx.zxutils.other.ZXInScrollRecylerManager

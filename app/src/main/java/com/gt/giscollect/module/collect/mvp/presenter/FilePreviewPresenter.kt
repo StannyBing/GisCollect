@@ -4,7 +4,7 @@ import com.frame.zxmvp.http.download.DownInfo
 import com.frame.zxmvp.http.download.listener.DownloadOnNextListener
 import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.gt.giscollect.api.ApiConfigModule
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.module.collect.mvp.contract.FilePreviewContract
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil

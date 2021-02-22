@@ -1,7 +1,6 @@
-package com.gt.giscollect.base
+package com.gt.base.app
 
-import com.gt.giscollect.app.MyApplication
-import com.zx.zxutils.util.ZXLogUtil
+import com.zx.zxutils.util.ZXSharedPrefUtil
 import org.json.JSONObject
 
 /**
@@ -9,17 +8,17 @@ import org.json.JSONObject
  * 功能：配置管理器
  */
 object AppInfoManager {
-
+    val mSharedPrefUtil = ZXSharedPrefUtil()
     var appInfo: AppInfoBean? = null
         get() {
             if (field == null) {
-                val sharedPref = MyApplication.mSharedPrefUtil
+                val sharedPref = mSharedPrefUtil
                 return sharedPref.getObject("appInfoBean")
             }
             return field
         }
         set(value) {
-            val sharedPref = MyApplication.mSharedPrefUtil
+            val sharedPref = mSharedPrefUtil
             sharedPref.putObject("appInfoBean", value)
             field = value
         }
@@ -101,7 +100,7 @@ object AppInfoManager {
                     e.printStackTrace()
                 }
             }
-            this.appInfo = appInfoBean
+            AppInfoManager.appInfo = appInfoBean
         } catch (e: Exception) {
             e.printStackTrace()
         }

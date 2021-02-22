@@ -1,7 +1,4 @@
-package com.gt.giscollect.base
-
-import android.os.Bundle
-
+package com.gt.base.listener
 interface FragChangeListener {
 
     fun onFragBack(type: String, any: Any? = null)

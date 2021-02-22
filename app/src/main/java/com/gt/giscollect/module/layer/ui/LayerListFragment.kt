@@ -13,14 +13,14 @@ import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.symbology.SimpleRenderer
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.base.AppInfoManager
+import com.gt.base.app.ConstStrings
+import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.layer.func.adapter.DataLayerAdapter
 import com.gt.giscollect.module.layer.mvp.contract.LayerListContract
 import com.gt.giscollect.module.layer.mvp.model.LayerListModel
 import com.gt.giscollect.module.layer.mvp.presenter.LayerListPresenter
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.main.func.tool.StyleFileTool
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.util.ZXDialogUtil

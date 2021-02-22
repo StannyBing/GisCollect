@@ -10,6 +10,7 @@ import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.gt.base.activity.BaseActivity
+import com.gt.base.app.ConstStrings
 import com.gt.entrypad.app.RouterPath
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -78,10 +79,9 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
      * 模板下载
      */
     private fun downloadModule(){
-        val absolutePath = ZXSystemUtil.getSDCardPath() + "jungong"
-        if (!ZXFileUtil.isFileExists("${absolutePath}jungong.gpkg")){
+        if (!ZXFileUtil.isFileExists("${ConstStrings.getSketchTemplatePath()}jungong.gpkg")){
             showLoading("模板下载中...")
-            CopyAssetsToSd.copy(mContext,"jungong.gpkg", absolutePath,"jungong.gpkg")
+            CopyAssetsToSd.copy(mContext,"jungong.gpkg", ConstStrings.getSketchTemplatePath(),"jungong.gpkg")
             dismissLoading()
         }
     }

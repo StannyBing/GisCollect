@@ -12,6 +12,7 @@ import com.gt.entrypad.module.project.mvp.model.MapModel
 import com.gt.entrypad.module.project.mvp.presenter.MapPresenter
 import com.gt.entrypad.module.project.ui.fragment.MapFragment
 import com.gt.entrypad.module.project.ui.fragment.SketchFiledFragment
+import com.gt.entrypad.module.project.ui.fragment.SketchMainFragment
 import com.zx.zxutils.util.ZXFragmentUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.activity_sketch_load.*
@@ -31,7 +32,7 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
         super.initView(savedInstanceState)
         ZXFragmentUtil.addFragment(supportFragmentManager,MapFragment.newInstance(),R.id.mapFl)
         iv_data_show.performClick()
-        ZXFragmentUtil.addFragment(supportFragmentManager,SketchFiledFragment.newInstance(),R.id.fm_data)
+        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(),R.id.fm_data)
     }
 
     override fun onViewListener() {

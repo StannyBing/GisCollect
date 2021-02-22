@@ -1,10 +1,13 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.Manifest
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.data.GeoPackage
+import com.esri.arcgisruntime.data.ShapefileFeatureTable
+import com.esri.arcgisruntime.geometry.GeometryType
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.layers.FeatureLayer
@@ -13,6 +16,10 @@ import com.esri.arcgisruntime.layers.WebTiledLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.LocationDisplay
+import com.esri.arcgisruntime.symbology.SimpleFillSymbol
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
+import com.esri.arcgisruntime.symbology.UniqueValueRenderer
+import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.tool.WHandTool
 import com.gt.entrypad.R
@@ -57,10 +64,11 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         map_view.isAttributionTextVisible = false
         map = ArcGISMap(SpatialReference.create(3857))
         initBaseLayers()
+        addOpreationalLayer(ConstStrings.getSketchTemplatePath())
         doLocation()
         map_view.map = map
         map_view.setViewpointCenterAsync(
-            com.esri.arcgisruntime.geometry.Point(
+           Point(
                 11864933.73932961,
                 3447878.713329921,
                 map.spatialReference
@@ -146,5 +154,61 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         map.basemap.baseLayers.add(vectorLayer.apply { name = "矢量地图" })
         map.basemap.baseLayers.add(vectorLableLayer.apply { name = "矢量标注" })
 
+    }
+
+    /**
+     * 遍历文件夹中的shape
+     */
+    private fun addOpreationalLayer(path: String) {
+        val file = File(path)
+        if (file.exists() && file.isDirectory && file.listFiles().isNotEmpty()) {
+            file.listFiles().forEach {
+                addOpreationalLayer(it.path)
+            }
+        } else if (file.exists() && file.isFile && file.name.endsWith(".shp")) {
+            val shapefileFeatureTable = ShapefileFeatureTable(file.path)
+            shapefileFeatureTable.loadAsync() //异步方式读取文件
+            shapefileFeatureTable.addDoneLoadingListener {
+                //数据加载完毕后，添加到地图
+                val mainShapefileLayer = FeatureLayer(shapefileFeatureTable)
+                mainShapefileLayer.renderer = UniqueValueRenderer().apply {
+                    defaultSymbol = when (mainShapefileLayer.featureTable.geometryType) {
+                        GeometryType.POINT, GeometryType.MULTIPOINT -> {
+                            SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, Color.RED, null)
+                        }
+                        GeometryType.POLYLINE -> {
+                            SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 2f)
+                        }
+                        GeometryType.POLYGON -> {
+                            SimpleFillSymbol(
+                                SimpleFillSymbol.Style.SOLID,
+                                Color.parseColor("#50FF0000"),
+                                null
+                            )
+                        }
+                        else -> {
+                            SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 2f)
+                        }
+                    }
+                }
+                map.operationalLayers.add(mainShapefileLayer)
+            }
+        } else if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
+            val geoPackage = GeoPackage(file.path)
+            geoPackage.loadAsync()
+            geoPackage.addDoneLoadingListener {
+                if (geoPackage.loadStatus == LoadStatus.LOADED) {
+                    val geoTables = geoPackage.geoPackageFeatureTables
+                    geoTables.forEach { table ->
+                        val featureLayer = FeatureLayer(table)
+                        featureLayer.loadAsync()
+                        featureLayer.addDoneLoadingListener {
+                            featureLayer.name = file.name.substring(0, file.name.lastIndexOf("."))
+                            map.operationalLayers.add(featureLayer)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.gt.giscollect.module.collect.bean
 
 import com.esri.arcgisruntime.layers.FeatureLayer
+import com.gt.base.app.CheckBean
 
 data class CollectCheckBean(
     var checkInfo: CheckBean? = null,

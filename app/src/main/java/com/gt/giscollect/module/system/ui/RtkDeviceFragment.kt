@@ -6,11 +6,10 @@ import android.view.View
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.tool.WHandTool
 import com.gt.giscollect.R
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.system.mvp.contract.RtkDeviceContract
 import com.gt.giscollect.module.system.mvp.model.RtkDeviceModel
 import com.gt.giscollect.module.system.mvp.presenter.RtkDevicePresenter
-import com.woncan.whand.WHandInfo
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.fragment_rtk_device.*
 

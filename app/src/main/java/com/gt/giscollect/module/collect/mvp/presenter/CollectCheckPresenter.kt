@@ -2,7 +2,7 @@ package com.gt.giscollect.module.collect.mvp.presenter
 
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
-import com.gt.giscollect.module.collect.bean.CheckBean
+import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectCheckContract
 import okhttp3.RequestBody
 

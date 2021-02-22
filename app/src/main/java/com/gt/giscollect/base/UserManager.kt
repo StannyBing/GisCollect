@@ -1,7 +1,7 @@
 package com.gt.giscollect.base
 
 import com.gt.base.manager.UserBean
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 
 /**

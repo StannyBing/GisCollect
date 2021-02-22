@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.AppInfoManager
+import com.gt.base.app.AppInfoManager
 import com.gt.base.manager.UserBean
 import com.gt.giscollect.base.toJson
 import com.gt.giscollect.module.system.func.tool.NetworkUtils

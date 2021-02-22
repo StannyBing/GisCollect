@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.base.activity.BaseActivity
 import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
-import com.gt.giscollect.base.AppInfoManager
+import com.gt.base.app.ConstStrings
+import com.gt.base.app.AppInfoManager
 import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.main.ui.MainActivity
-import com.gt.giscollect.module.system.bean.AppFuncBean
+import com.gt.base.app.AppFuncBean
 import com.gt.giscollect.module.system.bean.GuideBean
 import com.gt.giscollect.module.system.func.adapter.GuideAdapter
 import com.gt.giscollect.module.system.mvp.contract.GuideContract

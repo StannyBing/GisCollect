@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.giscollect.R
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.base.toJson
-import com.gt.giscollect.module.collect.bean.CheckBean
+import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.func.adapter.CollectCheckAdapter
 import com.gt.giscollect.module.collect.mvp.contract.CollectCheckContract
 import com.gt.giscollect.module.collect.mvp.model.CollectCheckModel

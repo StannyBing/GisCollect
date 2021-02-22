@@ -7,10 +7,10 @@ import com.frame.zxmvp.http.download.listener.DownloadOnNextListener
 import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.frame.zxmvp.http.upload.UploadRequestBody
 import com.gt.giscollect.api.ApiConfigModule
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.NormalList
-import com.gt.giscollect.module.collect.bean.CheckBean
+import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.base.manager.UserManager
 import com.tencent.bugly.crashreport.CrashReport

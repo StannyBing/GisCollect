@@ -10,7 +10,7 @@ import com.gt.giscollect.module.layer.func.adapter.BaseLayerAdapter
 import com.gt.giscollect.module.layer.mvp.constract.LayerContract
 import com.gt.giscollect.module.layer.mvp.model.LayerModel
 import com.gt.giscollect.module.layer.mvp.presenter.LayerPresenter
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import kotlinx.android.synthetic.main.fragment_layer.*
 
 /**

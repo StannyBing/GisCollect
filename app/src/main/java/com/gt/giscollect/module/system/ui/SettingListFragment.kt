@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.AppInfoManager
+import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.SettingBean
 import com.gt.giscollect.module.system.func.adapter.SettingListAdapter

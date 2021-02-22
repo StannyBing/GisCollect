@@ -4,10 +4,8 @@ import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSchedulers
 import com.gt.giscollect.api.ApiService
-import com.gt.giscollect.module.system.bean.AppFuncBean
 
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
-import okhttp3.RequestBody
 import rx.Observable
 
 /**

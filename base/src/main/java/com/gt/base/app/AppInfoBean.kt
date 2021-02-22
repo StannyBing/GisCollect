@@ -1,7 +1,5 @@
-package com.gt.giscollect.base
+package com.gt.base.app
 
-import com.google.gson.JsonObject
-import org.json.JSONObject
 import java.io.Serializable
 
 data class AppInfoBean(

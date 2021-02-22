@@ -1,11 +1,9 @@
 package com.gt.giscollect.module.collect.func.adapter
 
 import com.gt.giscollect.R
-import com.gt.giscollect.module.collect.bean.CheckBean
+import com.gt.base.app.CheckBean
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
-import org.json.JSONObject
-import java.lang.Exception
 
 class CollectCheckAdapter(dataList: List<CheckBean>) :
     ZXQuickAdapter<CheckBean, ZXBaseHolder>(R.layout.item_collect_check_list, dataList) {

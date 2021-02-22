@@ -3,10 +3,8 @@ package com.gt.giscollect.module.collect.mvp.contract
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IView
 import com.frame.zxmvp.base.IModel
-import com.frame.zxmvp.baserx.RxSubscriber
 import com.gt.giscollect.base.NormalList
-import com.gt.giscollect.module.collect.bean.CheckBean
-import com.gt.giscollect.module.collect.bean.UploadFileBean
+import com.gt.base.app.CheckBean
 import okhttp3.RequestBody
 import rx.Observable
 import java.io.File

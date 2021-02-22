@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.system.bean
+package com.gt.base.app
 
 data class AppFuncBean(var id: String="", var label: String="", var icon: String="", var url: String="", var obj: TemplateInfo, var children: List<AppFuncBean>) {
 

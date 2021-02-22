@@ -1,7 +1,5 @@
-package com.gt.giscollect.module.collect.bean
+package com.gt.base.app
 
-import com.esri.arcgisruntime.layers.FeatureLayer
-import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Exception
 

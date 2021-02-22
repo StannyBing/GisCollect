@@ -4,11 +4,12 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.base.*
 import com.gt.giscollect.module.main.func.tool.LayerTool
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.module.system.func.adapter.DataResListAdapter
 import com.gt.giscollect.module.system.mvp.contract.DataDownloadContract
@@ -155,7 +156,8 @@ class DataDownloadFragment : BaseFragment<DataDownloadPresenter, DataDownloadMod
                 it.isDownload = ZXFileUtil.isFileExists(ConstStrings.getLocalMapPath(fileExt) + fileName)
                 if (it.isDownload) {
                     val dataIds = arrayListOf<DataResBean>()
-                    if (mSharedPrefUtil.contains(ConstStrings.DataIdList) && mSharedPrefUtil.getList<DataResBean>(ConstStrings.DataIdList)
+                    if (mSharedPrefUtil.contains(ConstStrings.DataIdList) && mSharedPrefUtil.getList<DataResBean>(
+                            ConstStrings.DataIdList)
                             .isNotEmpty()
                     ) {
                         dataIds.addAll(mSharedPrefUtil.getList(ConstStrings.DataIdList))

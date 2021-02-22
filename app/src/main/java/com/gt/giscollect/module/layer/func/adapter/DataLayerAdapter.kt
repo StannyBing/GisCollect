@@ -5,8 +5,6 @@ import android.widget.SeekBar
 import android.widget.TextView
 import com.esri.arcgisruntime.layers.Layer
 import com.gt.giscollect.R
-import com.gt.giscollect.module.layer.bean.LayerBean
-import com.gt.giscollect.module.main.func.tool.MapTool
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
 

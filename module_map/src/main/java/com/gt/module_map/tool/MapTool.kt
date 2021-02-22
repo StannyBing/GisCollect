@@ -1,7 +1,7 @@
-package com.gt.giscollect.module.main.func.tool
+package com.gt.module_map.tool
 
 import com.esri.arcgisruntime.layers.Layer
-import com.gt.giscollect.module.main.func.listener.MapListener
+import com.gt.module_map.listener.MapListener
 
 
 object MapTool {

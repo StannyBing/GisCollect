@@ -4,7 +4,7 @@ import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.gt.giscollect.module.system.bean.AppFuncBean
+import com.gt.base.app.AppFuncBean
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import org.json.JSONObject
 import java.lang.Exception

@@ -1,8 +1,6 @@
-package com.gt.giscollect.app
+package com.gt.base.app
 
 import com.gt.base.manager.UserManager
-import com.gt.giscollect.module.collect.bean.CheckBean
-import com.gt.giscollect.module.system.bean.AppFuncBean
 import com.zx.zxutils.util.ZXSharedPrefUtil
 
 
@@ -106,6 +104,9 @@ object ConstStrings {
         return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + bussinessId + "/"
     }
 
+    fun getSketchTemplatePath():String{
+        return "$LOCAL_PATH$APPNAME/jungong/"
+    }
 
     //地图默认中心点
     var Longitude = 106.496001

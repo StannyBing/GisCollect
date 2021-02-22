@@ -7,11 +7,11 @@ import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.giscollect.R
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.collect.mvp.contract.CollectMainContract
 import com.gt.giscollect.module.collect.mvp.model.CollectMainModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectMainPresenter
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_collect_main.*
 

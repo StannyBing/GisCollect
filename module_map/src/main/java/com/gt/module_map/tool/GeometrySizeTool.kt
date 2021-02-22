@@ -1,7 +1,6 @@
-package com.gt.giscollect.module.collect.func.tool
+package com.gt.module_map.tool
 
 import com.esri.arcgisruntime.geometry.*
-import com.zx.zxutils.util.ZXLogUtil
 import java.math.BigDecimal
 
 object GeometrySizeTool {

@@ -7,7 +7,9 @@ import android.view.View
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
 import com.esri.arcgisruntime.mapping.view.IdentifyLayerResult
-import com.gt.giscollect.module.query.func.tool.HighLightLayerTool
+import com.gt.module_map.tool.HighLightLayerTool
+import com.gt.module_map.tool.GeoPackageTool
+import com.gt.module_map.tool.MapTool
 import com.zx.zxutils.util.ZXToastUtil
 
 /**

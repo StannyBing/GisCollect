@@ -3,11 +3,9 @@ package com.gt.giscollect.module.collect.mvp.model
 import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSchedulers
-import com.frame.zxmvp.baserx.RxSubscriber
 import com.gt.giscollect.api.ApiService
 import com.gt.giscollect.base.NormalList
-import com.gt.giscollect.module.collect.bean.CheckBean
-import com.gt.giscollect.module.collect.bean.UploadFileBean
+import com.gt.base.app.CheckBean
 
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import okhttp3.RequestBody

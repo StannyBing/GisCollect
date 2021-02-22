@@ -8,7 +8,7 @@ import com.frame.zxmvp.http.AppDelegate
 import com.frame.zxmvp.http.GlobalHttpHandler
 import com.frame.zxmvp.integration.ConfigModule
 import com.frame.zxmvp.integration.IRepositoryManager
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import okhttp3.Interceptor

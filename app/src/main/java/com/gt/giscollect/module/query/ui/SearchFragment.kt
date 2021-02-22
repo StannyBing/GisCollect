@@ -1,6 +1,5 @@
 package com.gt.giscollect.module.query.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -9,23 +8,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.data.QueryParameters
-import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.R
-import com.gt.giscollect.module.main.func.listener.MapListener
-import com.gt.giscollect.module.main.func.tool.GeoPackageTool
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.GeoPackageTool
+import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.query.func.adapter.SearchAdapter
-import com.gt.giscollect.module.query.func.tool.HighLightLayerTool
+import com.gt.module_map.tool.HighLightLayerTool
 import com.gt.giscollect.module.query.mvp.contract.SearchContract
 import com.gt.giscollect.module.query.mvp.model.SearchModel
 import com.gt.giscollect.module.query.mvp.presenter.SearchPresenter
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.entity.KeyValueEntity
-import com.zx.zxutils.util.ZXFormatCheckUtil
 import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.fragment_search.*

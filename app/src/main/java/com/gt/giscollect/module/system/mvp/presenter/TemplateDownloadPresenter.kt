@@ -6,20 +6,15 @@ import com.frame.zxmvp.http.download.DownInfo
 import com.frame.zxmvp.http.download.listener.DownloadOnNextListener
 import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.gt.giscollect.api.ApiConfigModule
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.NormalList
 import com.gt.giscollect.module.system.bean.TemplateBean
 import com.gt.giscollect.module.system.mvp.contract.TemplateDownloadContract
 import com.zx.zxutils.util.ZXFileUtil
-import okhttp3.Interceptor
-import okhttp3.Request
 import okhttp3.RequestBody
-import okhttp3.Response
 import org.json.JSONArray
-import org.json.JSONObject
 import java.io.File
-import java.io.IOException
 
 
 /**

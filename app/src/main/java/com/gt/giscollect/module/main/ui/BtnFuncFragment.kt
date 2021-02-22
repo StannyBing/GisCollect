@@ -10,12 +10,12 @@ import com.esri.arcgisruntime.location.LocationDataSource
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.tool.WHandTool
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.module.main.bean.FuncBean
 import com.gt.giscollect.module.main.func.adapter.BtnFuncAdapter
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.main.mvp.contract.BtnFuncContract
 import com.gt.giscollect.module.main.mvp.model.BtnFuncModel
 import com.gt.giscollect.module.main.mvp.presenter.BtnFuncPresenter

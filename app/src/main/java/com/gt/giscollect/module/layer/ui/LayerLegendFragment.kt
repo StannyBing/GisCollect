@@ -4,13 +4,13 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.layers.Layer
 import com.gt.giscollect.R
-import com.gt.giscollect.app.ConstStrings
+import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
 import com.gt.giscollect.module.layer.func.adapter.LegendAdapter
 import com.gt.giscollect.module.layer.mvp.contract.LayerLegendContract
 import com.gt.giscollect.module.layer.mvp.model.LayerLegendModel
 import com.gt.giscollect.module.layer.mvp.presenter.LayerLegendPresenter
-import com.gt.giscollect.module.main.func.tool.MapTool
+import com.gt.module_map.tool.MapTool
 import kotlinx.android.synthetic.main.fragment_layer_legend.*
 import rx.functions.Action1
 

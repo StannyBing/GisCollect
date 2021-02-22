@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.main.func.tool
+package com.gt.module_map.tool
 
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.FeatureTable
@@ -8,14 +8,11 @@ import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
-import com.esri.arcgisruntime.symbology.Renderer
-import com.esri.arcgisruntime.symbology.UniqueValueRenderer
-import com.gt.giscollect.app.ConstStrings
-import com.zx.zxutils.util.ZXLogUtil
+import com.zx.zxutils.util.ZXSystemUtil
 import java.io.File
 
 object GeoPackageTool {
-
+    var mapPath = "${ZXSystemUtil.getSDCardPath()}GisCollect/LocalMap/"
     fun getTablesFromGpkg(path: String, layerCall: (List<FeatureTable>) -> Unit) {
         val geoPackage = getGpkg(path)
         geoPackage?.loadAsync()
@@ -36,7 +33,8 @@ object GeoPackageTool {
     }
 
     fun getFeatureFromGpkgWithNull(name: String, featureCall: (FeatureLayer?) -> Unit) {
-        val geoPackage = getGpkg(ConstStrings.getInnerLocalMapPath())
+        val geoPackage =
+            getGpkg(mapPath)
         if (geoPackage == null) {
             featureCall(null)
             return
@@ -87,7 +85,8 @@ object GeoPackageTool {
     var shipIndex = 0
 
     fun getIdentifyFromGpkg(point: Point, featureCall: (List<Feature>) -> Unit) {
-        val geoPackage = getGpkg(ConstStrings.getInnerLocalMapPath())
+        val geoPackage =
+            getGpkg(mapPath)
         val features = arrayListOf<Feature>()
         geoPackage?.loadAsync()
         geoPackage?.addDoneLoadingListener {
@@ -118,7 +117,7 @@ object GeoPackageTool {
         }
     }
 
-    private fun getGpkg(path: String = ConstStrings.getLocalMapPath()): GeoPackage? {
+    private fun getGpkg(path: String =mapPath): GeoPackage? {
         val file = File(path)
         if (file.exists() && file.isDirectory && file.listFiles().isNotEmpty()) {
             file.listFiles().forEach {
@@ -132,7 +131,7 @@ object GeoPackageTool {
         return null
     }
 
-    private fun getGpkgs(path: String = ConstStrings.getLocalMapPath()): List<GeoPackage> {
+    private fun getGpkgs(path: String = mapPath): List<GeoPackage> {
         val gpkgs = arrayListOf<GeoPackage>()
         val file = File(path)
         if (file.exists() && file.isDirectory && file.listFiles().isNotEmpty()) {

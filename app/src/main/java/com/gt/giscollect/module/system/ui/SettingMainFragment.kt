@@ -5,7 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.gt.giscollect.R
 import com.gt.base.fragment.BaseFragment
-import com.gt.giscollect.base.FragChangeListener
+import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.system.mvp.contract.SettingMainContract
 import com.gt.giscollect.module.system.mvp.model.SettingMainModel
 import com.gt.giscollect.module.system.mvp.presenter.SettingMainPresenter

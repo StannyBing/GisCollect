@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.main.func.tool;
+package com.gt.module_map.tool;
 
 import android.content.Context;
 import android.os.Environment;
