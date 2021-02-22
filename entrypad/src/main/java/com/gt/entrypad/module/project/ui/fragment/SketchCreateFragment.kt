@@ -211,7 +211,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                 val layer = FeatureLayer(it)
                 val templateIds =
                     mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-                templateIds.forEach {
+                templateIds?.forEach {
                     if (it.name.contains(sp_create_layer_model.selectedKey)) {
                         it.layerNames.add(et_create_layer_name.text.toString())
                         mSharedPrefUtil.putList(

@@ -36,7 +36,7 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
 
         const val Sketch_Create = "图层新增"
         const val Sketch_Feature = "要素编辑"
-        const val Sketch_Field = "属性编辑"
+        const val Sketch_Field = "登记信息"
     }
 
     private lateinit var sketchCreateFragment: SketchCreateFragment

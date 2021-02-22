@@ -2,6 +2,7 @@ package com.gt.entrypad.module.project.ui.fragment
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import com.esri.arcgisruntime.data.*
@@ -375,7 +376,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 currentLayer?.clearSelection()
                 HighLightLayerTool.showHighLight(featureList[it])
                 currentLayer?.selectFeature(featureList[it])
-                fragChangeListener?.onFragGoto("")
+                fragChangeListener?.onFragGoto(SketchMainFragment.Sketch_Field)
             }
 
         //要素显示名
@@ -394,25 +395,6 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                     featureAdapter.notifyDataSetChanged()
                 }
             }
-        //保存
-/*        tv_collect_feature_save.setOnClickListener {
-            //            if (isOverlay) {
-//                showToast("当前绘制区域已检测到图层压盖，无法保存")
-//                return@setOnClickListener
-//            }
-            if (sketchEditor.geometry?.isEmpty == false) {
-                if ((sketchEditor.geometry.geometryType == GeometryType.POLYGON && (sketchEditor.geometry as Polygon).parts.partsAsPoints.toList().size < 3) ||
-                    (sketchEditor.geometry.geometryType == GeometryType.POLYLINE && (sketchEditor.geometry as Polyline).parts.partsAsPoints.toList().size < 2)
-                ) {
-                    showToast("当前绘制范围不全，无法保存")
-                    return@setOnClickListener
-                }
-                //检测图层压盖
-                checkOverlay(sketchEditor.geometry)
-            } else {
-                showToast("暂未添加要素")
-            }
-        }*/
     }
 
     private fun renameLayer(beforeName: String?, afterName: String) {
@@ -509,7 +491,13 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             return
         }
         feature = currentLayer?.featureTable?.createFeature()
-        feature?.geometry = sketchEditor.geometry
+        val pointCollection = PointCollection(arrayListOf<Point>().apply {
+            add(Point(106.5635978468597, 29.575631491622985))
+            add(Point(106.58894815535211, 29.57216102606911))
+            add(Point(106.56553432975977, 29.554704814709538))
+            add(Point(106.5635978468597, 29.575631491622985))
+        })
+        feature?.geometry = Polygon(pointCollection)
 
         //获取筛选内容
         try {
@@ -620,10 +608,9 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         featureAdapter.editable = isEdit
         ll_collect_edit_bar.visibility = if (isEdit) View.VISIBLE else View.GONE
 
-//        moveToLayer(featureLayer)
         featureList.clear()
-        getFeatureList()
-        sketchLatLngs()
+       // getFeatureList()
+        createFeature("")
     }
 
     private fun getFeatureList() {
@@ -693,18 +680,5 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             }
         }
         return false
-    }
-
-    private fun sketchLatLngs(){
-        sketchEditor.start(
-            when (currentLayer?.featureTable?.geometryType) {
-                GeometryType.POINT -> SketchCreationMode.POINT
-                GeometryType.POLYLINE -> SketchCreationMode.POLYLINE
-                GeometryType.POLYGON -> SketchCreationMode.POLYGON
-                else -> SketchCreationMode.POLYGON
-            }
-        )
-        sketchEditor.start(Polygon(PointCollection(arrayListOf())))
-       createFeature("")
     }
 }

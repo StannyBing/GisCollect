@@ -5,22 +5,6 @@
     android:background="@color/content_bg"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="40dp">
-        <TextView
-            android:id="@+id/tv_collect_title_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/registrationInfo"
-            android:textColor="@color/colorPrimary"
-            android:textSize="@dimen/text_size_normal" />
-
-    </RelativeLayout>
-
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:id="@+id/sv_sketch_field"

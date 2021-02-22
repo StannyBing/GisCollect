@@ -16,6 +16,7 @@ import com.esri.arcgisruntime.layers.WebTiledLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.LocationDisplay
+import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.esri.arcgisruntime.symbology.UniqueValueRenderer
@@ -75,7 +76,6 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
             ),
             50000.0
         )
-
     }
     override fun onViewListener() {
 
