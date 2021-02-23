@@ -9,6 +9,7 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.entrypad.R
+import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.mvp.contract.SketchMainContract
 import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
@@ -72,15 +73,6 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
 
         tv_collect_title_name.text = Sketch_Feature
         super.initView(savedInstanceState)
-        if (arguments?.containsKey("p0")==true){
-            arguments?.getString("p0")?.let {
-                GeoPackageTool.getTablesFromGpkg(it){
-                    it.forEach {
-                        sketchFeatureFragment?.excuteLayer(FeatureLayer(it),true)
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -91,6 +83,7 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         iv_collect_title_back.setOnClickListener {
             onFragBack(currentFragType)
         }
+
     }
 
     override fun onFragBack(type: String, any: Any?) {

@@ -25,6 +25,7 @@ import com.gt.entrypad.module.project.mvp.presenter.ProjectListPresenter
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.views.ZXStatusBarCompat
 import com.gt.entrypad.R
+import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
 import com.gt.entrypad.tool.CopyAssetsToSd
@@ -103,7 +104,9 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
             }
             .setClickable { position ->
-               SketchLoadActivity.startAction(this,false,data[position].path)
+                ConstString.feature = data[position].featureLayer
+                mSharedPrefUtil.putBool("isEdit",true)
+               SketchLoadActivity.startAction(this,false)
             }
         refresh()
     }
@@ -128,7 +131,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                         if (it.isFile && it.name.endsWith(".gpkg")) {
                             GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
                                 featureTableList.forEach {featureTable->
-                                    data.add(ProjectListBean(featureLayer = FeatureLayer(featureTable),path =it.path))
+                                    data.add(ProjectListBean(featureLayer = FeatureLayer(featureTable)))
                                 }
                                 projectAdapter.notifyDataSetChanged()
                             }

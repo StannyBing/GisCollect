@@ -25,6 +25,7 @@ import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
 import com.gt.base.app.TempIdsBean
 import com.gt.entrypad.R
+import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.SketchFeatureAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchFeatureContract
@@ -103,6 +104,12 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             .setDefaultItem("请选择模板")
             .build()
         getGpkgList()
+      if ( mSharedPrefUtil.getBool("isEdit")){
+           ConstString.feature?.let {
+               excuteLayer(it,true)
+               mSharedPrefUtil.remove("isEdit")
+           }
+       }
     }
 
     /**
@@ -228,7 +235,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                                         notifyDataSetChanged()
                                     }
                                    it.forEach {
-                                       // excuteLayer(FeatureLayer(it))
+                                        excuteLayer(FeatureLayer(it))
                                     }
                                 }
                             }
@@ -245,6 +252,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 showToast("请选择模板")
             }
         }
+
     }
 
     private fun createFeature() {

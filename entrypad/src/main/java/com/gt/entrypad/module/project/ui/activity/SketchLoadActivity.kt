@@ -24,9 +24,8 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
         /**
          * 启动器
          */
-        fun startAction(activity: Activity, isFinish: Boolean,featurePath: String="") {
+        fun startAction(activity: Activity, isFinish: Boolean) {
             val intent = Intent(activity, SketchLoadActivity::class.java)
-            intent.putExtra("featurePath",featurePath)
             activity.startActivity(intent)
             if (isFinish) activity.finish()
         }
@@ -35,7 +34,7 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
         super.initView(savedInstanceState)
         ZXFragmentUtil.addFragment(supportFragmentManager,MapFragment.newInstance(),R.id.mapFl)
         iv_data_show.performClick()
-        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(if (intent.hasExtra("featurePath")) intent.getStringExtra("featurePath") else ""),R.id.fm_data)
+        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(),R.id.fm_data)
     }
 
     override fun onViewListener() {
