@@ -1,7 +1,6 @@
 package com.gt.entrypad.module.project.ui.activity
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -17,15 +16,13 @@ import com.gt.entrypad.R
 import com.gt.entrypad.app.RouterPath
 import com.gt.entrypad.module.project.bean.IDCardInfoBean
 import com.gt.entrypad.module.project.bean.InputInfoBean
-import com.gt.entrypad.module.project.func.InfoInputAdapter
+import com.gt.entrypad.module.project.func.adapter.InfoInputAdapter
 import com.gt.entrypad.module.project.mvp.contract.InfoInputContract
 import com.gt.entrypad.module.project.mvp.model.InfoInputModel
 import com.gt.entrypad.module.project.mvp.presenter.InfoInputPresenter
 import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
 import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewModel
-import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
-import com.zx.zxutils.entity.KeyValueEntity
 import kotlinx.android.synthetic.main.activity_info_input.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1

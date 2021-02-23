@@ -1,9 +1,8 @@
-package com.gt.entrypad.module.project.func
+package com.gt.entrypad.module.project.func.adapter
 
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.IDCardInfoBean
 import com.gt.entrypad.module.project.ui.view.idCardView.IdCardView
-import com.gt.entrypad.module.project.ui.view.idCardView.IdCardViewViewModel
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
 

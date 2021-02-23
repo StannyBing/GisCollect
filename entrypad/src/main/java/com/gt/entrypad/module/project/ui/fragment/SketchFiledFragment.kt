@@ -4,38 +4,39 @@ import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.data.*
-import com.esri.arcgisruntime.layers.FeatureLayer
-import com.esri.arcgisruntime.loadable.LoadStatus
+import com.gt.base.app.AppInfoManager
+import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.R
-import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.FileInfoBean
-import com.gt.entrypad.module.project.func.SketchFieldEditAdapter
-import com.gt.entrypad.module.project.func.SketchFileAdapter
+import com.gt.entrypad.module.project.func.adapter.SketchFieldEditAdapter
+import com.gt.entrypad.module.project.func.adapter.SketchFileAdapter
 import com.gt.entrypad.module.project.func.tool.FileUtils
 import com.gt.entrypad.module.project.mvp.contract.SketchFiledContract
 import com.gt.entrypad.module.project.mvp.model.SketchFiledModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchFiledPresenter
 import com.gt.entrypad.module.project.ui.activity.FilePreviewActivity
 import com.gt.entrypad.tool.SimpleDecoration
-import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_sketch_filed.*
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 
 class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>(),SketchFiledContract.View {
     private val fieldList = arrayListOf<Pair<Field, Any?>>()
-    private val fieldAdapter = SketchFieldEditAdapter(fieldList)
+    private val fieldAdapter =
+        SketchFieldEditAdapter(fieldList)
     private val fileList = arrayListOf<FileInfoBean>()
-    private val fileAdapter = SketchFileAdapter(fileList)
+    private val fileAdapter =
+        SketchFileAdapter(fileList)
     private var recordUtil: ZXRecordUtil? = null
     private var filePath = ""
     private var currentFeature: Feature? = null
@@ -57,8 +58,6 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        val absolutePath = ZXSystemUtil.getSDCardPath() + "jungong/"
-        gpkgToFeature("${absolutePath}jungong.gpkg")
         rv_sketch_filed_list.apply {
             layoutManager = LinearLayoutManager(mContext)
             addItemDecoration(SimpleDecoration(mContext))
@@ -227,13 +226,13 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
                 var fieldValue = ""
                 fileList.forEach {
                     if (it.type.toLowerCase() == name.toLowerCase()) {
-                        fieldValue += it.path + ConstString.File_Split_Char
+                        fieldValue += it.path + ConstStrings.File_Split_Char
                     }
                 }
                 if (fieldValue.isNotEmpty()) {
                     fieldValue = fieldValue.substring(
                         0,
-                        fieldValue.length - ConstString.File_Split_Char.length
+                        fieldValue.length - ConstStrings.File_Split_Char.length
                     )
                 }
                 if (currentFeature is ArcGISFeature && uploadTempFile != null) {
@@ -361,37 +360,102 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
             }
         }
     }
-    private fun  gpkgToFeature(path:String){
-        val geoPackage = GeoPackage(path)
-        val file = File(path)
-        geoPackage.loadAsync()
-        geoPackage.addDoneLoadingListener {
-            if (geoPackage.loadStatus == LoadStatus.LOADED) {
-                val geoTables = geoPackage.geoPackageFeatureTables
-                geoTables.forEach { table ->
-                    val featureLayer = FeatureLayer(table)
-                    featureLayer.loadAsync()
-                    featureLayer.addDoneLoadingListener {
-                        featureLayer.name = file.name.substring(0, file.name.lastIndexOf("."))
-                        excuteField(featureLayer,true)
-                    }
+
+    fun  excuteField(featureLayer: Feature, editable: Boolean) {
+        fieldList.clear()
+        fileList.clear()
+        fieldAdapter.notifyDataSetChanged()
+        fileAdapter.notifyDataSetChanged()
+        if (featureLayer is ArcGISFeature) {
+            showLoading("正在加载在线属性信息")
+            featureLayer.loadAsync()
+            featureLayer.addDoneLoadingListener {
+                loadFeature(featureLayer, editable)
+                dismissLoading()
+            }
+        } else {
+            loadFeature(featureLayer, editable)
+        }
+    }
+    private fun loadFeature(featureLayer: Feature, editable: Boolean) {
+        currentFeature = featureLayer
+        fieldAdapter.editable = editable
+        fileAdapter.editable = editable
+        fieldAdapter.readonlyList.clear()
+        filePath = ConstStrings.getSketchLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"
+        fileAdapter.fileParentPath = filePath
+        //处理属性信息
+        fieldList.clear()
+        fieldAdapter.notifyDataSetChanged()
+        val filedTemp = arrayListOf<Pair<Field, Any?>>()
+        currentFeature?.featureTable?.fields?.forEach {
+            if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
+                filedTemp.add(it to currentFeature!!.attributes[it.name])
+            } else {
+                if (currentFeature!!.attributes[it.name] == null) {
+                    fieldList.add(it to "")
+                } else {
+                    fieldList.add(it to currentFeature!!.attributes[it.name])
                 }
             }
         }
-    }
-    fun excuteField(featureLayer: FeatureLayer, editable: Boolean) {
-        fieldList.clear()
-        fileList.clear()
-        filePath = mContext.filesDir.path + "/"+ConstString.getSketchLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"
-        fileAdapter.fileParentPath = filePath
-        loadFeature(featureLayer,editable)
 
-    }
-    private fun loadFeature(featureLayer: FeatureLayer, editable: Boolean) {
-        featureLayer.featureTable.fields.forEach {
-            fieldList.add(Pair(it,""))
+        //获取筛选内容
+        try {
+            var spinnerMap = hashMapOf<String, List<String>>()
+            AppInfoManager.appInfo?.identifystyle?.forEach {
+                val obj = JSONObject(it)
+                if (obj.getString("itemName") == featureLayer.featureTable.tableName) {
+                    if (obj.has("readonly")) {
+                        for (i in 0 until obj.getJSONArray("readonly").length()) {
+                            fieldAdapter.readonlyList.add(obj.getJSONArray("readonly").getString(i))
+                        }
+                    }
+                    obj.keys().forEach { child ->
+                        if (child !in arrayOf("default", "size", "itemName", "readonly", "wkid")) {
+                            val keyList = arrayListOf<String>()
+                            if (obj.get(child) is JSONArray) {
+                                for (i in 0 until obj.getJSONArray(child).length()) {
+                                    keyList.add(obj.getJSONArray(child).getString(i))
+                                }
+                            }
+                            spinnerMap[child] = keyList
+                        }
+                    }
+                    fieldAdapter.spinnerMap.clear()
+                    fieldAdapter.spinnerMap.putAll(spinnerMap)
+                    return@forEach
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+
+        fieldList.addAll(filedTemp)//将文件相关的移动到最下方
         fieldAdapter.notifyDataSetChanged()
-        fileAdapter.notifyDataSetChanged()
+        //处理文件信息
+        fileList.clear()
+        if (currentFeature is ArcGISFeature) {
+            //添加在线图层文件信息
+            loadServiceFeatureFiles()
+        } else {
+            filedTemp.forEach {
+                val fileValues = it.second.toString().split(ConstStrings.File_Split_Char)
+                fileValues.forEach { path ->
+                    if (path.isNotEmpty() && path != "null" && path.length > 1) {
+                        fileList.add(
+                            FileInfoBean(
+                                "",
+                                path = path,
+                                pathImage = path,
+                                type = it.first.name
+                            )
+                        )
+                    }
+                }
+            }
+            fileAdapter.notifyDataSetChanged()
+        }
+
     }
 }

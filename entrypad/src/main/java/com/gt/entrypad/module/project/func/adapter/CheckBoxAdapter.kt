@@ -1,6 +1,5 @@
-package com.gt.entrypad.module.project.func
+package com.gt.entrypad.module.project.func.adapter
 
-import android.util.Log
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.ui.view.checkBox.CheckBoxView
 import com.gt.entrypad.module.project.ui.view.checkBox.CheckBoxViewViewModel

@@ -8,7 +8,7 @@ import com.frame.zxmvp.http.AppDelegate
 import com.frame.zxmvp.http.GlobalHttpHandler
 import com.frame.zxmvp.integration.ConfigModule
 import com.frame.zxmvp.integration.IRepositoryManager
-import com.gt.entrypad.app.ConstString
+import com.gt.base.app.ConstStrings
 import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import okhttp3.Interceptor
@@ -55,14 +55,14 @@ class ApiConfigModule : ConfigModule {
                             RxManager().post("do_relogin", true)
                         }
                     }
-                    if (ConstString.Cookie.isEmpty()) {
+                    if (ConstStrings.Cookie.isEmpty()) {
 //                            ZXSharedPrefUtil().putString("request_list", "")
                         if (response.headers("Set-Cookie").isNotEmpty()) {
                             val cookies = response.headers("Set-Cookie")[0].split(";")
                             if (cookies.isNotEmpty()) {
                                 cookies.forEach {
                                     if (it.contains("JSESSIONID")) {
-                                        ConstString.Cookie = it
+                                        ConstStrings.Cookie = it
                                         return@forEach
                                     }
                                 }

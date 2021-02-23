@@ -1,7 +1,6 @@
 package com.gt.entrypad.module.project.ui.activity
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
@@ -28,7 +27,7 @@ import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.app.RouterPath
 import com.gt.entrypad.module.project.bean.IDCardInfoBean
-import com.gt.entrypad.module.project.func.IdCardAdapter
+import com.gt.entrypad.module.project.func.adapter.IdCardAdapter
 import com.gt.entrypad.module.project.ui.view.BottomSheetOptionsDialog
 import com.gt.entrypad.module.project.ui.view.idCardView.IdCardViewViewModel
 import com.gt.entrypad.tool.FileUtil
@@ -42,7 +41,7 @@ import java.lang.Exception
 class ScanIdCardActivity : BaseActivity<ScanIdCardPresenter, ScanIdCardModel>(),
     ScanIdCardContract.View {
     private var cardData = arrayListOf<IDCardInfoBean>()
-    private var idCardAdapter =IdCardAdapter(cardData)
+    private var idCardAdapter = IdCardAdapter(cardData)
     private var bottomSheetOptionsDialog: BottomSheetOptionsDialog? = null
     private val REQUEST_CODE_CAMERA = 102
 

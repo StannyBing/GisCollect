@@ -89,6 +89,9 @@ class LoginActivity : BaseActivity<LoginPresenter, LoginModel>(), LoginContract.
             if (!ZXFileUtil.isFileExists(ConstStrings.getCollectTemplatePath())) {
                 File(ConstStrings.getCollectTemplatePath()).mkdirs()
             }
+            if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersPath())) {
+                File(ConstStrings.getSketchLayersPath()).mkdirs()
+            }
         }
     }
 

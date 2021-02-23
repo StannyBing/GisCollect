@@ -9,14 +9,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gt.entrypad.R
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
-import com.gt.entrypad.module.project.func.BottomSheetAdapter
+import com.gt.entrypad.module.project.func.adapter.BottomSheetAdapter
 import com.gt.entrypad.module.project.ui.view.titleView.TitleView
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.gt.entrypad.tool.SimpleDecoration
 
 class BottomSheetOptionsDialog(context: Context,var dataList:List<TitleViewViewModel>) :BottomSheetDialog(context){
     private var mContext = context
-    private var bottomAdapter = BottomSheetAdapter(dataList)
+    private var bottomAdapter =
+        BottomSheetAdapter(dataList)
     init {
         createView()
     }

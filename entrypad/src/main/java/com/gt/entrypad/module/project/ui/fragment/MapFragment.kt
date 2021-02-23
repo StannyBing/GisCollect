@@ -65,7 +65,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         map_view.isAttributionTextVisible = false
         map = ArcGISMap(SpatialReference.create(3857))
         initBaseLayers()
-        addOpreationalLayer(ConstStrings.getSketchTemplatePath())
+        addOpreationalLayer(ConstStrings.getSketchLayersPath())
         doLocation()
         map_view.map = map
         map_view.setViewpointCenterAsync(

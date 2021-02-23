@@ -2,16 +2,13 @@ package com.gt.entrypad.widget
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.frame.zxmvp.baserx.RxManager
 import com.gt.entrypad.R
-import com.gt.entrypad.module.project.func.CheckBoxAdapter
+import com.gt.entrypad.module.project.func.adapter.CheckBoxAdapter
 import com.gt.entrypad.module.project.ui.view.checkBox.CheckBoxViewViewModel
 import kotlinx.android.synthetic.main.layout_recycler_view.view.*
-import rx.functions.Action1
 
 class CustomInfoDialog @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ConstraintLayout(context, attrs, defStyleAttr) {
     private var data = arrayListOf<CheckBoxViewViewModel>()

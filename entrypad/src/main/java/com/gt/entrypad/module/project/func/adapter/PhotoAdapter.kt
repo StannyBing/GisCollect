@@ -1,4 +1,4 @@
-package com.gt.entrypad.module.project.func
+package com.gt.entrypad.module.project.func.adapter
 
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.ui.view.photoView.PhotoView

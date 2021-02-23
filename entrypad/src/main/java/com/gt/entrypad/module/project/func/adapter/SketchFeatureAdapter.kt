@@ -1,4 +1,4 @@
-package com.gt.entrypad.module.project.func
+package com.gt.entrypad.module.project.func.adapter
 
 import com.esri.arcgisruntime.data.ArcGISFeature
 import com.esri.arcgisruntime.data.Feature

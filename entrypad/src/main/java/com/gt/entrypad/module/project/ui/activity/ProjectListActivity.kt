@@ -5,12 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.layers.FeatureLayer
+import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
+import com.frame.zxmvp.http.unzip.ZipUtils
 import com.gt.base.activity.BaseActivity
 import com.gt.base.app.ConstStrings
+import com.gt.base.app.TempIdsBean
 import com.gt.entrypad.app.RouterPath
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -21,10 +25,20 @@ import com.gt.entrypad.module.project.mvp.presenter.ProjectListPresenter
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.views.ZXStatusBarCompat
 import com.gt.entrypad.R
+import com.gt.entrypad.module.project.bean.ProjectListBean
+import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
 import com.gt.entrypad.tool.CopyAssetsToSd
+import com.gt.module_map.tool.DeleteLayerFileTool
+import com.gt.module_map.tool.FileUtils
+import com.gt.module_map.tool.MapTool
 import com.zx.bui.ui.buidialog.BUIDialog
+import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSystemUtil
+import com.zx.zxutils.util.ZXToastUtil
+import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
+import com.zx.zxutils.views.SwipeRecylerView.ZXSRListener
+import kotlinx.android.synthetic.main.activity_project_list.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
 
@@ -34,7 +48,10 @@ import java.io.File
  */
 @Route(path = RouterPath.PROJECT_LIST)
 class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>(), ProjectListContract.View {
+    private var data = arrayListOf<ProjectListBean>()
+    private var projectAdapter = ProjectListAdapter(data)
     companion object {
+        private const val ChangeTag = "sketch_list"
         /**
          * 启动器
          */
@@ -74,6 +91,20 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
        getPermission(arrayOf()){
             downloadModule()
        }
+        rvProject.apply {
+            layoutManager=LinearLayoutManager(mContext)
+            adapter = projectAdapter
+        }
+
+        ZXRecyclerDeleteHelper(this, rvProject)
+            .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
+            .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
+
+            }
+            .setClickable { position ->
+
+            }
+        refresh()
     }
     /**
      * 模板下载
@@ -84,6 +115,10 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             CopyAssetsToSd.copy(mContext,"jungong.gpkg", ConstStrings.getSketchTemplatePath(),"jungong.gpkg")
             dismissLoading()
         }
+    }
+
+    private fun refresh(){
+
     }
 }
 

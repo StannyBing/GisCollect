@@ -18,7 +18,6 @@ import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.*
 import com.gt.base.app.CheckBean
-import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.module.collect.func.adapter.CollectListAdapter
 import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.module_map.tool.GeometrySizeTool
@@ -28,6 +27,7 @@ import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.MapTool
 import com.gt.base.app.TempIdsBean
+import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil

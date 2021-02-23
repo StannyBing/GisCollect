@@ -34,15 +34,13 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
             return fragment
         }
 
-        const val Sketch_Create = "图层新增"
         const val Sketch_Feature = "要素编辑"
         const val Sketch_Field = "登记信息"
     }
 
-    private lateinit var sketchCreateFragment: SketchCreateFragment
     private lateinit var sketchFieldFragment: SketchFiledFragment
     private lateinit var sketchFeatureFragment: SketchFeatureFragment
-    private var currentFragType = Sketch_Create
+    private var currentFragType = Sketch_Feature
 
     /**
      * layout配置
@@ -56,21 +54,18 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
      */
     override fun initView(savedInstanceState: Bundle?) {
 
-        sketchCreateFragment = SketchCreateFragment.newInstance()
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
 
-        sketchCreateFragment.fragChangeListener = this
         sketchFieldFragment.fragChangeListener = this
         sketchFeatureFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
-            add(sketchCreateFragment)
             add(sketchFeatureFragment)
             add(sketchFieldFragment)
         }, R.id.fm_sketch_main, 0)
 
-        tv_collect_title_name.text = "落地"
+        tv_collect_title_name.text = Sketch_Feature
 
         super.initView(savedInstanceState)
     }
@@ -87,12 +82,8 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
 
     override fun onFragBack(type: String, any: Any?) {
         when (type) {
-            Sketch_Create -> {
-
-            }
             Sketch_Feature -> {
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
-                onFragGoto(Sketch_Create)
             }
             Sketch_Field -> {
                 onFragGoto(Sketch_Feature)
@@ -105,27 +96,9 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         currentFragType = type
         tv_collect_title_name.text = type
         when (type) {
-            Sketch_Create -> {
-                iv_collect_title_back.visibility = View.GONE
-                ZXFragmentUtil.hideAllShowFragment(sketchCreateFragment)
-                sketchCreateFragment.reInit()
-            }
             Sketch_Feature -> {
-                iv_collect_title_back.visibility = View.VISIBLE
+                iv_collect_title_back.visibility = View.GONE
                 ZXFragmentUtil.hideAllShowFragment(sketchFeatureFragment)
-                any?.let {
-                    if (it is FeatureLayer) {
-                        sketchFeatureFragment?.excuteLayer(it, true, true)
-                    } else if (it is Pair<*, *>) {
-                        sketchFeatureFragment?.excuteLayer(
-                            it.first as FeatureLayer,
-                            (it.second as Array<Boolean>)[0],
-                            (it.second as Array<Boolean>)[1]
-                        )
-                    } else {
-
-                    }
-                }
             }
             Sketch_Field -> {
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
@@ -133,9 +106,9 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
                 ZXFragmentUtil.hideAllShowFragment(sketchFieldFragment)
                 any?.let {
                     if (it is Feature) {
-                       // sketchFieldFragment.excuteField(it, true)
+                        sketchFieldFragment.excuteField(it, true)
                     } else if (it is Pair<*, *>) {
-                      //  sketchFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
+                        sketchFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
                     }
                 }
             }

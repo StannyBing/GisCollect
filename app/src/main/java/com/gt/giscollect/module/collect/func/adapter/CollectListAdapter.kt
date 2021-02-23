@@ -7,7 +7,6 @@ import com.gt.giscollect.R
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
-import org.json.JSONObject
 
 class CollectListAdapter(dataList: List<CollectCheckBean>) :
     ZXQuickAdapter<CollectCheckBean, ZXBaseHolder>(R.layout.item_collect_list, dataList) {

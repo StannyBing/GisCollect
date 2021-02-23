@@ -1,16 +1,13 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
-import android.widget.EditText
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.Field
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.data.ShapefileFeatureTable
 import com.esri.arcgisruntime.geometry.GeometryType
-import com.esri.arcgisruntime.internal.jni.it
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.base.app.ConstStrings
 import com.gt.base.app.TempIdsBean
@@ -18,7 +15,7 @@ import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.SketchBean
-import com.gt.entrypad.module.project.func.SketchFieldCreateAdapter
+import com.gt.entrypad.module.project.func.adapter.SketchFieldCreateAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchCreateContract
 import com.gt.entrypad.module.project.mvp.model.SketchCreateModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchCreatePresenter
@@ -58,7 +55,8 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
     var fragChangeListener: FragChangeListener? = null
 
     private val identifyList = arrayListOf<Field>()
-    private val identifyAdapter = SketchFieldCreateAdapter(identifyList)
+    private val identifyAdapter =
+        SketchFieldCreateAdapter(identifyList)
 
     private lateinit var swipeIdentify: ZXRecyclerDeleteHelper
 
@@ -266,7 +264,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         var shpPath = ""
         val file = File(sp_create_layer_model.selectedValue.toString())
         if (file.exists() && file.isDirectory) {
-            val destFile = File(ConstStrings.getOperationalLayersPath() + name + "/shape/")
+            val destFile = File(ConstStrings.getSketchLayersPath() + name + "/shape/")
             destFile.mkdirs()
             file.listFiles().forEach {
                 val copyFile = ZXFileUtil.copyFile(
@@ -288,7 +286,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         val file = File(sp_create_layer_model.selectedValue.toString())
         if (file.exists() && file.isFile) {
             val destFile =
-                File(ConstStrings.getOperationalLayersPath() + name + "/")
+                File(ConstStrings.getSketchLayersPath() + name + "/")
             destFile.mkdirs()
             val copyFile = ZXFileUtil.copyFile(
                 file.path,

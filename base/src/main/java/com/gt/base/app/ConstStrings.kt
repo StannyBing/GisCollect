@@ -104,6 +104,11 @@ object ConstStrings {
         return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + bussinessId + "/"
     }
 
+
+    fun getSketchLayersPath(): String {
+        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/" + bussinessId + "/"
+    }
+
     fun getSketchTemplatePath():String{
         return "$LOCAL_PATH$APPNAME/jungong/"
     }

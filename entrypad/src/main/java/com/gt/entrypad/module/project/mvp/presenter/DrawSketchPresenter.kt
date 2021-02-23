@@ -1,28 +1,21 @@
 package com.gt.entrypad.module.project.mvp.presenter
 
-import android.util.Log
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
 import com.frame.zxmvp.http.download.DownInfo
 import com.frame.zxmvp.http.download.listener.DownloadOnNextListener
 import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.frame.zxmvp.http.upload.UploadRequestBody
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.gt.base.app.ConstStrings
 import com.gt.entrypad.api.ApiConfigModule
-import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.HouseTableBean
-import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.mvp.contract.DrawSketchContract
-import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSystemUtil
-import com.zx.zxutils.util.ZXToastUtil
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import org.json.JSONObject
 import java.io.File
 
 
@@ -131,7 +124,7 @@ class DrawSketchPresenter : DrawSketchContract.Presenter() {
             HttpDownManager.getInstance().startDown(downInfo) { chain ->
                 val original = chain.request()
                 val request = original.newBuilder()
-                    .header("Cookie", ConstString.Cookie)
+                    .header("Cookie", ConstStrings.Cookie)
                     .build()
                 chain.proceed(request)
             }

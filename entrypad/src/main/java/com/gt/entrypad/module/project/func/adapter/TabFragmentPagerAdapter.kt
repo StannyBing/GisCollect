@@ -1,4 +1,4 @@
-package com.gt.entrypad.module.project.func
+package com.gt.entrypad.module.project.func.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

@@ -2,35 +2,26 @@ package com.gt.entrypad.module.project.ui.activity
 
 import android.Manifest
 import android.app.Activity
-import android.app.ActivityOptions
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.app.RouterPath
-import com.gt.entrypad.module.project.bean.IDCardInfoBean
-import com.gt.entrypad.module.project.bean.InputInfoBean
-import com.gt.entrypad.module.project.func.PhotoAdapter
+import com.gt.entrypad.module.project.func.adapter.PhotoAdapter
 import com.gt.entrypad.module.project.mvp.contract.TakePhotoContract
 import com.gt.entrypad.module.project.mvp.model.TakePhotoModel
 import com.gt.entrypad.module.project.mvp.presenter.TakePhotoPresenter
 import com.gt.entrypad.module.project.ui.view.BottomSheetOptionsDialog
-import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
 import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
-import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import com.zx.zxutils.views.PhotoPicker.PhotoPickUtils
 import com.zx.zxutils.views.PhotoPicker.PhotoPicker
@@ -38,7 +29,6 @@ import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
 import kotlinx.android.synthetic.main.activity_info_input.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import rx.functions.Action1
-import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
 

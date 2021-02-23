@@ -1,43 +1,21 @@
 package com.gt.entrypad.module.project.ui.activity
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
-import androidx.recyclerview.widget.GridLayoutManager
 import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
-import com.gt.entrypad.module.project.bean.InputInfoBean
-import com.gt.entrypad.module.project.func.ResultShowAdapter
 import com.gt.entrypad.module.project.mvp.contract.ResultShowContract
 import com.gt.entrypad.module.project.mvp.model.ResultShowModel
 import com.gt.entrypad.module.project.mvp.presenter.ResultShowPresenter
-import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
-import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewModel
-import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
-import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewModel
-import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
-import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
-import kotlinx.android.synthetic.main.activity_result_show.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
-import rx.functions.Action1
-import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import androidx.core.content.ContextCompat.getSystemService
-import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
-import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.os.Environment
-import android.widget.FrameLayout
-import androidx.core.content.ContextCompat.getSystemService
-import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
+
 //import com.tencent.smtt.sdk.TbsReaderView
 
 

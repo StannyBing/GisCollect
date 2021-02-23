@@ -1,13 +1,9 @@
-package com.gt.entrypad.module.project.func
+package com.gt.entrypad.module.project.func.adapter
 
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.ui.view.editText.EditTextView
 import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
-import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogView
-import com.gt.entrypad.module.project.ui.view.infoDialogView.InfoDialogViewViewModel
-import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerView
-import com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleView
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
