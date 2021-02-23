@@ -24,6 +24,7 @@ object ConstStrings {
     val arcgisKey = "5SKIXc21JlankElJ"
     var LOCAL_PATH: String? = null
     var bussinessId: String = ""//当前选中的id
+    var sktchId: String = ""//当前选中的id
     val checkList = arrayListOf<CheckBean>()
     val appfuncList = arrayListOf<AppFuncBean>()
 
@@ -106,7 +107,7 @@ object ConstStrings {
 
 
     fun getSketchLayersPath(): String {
-        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/" + bussinessId + "/"
+        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/" + sktchId + "/"
     }
 
     fun getSketchTemplatePath():String{

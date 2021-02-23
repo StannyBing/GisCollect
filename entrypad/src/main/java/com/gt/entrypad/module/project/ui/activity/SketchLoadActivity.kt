@@ -3,8 +3,10 @@ package com.gt.entrypad.module.project.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.animation.TranslateAnimation
+import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.base.activity.BaseActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.mvp.contract.MapContract
@@ -22,8 +24,9 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
         /**
          * 启动器
          */
-        fun startAction(activity: Activity, isFinish: Boolean) {
+        fun startAction(activity: Activity, isFinish: Boolean,featurePath: String="") {
             val intent = Intent(activity, SketchLoadActivity::class.java)
+            intent.putExtra("featurePath",featurePath)
             activity.startActivity(intent)
             if (isFinish) activity.finish()
         }
@@ -32,7 +35,7 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
         super.initView(savedInstanceState)
         ZXFragmentUtil.addFragment(supportFragmentManager,MapFragment.newInstance(),R.id.mapFl)
         iv_data_show.performClick()
-        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(),R.id.fm_data)
+        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(if (intent.hasExtra("featurePath")) intent.getStringExtra("featurePath") else ""),R.id.fm_data)
     }
 
     override fun onViewListener() {

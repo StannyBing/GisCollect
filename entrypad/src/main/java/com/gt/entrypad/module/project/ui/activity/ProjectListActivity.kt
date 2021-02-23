@@ -30,8 +30,10 @@ import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
 import com.gt.entrypad.tool.CopyAssetsToSd
 import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.module_map.tool.FileUtils
+import com.gt.module_map.tool.GeoPackageTool
 import com.gt.module_map.tool.MapTool
 import com.zx.bui.ui.buidialog.BUIDialog
+import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSystemUtil
@@ -99,10 +101,9 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
         ZXRecyclerDeleteHelper(this, rvProject)
             .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
-
             }
             .setClickable { position ->
-
+               SketchLoadActivity.startAction(this,false,data[position].path)
             }
         refresh()
     }
@@ -118,8 +119,25 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
     }
 
     private fun refresh(){
-
-    }
+        mSharedPrefUtil.getList<String>("sketchId")?.apply {
+            forEach {
+                ConstStrings.sktchId=it
+                val file = File(ConstStrings.getSketchLayersPath())
+                if (file.exists() && file.isDirectory) {
+                    file.listFiles()?.forEach {
+                        if (it.isFile && it.name.endsWith(".gpkg")) {
+                            GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
+                                featureTableList.forEach {featureTable->
+                                    data.add(ProjectListBean(featureLayer = FeatureLayer(featureTable),path =it.path))
+                                }
+                                projectAdapter.notifyDataSetChanged()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        }
 }
 
 

@@ -38,6 +38,23 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp" />
 
+                <EditText
+                    android:id="@+id/et_collect_rename"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_normal_edit"
+                    android:hint="请输入图层名称"
+                    android:visibility="gone"
+                    android:imeOptions="actionDone"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_small_size" />
             </LinearLayout>
 
 

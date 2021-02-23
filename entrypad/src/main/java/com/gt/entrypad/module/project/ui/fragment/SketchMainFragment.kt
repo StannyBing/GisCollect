@@ -1,6 +1,7 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.esri.arcgisruntime.data.Feature
@@ -11,9 +12,12 @@ import com.gt.entrypad.R
 import com.gt.entrypad.module.project.mvp.contract.SketchMainContract
 import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
+import com.gt.module_map.tool.GeoPackageTool
 import com.gt.module_map.tool.MapTool
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_sketch_main.*
+import java.io.Serializable
+import java.lang.Exception
 
 /**
  * create by 96212 on 2021/2/22.
@@ -26,10 +30,12 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         /**
          * 启动器
          */
-        fun newInstance(): SketchMainFragment {
+        fun newInstance(vararg params:Serializable): SketchMainFragment {
             val fragment = SketchMainFragment()
             val bundle = Bundle()
-
+            params.forEachIndexed { index, serializable ->
+                bundle.putSerializable("p$index",serializable)
+            }
             fragment.arguments = bundle
             return fragment
         }
@@ -53,7 +59,6 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
      * 初始化
      */
     override fun initView(savedInstanceState: Bundle?) {
-
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
 
@@ -66,8 +71,16 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         }, R.id.fm_sketch_main, 0)
 
         tv_collect_title_name.text = Sketch_Feature
-
         super.initView(savedInstanceState)
+        if (arguments?.containsKey("p0")==true){
+            arguments?.getString("p0")?.let {
+                GeoPackageTool.getTablesFromGpkg(it){
+                    it.forEach {
+                        sketchFeatureFragment?.excuteLayer(FeatureLayer(it),true)
+                    }
+                }
+            }
+        }
     }
 
     /**

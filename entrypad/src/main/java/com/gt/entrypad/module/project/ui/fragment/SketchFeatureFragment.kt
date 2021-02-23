@@ -25,6 +25,7 @@ import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
 import com.gt.base.app.TempIdsBean
 import com.gt.entrypad.R
+import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.SketchFeatureAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchFeatureContract
 import com.gt.entrypad.module.project.mvp.model.SketchFeatureModel
@@ -40,7 +41,9 @@ import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_sketch_create.*
 import kotlinx.android.synthetic.main.fragment_sketch_feature.*
 import kotlinx.android.synthetic.main.fragment_sketch_feature.sp_create_layer_model
+import kotlinx.android.synthetic.main.layout_tool_bar.*
 import org.json.JSONObject
+import rx.functions.Action1
 import java.io.File
 import java.text.DecimalFormat
 import java.util.*
@@ -69,6 +72,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private val featureList = arrayListOf<Feature>()
     private val featureAdapter = SketchFeatureAdapter(featureList)
     private var editPosition = -1
+    private var keyList = arrayListOf<String>()
     /**
      * layout配置
      */
@@ -134,7 +138,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         val file = File(sp_create_layer_model.selectedValue.toString())
         if (file.exists() && file.isFile) {
             val destFile =
-                File(ConstStrings.getSketchLayersPath() + name + "/")
+                File(ConstStrings.getSketchLayersPath() + "/")
             destFile.mkdirs()
             val copyFile = ZXFileUtil.copyFile(
                 file.path,
@@ -194,6 +198,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 id: Long
             ) {
                 if (sp_create_layer_model.selectedValue.toString().isNotEmpty()) {
+                    ConstStrings.sktchId = UUID.randomUUID().toString()
+                    if (!keyList.contains(ConstStrings.sktchId)){
+                        keyList.add(ConstStrings.sktchId)
+                        mSharedPrefUtil.putList("sketchId",keyList)
+                    }
                     val geoPackage = copyGpkgFromTemplate("竣工验收")
                     geoPackage?.loadAsync()
                     geoPackage?.addDoneLoadingListener {
@@ -219,7 +228,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                                         notifyDataSetChanged()
                                     }
                                    it.forEach {
-                                        excuteLayer(FeatureLayer(it))
+                                       // excuteLayer(FeatureLayer(it))
                                     }
                                 }
                             }
@@ -231,7 +240,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
      //完成
         btnSketchFinish.setOnClickListener {
             if (sp_create_layer_model.selectedKey.toString()!="请选择模板"){
-                 ProjectListActivity.startAction(mActivity,false)
+                 ProjectListActivity.startAction(mActivity,true)
             }else{
                 showToast("请选择模板")
             }
@@ -310,7 +319,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     /**
      * 处理图层
      */
-    fun excuteLayer(featureLayer: FeatureLayer) {
+    fun excuteLayer(featureLayer: FeatureLayer,isEdit:Boolean=false) {
         currentLayer = featureLayer
         currentLayer?.clearSelection()
 
@@ -327,7 +336,31 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         sp_collect_feature_showfield.notifyDataSetChanged()
         sp_collect_feature_showfield.setSelection(showIndex)
         featureList.clear()
-        createFeature()
+        if (isEdit){
+            currentLayer?.featureTable?.loadAsync()
+            currentLayer?.featureTable?.addDoneLoadingListener {
+                val queryGet = currentLayer?.featureTable?.queryFeaturesAsync(QueryParameters())
+                queryGet?.addDoneListener {
+
+                    val list = queryGet.get()
+                    featureAdapter.loadMoreEnd()
+                    featureList.addAll(list)
+                    featureAdapter.notifyDataSetChanged()
+                }
+            }
+            et_collect_rename.apply {
+                visibility=View.VISIBLE
+                isEnabled=false
+                setText(currentLayer?.name?:"")
+            }
+            sp_create_layer_model.visibility=View.GONE
+            btnSketchFinish.visibility=View.GONE
+        }else{
+            et_collect_rename.visibility=View.GONE
+            sp_create_layer_model.visibility=View.VISIBLE
+            btnSketchFinish.visibility=View.VISIBLE
+            createFeature()
+        }
     }
 
 
