@@ -102,6 +102,27 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
         ZXRecyclerDeleteHelper(this, rvProject)
             .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
+                when(id){
+                    R.id.tv_delete->{
+                        ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否删除该项目，这将同时删除该项目的草图数据？"){ dialog, which ->
+                            data[pos].featureLayer?.let {
+                                FileUtils.deleteFilesByName(
+                                    ConstStrings.getSketchLayersPath(),
+                                    it.name
+                                )
+                                DeleteLayerFileTool.deleteFileByLayer(
+                                    ConstStrings.getSketchLayersPath() + it.name + "/file/",
+                                    it
+                                )
+                                data.removeAt(pos)
+                                projectAdapter.notifyDataSetChanged()
+                            }
+                        }
+                    }
+                    R.id.tv_upload->{
+
+                    }
+                }
             }
             .setClickable { position ->
                 ConstString.feature = data[position].featureLayer

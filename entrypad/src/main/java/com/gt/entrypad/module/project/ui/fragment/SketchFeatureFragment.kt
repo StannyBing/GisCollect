@@ -383,4 +383,9 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             (currentLayer?.featureTable as ServiceFeatureTable).applyEditsAsync()
         }
     }
+
+    override fun onDestroy() {
+        reInit()
+        super.onDestroy()
+    }
 }

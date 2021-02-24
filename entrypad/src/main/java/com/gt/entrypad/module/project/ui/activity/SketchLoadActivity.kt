@@ -7,6 +7,8 @@ import android.util.Log
 import android.view.View
 import android.view.animation.TranslateAnimation
 import com.esri.arcgisruntime.layers.FeatureLayer
+import com.esri.arcgisruntime.mapping.ArcGISMap
+import com.esri.arcgisruntime.mapping.view.MapView
 import com.gt.base.activity.BaseActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.mvp.contract.MapContract
@@ -15,11 +17,16 @@ import com.gt.entrypad.module.project.mvp.presenter.MapPresenter
 import com.gt.entrypad.module.project.ui.fragment.MapFragment
 import com.gt.entrypad.module.project.ui.fragment.SketchFiledFragment
 import com.gt.entrypad.module.project.ui.fragment.SketchMainFragment
+import com.gt.module_map.listener.MapListener
+import com.gt.module_map.tool.MapTool
+import com.gt.module_map.view.measure.MeasureView
 import com.zx.zxutils.util.ZXFragmentUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.activity_sketch_load.*
+import kotlinx.android.synthetic.main.fragment_map.*
 
-class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View{
+class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View,MapListener{
+  private lateinit var mapFragment:MapFragment
     companion object {
         /**
          * 启动器
@@ -32,9 +39,12 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
     }
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        ZXFragmentUtil.addFragment(supportFragmentManager,MapFragment.newInstance(),R.id.mapFl)
+        ZXFragmentUtil.addFragment(supportFragmentManager,MapFragment.newInstance().apply {
+            mapFragment = this
+        },R.id.mapFl)
         iv_data_show.performClick()
         ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(),R.id.fm_data)
+        MapTool.mapListener = this
     }
 
     override fun onViewListener() {
@@ -66,6 +76,26 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
 
     override fun getLayoutId(): Int {
        return R.layout.activity_sketch_load
+    }
+
+    override fun doLocation() {
+
+    }
+
+    override fun getMapView(): MapView? {
+        return mapFragment.map_view
+    }
+
+    override fun getMap(): ArcGISMap? {
+        return mapFragment.map_view?.map
+    }
+
+    override fun addSingleTapListener(singleTap: MapListener.OnSingleTapCall) {
+
+    }
+
+    override fun getMeasure(): MeasureView? {
+        return null
     }
 
 }
