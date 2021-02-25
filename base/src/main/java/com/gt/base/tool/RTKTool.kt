@@ -2,6 +2,7 @@ package com.gt.base.tool
 
 import com.gt.base.bean.RtkInfoBean
 import java.lang.Exception
+import java.text.DecimalFormat
 
 object RTKTool {
     /**
@@ -66,11 +67,35 @@ object RTKTool {
     }
 
     /**
-     * @param referencePoint 基准点1
-     * @param referencePoint2 以基准点1的所在一条边为基准边，然后再另外一个方向打基准点2
      *
+     *@param point0X point0Y 顶点1横纵坐标
+     * @param point1X point1Y 顶点2横纵坐标
+     * @param vertexPointX vertexPointY 定点横纵坐标
      */
-    fun angle(referencePoint:RtkInfoBean,referencePoint2:RtkInfoBean){
+    fun getDegree(vertexPointX:Double,vertexPointY:Double,point0X:Double,point0Y:Double,point1X:Double,point1Y:Double):Int{
+        //向量的点乘
+        val vector = (point0X - vertexPointX) * (point1X - vertexPointX) + (point0Y - vertexPointY) * (point1Y - vertexPointY)
+        //向量的模乘
+        var sqrt = Math.sqrt((Math.abs((point0X-vertexPointX)*(point0X-vertexPointX))+Math.abs((point0Y-vertexPointY)*(point0Y-vertexPointY)))*(
+                Math.abs((point1X-vertexPointX)*(point1X-vertexPointX))+Math.abs((point1Y-vertexPointY)*(point1Y-vertexPointY))))
+        //反余弦计算弧度
+        var radian = Math.acos(vector/sqrt)
+        //弧度转角度制
+        return (180*radian/Math.PI).toInt()
+    }
 
+    /**
+     * 根据一点经纬度 距离 已经方向夹角 计算另外一点坐标
+     * @param angle 角度 正北顺时针方向开始计算
+     * @param startLng 起始点经度
+     * @param startLat 起始点维度
+     * @param distance 距离 单位m
+     */
+    fun locationByDistanceAndDirectionAndLocation(angle:Double,startLat:Double,startLng:Double,distance:Float):Array<Double?>{
+        var decimalFormat =DecimalFormat("0.000000")
+        val result = arrayOfNulls<Double>(2)
+        result[0]=decimalFormat.format(startLat+(distance*Math.cos(Math.toDegrees(angle)*Math.PI/180))/111).toDouble()
+        result[1]=decimalFormat.format(startLng+(distance*Math.sin(Math.toDegrees(angle)*Math.PI/180))/(111*Math.cos(startLat*Math.PI/180))).toDouble()
+        return  result
     }
 }
