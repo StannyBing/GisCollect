@@ -1,5 +1,7 @@
 package com.gt.base.tool
 
+import android.graphics.Point
+import android.graphics.PointF
 import com.gt.base.bean.RtkInfoBean
 import java.lang.Exception
 import java.text.DecimalFormat
@@ -24,14 +26,14 @@ object RTKTool {
                 ) + Math.pow(rtkBean1.pointY, 2.0) - Math.pow(rtkBean2.pointY, 2.0) - Math.pow(
                     rtkBean1.distance,
                     2.0
-                ) - Math.pow(rtkBean2.distance, 2.0))
+                ) +Math.pow(rtkBean2.distance, 2.0))
             -(rtkBean1.pointY - rtkBean2.pointY) * (Math.pow(rtkBean2.pointX, 2.0) - Math.pow(
                 rtkBean3.pointX,
                 2.0
             ) + Math.pow(rtkBean2.pointY, 2.0) - Math.pow(
                 rtkBean3.pointY,
                 2.0
-            ) - Math.pow(rtkBean2.distance, 2.0) - Math.pow(rtkBean3.distance, 2.0))
+            ) - Math.pow(rtkBean2.distance, 2.0)+ Math.pow(rtkBean3.distance, 2.0))
             //分母
             var denominatorX =
                 2 * (rtkBean1.pointX - rtkBean2.pointX) * (rtkBean2.pointY - rtkBean3.pointY) - 2 * (rtkBean2.pointX - rtkBean3.pointX) * (rtkBean1.pointY - rtkBean2.pointY)
@@ -43,7 +45,7 @@ object RTKTool {
                 ) + Math.pow(rtkBean1.pointY, 2.0) - Math.pow(rtkBean2.pointY, 2.0) - Math.pow(
                     rtkBean1.distance,
                     2.0
-                ) - Math.pow(rtkBean2.distance, 2.0))
+                ) + Math.pow(rtkBean2.distance, 2.0))
             var denominatorY1 =
                 2 * (rtkBean1.pointY - rtkBean2.pointY) * (rtkBean2.pointX - rtkBean3.pointX) - 2 * (rtkBean2.pointY - rtkBean3.pointY) * (rtkBean1.pointX - rtkBean2.pointX)
             var a = elementsX1 / denominatorY1
@@ -54,7 +56,7 @@ object RTKTool {
                 ) + Math.pow(rtkBean2.pointY, 2.0) - Math.pow(rtkBean3.pointY, 2.0) - Math.pow(
                     rtkBean2.distance,
                     2.0
-                ) - Math.pow(rtkBean3.distance, 2.0))
+                ) +Math.pow(rtkBean3.distance, 2.0))
             var denominatorY2 =
                 2 * (rtkBean2.pointX - rtkBean3.pointX) * (rtkBean1.pointY - rtkBean2.pointY) - 2 * (rtkBean2.pointY - rtkBean3.pointY) * (rtkBean1.pointX - rtkBean2.pointX)
             var b = elementsX2 / denominatorY2
@@ -94,8 +96,8 @@ object RTKTool {
     fun locationByDistanceAndDirectionAndLocation(angle:Double,startLat:Double,startLng:Double,distance:Float):Array<Double?>{
         var decimalFormat =DecimalFormat("0.000000")
         val result = arrayOfNulls<Double>(2)
-        result[0]=decimalFormat.format(startLat+(distance*Math.cos(Math.toDegrees(angle)*Math.PI/180))/111).toDouble()
-        result[1]=decimalFormat.format(startLng+(distance*Math.sin(Math.toDegrees(angle)*Math.PI/180))/(111*Math.cos(startLat*Math.PI/180))).toDouble()
+        result[0]=decimalFormat.format(startLat+(distance*Math.cos(angle*Math.PI/180))/111).toDouble()
+        result[1]=decimalFormat.format(startLng+(distance*Math.sin(angle*Math.PI/180))/(111*Math.cos(startLat*Math.PI/180))).toDouble()
         return  result
     }
 }
