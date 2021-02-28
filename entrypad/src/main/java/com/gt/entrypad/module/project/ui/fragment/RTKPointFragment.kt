@@ -18,6 +18,8 @@ import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.MapTool
 import com.gt.module_map.tool.PointTool
+import com.stanny.module_rtk.tool.RTKTool
+import com.stanny.module_rtk.tool.WHandTool
 import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.fragment_rtk_point.*
 
@@ -65,7 +67,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                    RtkInfoBean(rtkPointBean2.point.x.toDouble(),rtkPointBean2.point.y.toDouble(),rtkPointBean2.distance),
                    RtkInfoBean(rtkPointBean3.point.x.toDouble(),rtkPointBean3.point.y.toDouble(),rtkPointBean3.distance))
                rtkData.forEach {
-                   it.sitePoint = PointF(rtkInfoBean.pointX.toFloat(),rtkInfoBean.pointY.toFloat())
+                   it.sitePoint = Point(rtkInfoBean.pointX,rtkInfoBean.pointY)
                }
                fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point,rtkData)
            }
@@ -86,10 +88,11 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                                     SpatialReference.create(4326)
                                 )
                             )
-//                            rtkData[position].point = location
+                          rtkData[position].sitePoint = location
+                          rtkAdapter.notifyDataSetChanged()
                         }
                     } else {
-                        fragChangeListener?.onFragGoto(SketchMainFragment.RTK_Set)
+                        fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Set)
                     }
                 }
             }
@@ -101,8 +104,8 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
     }
 
     fun showData(any: Any?) {
-        rtkData.clear()
         any?.let {
+            rtkData.clear()
             if (it is SiteBean) {
                 if (it.rtkList.isNullOrEmpty()) {
                     rtkData.add(RtkPointBean(title = "参考点P0", parentId = it.id))
@@ -124,8 +127,8 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     }
                 }
             }
+            rtkAdapter.notifyDataSetChanged()
         }
-        rtkAdapter.notifyDataSetChanged()
     }
 
 }

@@ -70,7 +70,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     //推导坐标点集合
     private var latLngList = arrayListOf<Point>()
     //参考点集合
-    private var referSitePoint = arrayListOf<PointF>()
+    private var referSitePoint = arrayListOf<Point>()
     /**
      * layout配置
      */

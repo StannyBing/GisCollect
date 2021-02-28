@@ -38,13 +38,11 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         }
         const val Sketch_Feature = "要素编辑"
         const val Sketch_Field = "登记信息"
-        const val RTK_Set = "定位设置"
     }
 
     private lateinit var sketchFieldFragment: SketchFiledFragment
     private lateinit var sketchFeatureFragment: SketchFeatureFragment
     private var currentFragType = Sketch_Feature
-    private lateinit var rtkDeviceFragment: RtkDeviceFragment
 
     /**
      * layout配置
@@ -59,15 +57,12 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
     override fun initView(savedInstanceState: Bundle?) {
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
-        rtkDeviceFragment = RtkDeviceFragment.newInstance()
         sketchFieldFragment.fragChangeListener = this
         sketchFeatureFragment.fragChangeListener = this
-        rtkDeviceFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
             add(sketchFeatureFragment)
             add(sketchFieldFragment)
-            add(rtkDeviceFragment)
         }, R.id.fm_sketch_main, 0)
 
         tv_collect_title_name.text = currentFragType
@@ -94,9 +89,7 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
                 onFragGoto(Sketch_Feature)
                 sketchFeatureFragment?.reInit()
             }
-            RTK_Set -> {
-                onFragGoto(Site_Point)
-            }
+
         }
     }
 
@@ -120,11 +113,7 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
                     }
                 }
             }
-            RTK_Set -> {
-                iv_collect_title_back.visibility = View.VISIBLE
-                ZXFragmentUtil.hideAllShowFragment(rtkDeviceFragment)
-                rtkDeviceFragment.reInit()
-            }
+
         }
     }
 

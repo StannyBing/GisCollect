@@ -1,12 +1,13 @@
 package com.gt.entrypad.module.project.bean
 
 import android.graphics.PointF
+import com.esri.arcgisruntime.geometry.Point
 import java.util.*
 
-data class RtkPointBean(var id:String=UUID.randomUUID().toString(), var parentId:String = "",var title:String="", var distance:Double=0.0, var point:PointF=PointF(),var sitePoint:PointF=PointF()){
+data class RtkPointBean(var id:String=UUID.randomUUID().toString(), var parentId:String = "",var title:String="", var distance:Double=0.0, var point:PointF=PointF(),var sitePoint:Point= Point(0.0,0.0)){
     var result = ""
     get() {
-        field = if (point.x.toDouble()==0.0&&point.y.toDouble()==0.0) "" else "${point.x},${point.y}"
+        field = if (sitePoint.x==0.0&&sitePoint.y==0.0) "" else "${sitePoint.x},${sitePoint.y}"
         return field
     }
     var resultDistance = ""
