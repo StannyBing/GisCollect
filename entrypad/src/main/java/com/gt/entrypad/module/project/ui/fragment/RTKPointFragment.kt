@@ -1,11 +1,14 @@
 package com.gt.entrypad.module.project.ui.fragment
 
+import android.graphics.Point
 import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gt.base.bean.RtkInfoBean
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
+import com.gt.base.tool.RTKTool
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.RtkPointBean
 import com.gt.entrypad.module.project.bean.SiteBean
@@ -43,7 +46,24 @@ class RTKPointFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sket
     }
     override fun onViewListener() {
         btnGraphic.setOnClickListener {
-            fragChangeListener?.onFragBack(SketchMainFragment.RTK_Point,rtkData)
+            rtkData.forEach {
+                if (!(it.distance!=0.0&&it.point.x.toDouble()!=0.0&&it.point.y.toDouble()!=0.0)){
+                    showToast("${it.title}的坐标或者距离不能为0")
+                    return@setOnClickListener
+                }
+            }
+           if (rtkData.size==3){
+               val rtkPointBean1 = rtkData[0]
+               val rtkPointBean2 = rtkData[1]
+               val rtkPointBean3 = rtkData[2]
+               val rtkInfoBean = RTKTool.rtkActualLocation(RtkInfoBean(rtkPointBean1.point.x.toDouble(),rtkPointBean1.point.y.toDouble(),rtkPointBean1.distance),
+                   RtkInfoBean(rtkPointBean2.point.x.toDouble(),rtkPointBean2.point.y.toDouble(),rtkPointBean2.distance),
+                   RtkInfoBean(rtkPointBean3.point.x.toDouble(),rtkPointBean3.point.y.toDouble(),rtkPointBean3.distance))
+               rtkData.forEach {
+                   it.sitePoint = PointF(rtkInfoBean.pointX.toFloat(),rtkInfoBean.pointY.toFloat())
+               }
+               fragChangeListener?.onFragBack(SketchMainFragment.RTK_Point,rtkData)
+           }
         }
         rtkAdapter.addTextChangeListener { i, s ->
             rtkData[i].distance = if (s.isNotEmpty()) s.toDouble() else 0.0

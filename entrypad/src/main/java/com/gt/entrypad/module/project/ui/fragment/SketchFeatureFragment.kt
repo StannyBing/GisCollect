@@ -95,6 +95,8 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private var sitePoint = arrayListOf<PointF>()
     //推导坐标点集合
     private var latLngList = arrayListOf<Point>()
+    //参考点集合
+    private var referSitePoint = arrayListOf<PointF>()
     /**
      * layout配置
      */
@@ -146,6 +148,10 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 if (!list.isNullOrEmpty()){
                     for (index in list.indices){
                         selectSite.add(list[index].point)
+                        val rtkList = list[index].rtkList
+                        if (!rtkList.isNullOrEmpty()){
+                            referSitePoint.add(rtkList[0].sitePoint)
+                        }
                     }
                 }
             }
@@ -170,11 +176,13 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
      */
     private fun  drawSketch(){
         latLngList.clear()
-        val endPoint  = GeometryEngine.project(Point(106.548146, 29.564422)  , SpatialReferences.getWgs84()) as Point
-        val endPoint2 =GeometryEngine.project(Point(106.548532,29.564422), SpatialReferences.getWgs84()) as Point
-        val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint ,endPoint2))).toGeometry())
         //推导经纬度
         if (selectSite.size>=2){
+            //referSitePoint[0]= PointF(106.548146f, 29.564422f)
+          //  referSitePoint[1]= PointF(106.548532f,29.564422f)
+            val endPoint  = GeometryEngine.project(Point(106.548146, 29.564422)  , SpatialReferences.getWgs84()) as Point
+            val endPoint2 =GeometryEngine.project(Point(106.548532,29.564422), SpatialReferences.getWgs84()) as Point
+            val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint ,endPoint2))).toGeometry())
             val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
            latLngList.add(endPoint)
             latLngList.add(endPoint2)
