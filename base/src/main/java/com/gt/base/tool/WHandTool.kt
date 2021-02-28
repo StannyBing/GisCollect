@@ -129,7 +129,7 @@ object WHandTool {
         }
     }
 
-    fun disConnectDivice(){
+    fun disConnectDivice() {
         isRegister = false
         WHandManager.getInstance().device?.disconnect()
     }
@@ -176,6 +176,7 @@ object WHandTool {
         )
         iDivice.setOnConnectionStateChangeListener { status, newState ->
             handler.post {
+                iDivice.showLaser(true)
                 listener.onDeviceStatusChange(context, status)
             }
         }

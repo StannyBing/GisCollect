@@ -42,8 +42,11 @@ class SketchPadFloorView @JvmOverloads constructor(
     private var floorData = arrayListOf<SketchPadFloorBean>()
     private var floorAdapter = SketchPadFloorAdapter(floorData)
 
+    private var floorPos = 0
+
     private var floorGraphicData = arrayListOf<SketchPadGraphicBean>()
     private var floorGraphicAdapter = SketchPadFloorGraphicAdapter(floorGraphicData)
+
     init {
         setWillNotDraw(false)
 
@@ -69,21 +72,18 @@ class SketchPadFloorView @JvmOverloads constructor(
             layoutManager = LinearLayoutManager(context)
             adapter = floorGraphicAdapter
         }
-        floorAdapter.addCheckedChangeListener {position->
-            floorData.forEach {
-                if (it==floorData[position]){
-                    it.isChecked = !it.isChecked
-                    sketchPadListener?.floorEdit(it)
-                    titleFloorTv.text =it.name
-                }else{
-                    it.isChecked =false
-                }
-            }
+        floorAdapter.setOnItemClickListener { adapter, view, position ->
+            floorPos = position
+            sketchPadListener?.floorEdit(floorData[floorPos])
+            titleFloorTv.text = floorData[floorPos].name
             floorAdapter.notifyDataSetChanged()
+            floorGraphicData.clear()
+            floorGraphicData.addAll(floorData[floorPos].sketchList)
+            floorGraphicAdapter.notifyDataSetChanged()
             floorBackIv.visibility = View.VISIBLE
-            floorGraphicRv.visibility=View.VISIBLE
-            floorRv.visibility=View.GONE
-            floorAddBtn.text="保存"
+            floorGraphicRv.visibility = View.VISIBLE
+            floorRv.visibility = View.GONE
+            floorAddBtn.text = "保存"
         }
         initData()
     }
@@ -96,25 +96,40 @@ class SketchPadFloorView @JvmOverloads constructor(
         setOnClickListener(null)
         //关闭按钮
         floorCloseIv.setOnClickListener {
-           dismiss()
+            dismiss()
+            sketchPadListener?.stopFloorEdit()
         }
         //添加
         floorAddBtn.setOnClickListener {
-            if (floorRv.visibility==View.VISIBLE){
-                floorData.add(floorData.size, SketchPadFloorBean(name = "${floorData.size+1}楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
+            if (floorRv.visibility == View.VISIBLE) {
+                floorData.add(
+                    floorData.size,
+                    SketchPadFloorBean(
+                        name = "${floorData.size + 1}楼",
+                        sketchList = arrayListOf<SketchPadGraphicBean>()
+                    )
+                )
                 floorAdapter.notifyDataSetChanged()
-            }else{
-                ZXSharedPrefUtil().putString("floorGraphicList",Gson().toJson(floorGraphicData))
+            } else {
+                ZXSharedPrefUtil().putString("floorGraphicList", Gson().toJson(floorGraphicData))
                 ZXToastUtil.showToast("保存成功")
+                floorBackIv.performClick()
+                floorGraphicData.clear()
+                floorGraphicAdapter.notifyDataSetChanged()
             }
+            sketchPadListener?.stopFloorEdit()
         }
         //返回 更换数据
         floorBackIv.setOnClickListener {
             floorBackIv.visibility = View.GONE
-            floorGraphicRv.visibility=View.GONE
-            floorRv.visibility=View.VISIBLE
-            titleFloorTv.text ="楼层"
-            floorAddBtn.text="添加"
+            floorGraphicRv.visibility = View.GONE
+            floorRv.visibility = View.VISIBLE
+            titleFloorTv.text = "楼层"
+            floorAddBtn.text = "添加"
+            floorGraphicRv.visibility = View.GONE
+            sketchPadListener?.stopFloorEdit()
+            floorGraphicData.clear()
+            floorGraphicAdapter.notifyDataSetChanged()
         }
     }
 
@@ -134,8 +149,10 @@ class SketchPadFloorView @JvmOverloads constructor(
     /**
      * 保存添加楼层下的图形信息
      */
-    fun insertFloorGraphic(sketchPadFloorBean: SketchPadFloorBean){
+    fun insertFloorGraphic(sketchPadFloorBean: SketchPadFloorBean) {
         floorGraphicData.clear()
+//        floorData[floorPos].sketchList.clear()
+//        floorData[floorPos].sketchList.addAll(sketchPadFloorBean.sketchList)
         floorGraphicData.addAll(sketchPadFloorBean.sketchList)
         floorGraphicAdapter.notifyDataSetChanged()
     }
@@ -144,14 +161,15 @@ class SketchPadFloorView @JvmOverloads constructor(
     /**
      * 默认初始化数据 三层
      */
-    private fun initData(){
+    private fun initData() {
         floorData.apply {
-            add(SketchPadFloorBean(name = "1楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
-            add(SketchPadFloorBean(name = "2楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
-            add(SketchPadFloorBean(name = "3楼",sketchList = arrayListOf<SketchPadGraphicBean>()))
+            add(SketchPadFloorBean(name = "1楼", sketchList = arrayListOf<SketchPadGraphicBean>()))
+            add(SketchPadFloorBean(name = "2楼", sketchList = arrayListOf<SketchPadGraphicBean>()))
+            add(SketchPadFloorBean(name = "3楼", sketchList = arrayListOf<SketchPadGraphicBean>()))
         }
     }
-    fun dismiss(){
+
+    fun dismiss() {
         animation = TranslateAnimation(0f, width.toFloat(), 0f, 0f).apply {
             duration = 500
             start()
