@@ -95,15 +95,15 @@ class SketchPadView @JvmOverloads constructor(
     /**
      * 显示界址
      */
-    override fun showSite(isCheck : Boolean) {
+    override fun showSite(isCheck: Boolean) {
         sketch_content.showSite(isCheck)
     }
 
     /**
      * 楼层设置
      */
-    override fun floorSetting(isCheck : Boolean) {
-       sketch_floor.editFloor()
+    override fun floorSetting(isCheck: Boolean) {
+        sketch_floor.editFloor()
     }
 
     /**
@@ -112,15 +112,21 @@ class SketchPadView @JvmOverloads constructor(
     override fun floorEdit(sketchPadFloorBean: SketchPadFloorBean) {
         sketch_content.floorEdit(sketchPadFloorBean)
         ZXToastUtil.showToast("请点击图形")
-
     }
+
+
 
     /**
      * 保存添加的图层信息
      */
     override fun saveFloor(sketchPadFloorBean: SketchPadFloorBean) {
-       sketch_floor.insertFloorGraphic(sketchPadFloorBean)
+        sketch_floor.insertFloorGraphic(sketchPadFloorBean)
     }
+
+    override fun stopFloorEdit() {
+        sketch_content.stopFloorEdit()
+    }
+
     override fun showSizeInfo(checked: Boolean) {
         sketch_content.showSizeInfo(checked)
     }

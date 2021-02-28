@@ -52,17 +52,21 @@ object CollectDistanceTool {
                 mAngle = angle.toDouble()
             } catch (e: Exception) {
                 ZXToastUtil.showToast("角度输入错误")
+                return null
             }
             if (mAngle < -180 || mAngle > 180) {
                 ZXToastUtil.showToast("角度输入错误")
+                return null
             }
             try {
                 mDistance = distance.toDouble()
             } catch (e: Exception) {
                 ZXToastUtil.showToast("距离输入错误")
+                return null
             }
             if (mDistance < 0) {
                 ZXToastUtil.showToast("距离输入错误")
+                return null
             }
 
             ZXLogUtil.loge("point1:${endPoint2.toJson()}. point2:${endPoint.toJson()}")

@@ -30,6 +30,8 @@ interface SketchPadListener {
 
     fun saveFloor(sketchPadFloorBean: SketchPadFloorBean)
 
+    fun stopFloorEdit()
+
     fun showSizeInfo(checked: Boolean)
 
     fun deleteGraphic(id: UUID)

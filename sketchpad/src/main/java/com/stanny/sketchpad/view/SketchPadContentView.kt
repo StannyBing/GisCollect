@@ -67,7 +67,8 @@ class SketchPadContentView @JvmOverloads constructor(
     private var drawSite = false //界址
     private var showMeters: Boolean = false//尺寸
     private var drawHighlight = false//是否高亮
-    private var sketchPadFloorBean:SketchPadFloorBean?=null
+    private var sketchPadFloorBean: SketchPadFloorBean? = null
+
     init {
         setWillNotDraw(false)
 
@@ -157,15 +158,12 @@ class SketchPadContentView @JvmOverloads constructor(
             }
         }
         //高亮显示
-        if (drawHighlight){
-            val sketchList = sketchPadFloorBean?.sketchList
-            var tempSketchList = sketchList?.filter { it.id==selectGraphic?.id }
-            if (!tempSketchList.isNullOrEmpty()){
-                selectGraphic?.drawFill(canvas,SketchPadConstant.graphicTransparentColor)
-                sketchPadFloorBean?.sketchList?.remove(selectGraphic)
-            }else{
-                selectGraphic?.drawFill(canvas)
-                selectGraphic?.let { sketchList?.add(it) }
+        if (drawHighlight) {
+            graphicList.forEach {
+                it.drawFill(canvas, SketchPadConstant.graphicTransparentColor)
+            }
+            sketchPadFloorBean?.sketchList?.forEach {
+                it.drawFill(canvas)
             }
             //保存图层信息
             sketchPadFloorBean?.let {
@@ -215,12 +213,25 @@ class SketchPadContentView @JvmOverloads constructor(
                 graphicList.forEach {
                     if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                         selectGraphic = it
-                        if (drawHighlight){
+                        var tempItem: SketchPadGraphicBean? = null
+                        sketchPadFloorBean?.sketchList?.forEach {
+                            if (it.id == selectGraphic!!.id) {
+                                tempItem = it
+                                return@forEach
+                            }
+                        }
+                        if (tempItem == null) {
+                            sketchPadFloorBean?.sketchList?.add(selectGraphic!!)
+                        } else {
+                            sketchPadFloorBean?.sketchList?.remove(tempItem!!)
+                        }
+                        if (drawHighlight) {
                             refreshGraphic()
                         }
                         return@forEach
                     }
                 }
+
 
             }
 //            MotionEvent.ACTION_MOVE -> {
@@ -242,7 +253,7 @@ class SketchPadContentView @JvmOverloads constructor(
         //TODO 双指缩放 隐藏
 //        selectGraphic == null && !scaleGestureDetector.onTouchEvent(event) && return true
         //单指移动 标注不允许移动
-        if (!drawLabel&&!drawHighlight) !gestureListener.onTouchEvent(event) && return true
+        if (!drawLabel && !drawHighlight) !gestureListener.onTouchEvent(event) && return true
         return false
     }
 
@@ -443,10 +454,21 @@ class SketchPadContentView @JvmOverloads constructor(
     /**
      * 楼层编辑
      */
-    fun floorEdit(sketchPadFloorBean: SketchPadFloorBean){
+    fun floorEdit(sketchPadFloorBean: SketchPadFloorBean) {
         this.sketchPadFloorBean = sketchPadFloorBean
         drawHighlight = true
+        refreshGraphic()
     }
+
+    /**
+     * 关闭楼层编辑
+     */
+    fun stopFloorEdit() {
+        this.sketchPadFloorBean = null
+        drawHighlight = false
+        refreshGraphic()
+    }
+
     /**
      * 保存图形
      */

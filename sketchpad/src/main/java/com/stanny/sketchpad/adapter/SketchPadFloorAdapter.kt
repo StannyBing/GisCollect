@@ -8,24 +8,17 @@ import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.ZXRecyclerAdapter.ZXRecyclerQuickAdapter
 import com.zx.zxutils.util.ZXToastUtil
 
-class SketchPadFloorAdapter(data:List<SketchPadFloorBean>) :ZXRecyclerQuickAdapter<SketchPadFloorBean,ZXBaseHolder>(
-    R.layout.item_floor_layout,data){
-    private var checkedChangeListener:(Int)->Unit={position->}
+class SketchPadFloorAdapter(data: List<SketchPadFloorBean>) :
+    ZXRecyclerQuickAdapter<SketchPadFloorBean, ZXBaseHolder>(
+        R.layout.item_floor_layout, data
+    ) {
+    private var checkedChangeListener: (Int) -> Unit = { position -> }
 
     override fun quickConvert(helper: ZXBaseHolder, item: SketchPadFloorBean) {
-        helper.setText(R.id.itemContentTv,item.name)
+        helper.setText(R.id.itemContentTv, item.name)
         helper.getView<CheckBox>(R.id.itemFloorCb).apply {
-            isChecked = item.isChecked
-            setOnClickListener {
-                checkedChangeListener(helper.adapterPosition)
-            }
+            isClickable = false
+            isChecked = item.sketchList.isNotEmpty()
         }
-        helper.itemView. setOnClickListener {
-            checkedChangeListener(helper.adapterPosition)
-        }
-    }
-
-    fun addCheckedChangeListener( checkedChangeListener:(Int)->Unit={position->}){
-        this.checkedChangeListener = checkedChangeListener
     }
 }
