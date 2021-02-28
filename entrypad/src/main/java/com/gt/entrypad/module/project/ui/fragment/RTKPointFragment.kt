@@ -62,7 +62,7 @@ class RTKPointFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sket
                rtkData.forEach {
                    it.sitePoint = PointF(rtkInfoBean.pointX.toFloat(),rtkInfoBean.pointY.toFloat())
                }
-               fragChangeListener?.onFragBack(SketchMainFragment.RTK_Point,rtkData)
+               fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point,rtkData)
            }
         }
         rtkAdapter.addTextChangeListener { i, s ->

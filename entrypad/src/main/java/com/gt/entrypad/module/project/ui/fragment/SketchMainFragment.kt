@@ -41,16 +41,13 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
             fragment.arguments = bundle
             return fragment
         }
-        const val Site_Point ="界址列表"
-        const val RTK_Point = "RTK打点"
         const val Sketch_Feature = "要素编辑"
         const val Sketch_Field = "登记信息"
     }
-    private lateinit var sitePointFragment: SitePointFragment
-    private lateinit var rtkPointFragment: RTKPointFragment
+
     private lateinit var sketchFieldFragment: SketchFiledFragment
     private lateinit var sketchFeatureFragment: SketchFeatureFragment
-    private var currentFragType = Site_Point
+    private var currentFragType = Sketch_Feature
 
     /**
      * layout配置
@@ -63,23 +60,12 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
      * 初始化
      */
     override fun initView(savedInstanceState: Bundle?) {
-        sitePointFragment = SitePointFragment.newInstance()
-        rtkPointFragment = RTKPointFragment.newInstance()
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
-        sitePointFragment.fragChangeListener = this
-        rtkPointFragment.fragChangeListener = this
         sketchFieldFragment.fragChangeListener = this
         sketchFeatureFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
-            if (!mSharedPrefUtil.getBool("isEdit")){
-                add(sitePointFragment)
-                add(rtkPointFragment)
-                currentFragType =Site_Point
-            }else{
-                currentFragType = Sketch_Feature
-            }
             add(sketchFeatureFragment)
             add(sketchFieldFragment)
         }, R.id.fm_sketch_main, 0)
@@ -104,9 +90,6 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
             Sketch_Feature -> {
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
             }
-            RTK_Point->{
-                onFragGoto(Site_Point,any)
-            }
             Sketch_Field -> {
                 onFragGoto(Sketch_Feature)
                 sketchFeatureFragment?.reInit()
@@ -118,23 +101,9 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         currentFragType = type
         tv_collect_title_name.text = type
         when (type) {
-            Site_Point->{
-                iv_collect_title_back.visibility = View.GONE
-                ZXFragmentUtil.hideAllShowFragment(sitePointFragment)
-                if (any is ArrayList<*>){
-                    val list = any as ArrayList<RtkPointBean>
-                    sitePointFragment.refreshData(list)
-                }
-            }
-            RTK_Point->{
-                iv_collect_title_back.visibility = View.VISIBLE
-                ZXFragmentUtil.hideAllShowFragment(rtkPointFragment)
-                rtkPointFragment.showData(any)
-            }
             Sketch_Feature -> {
                 iv_collect_title_back.visibility = View.GONE
                 ZXFragmentUtil.hideAllShowFragment(sketchFeatureFragment)
-                sketchFeatureFragment.showData(any)
             }
             Sketch_Field -> {
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()

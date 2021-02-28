@@ -16,6 +16,7 @@ import com.gt.entrypad.module.project.func.adapter.SitePointAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchMainContract
 import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
+import com.gt.entrypad.module.project.ui.activity.SketchLoadActivity
 import com.gt.entrypad.tool.SimpleDecoration
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.fragment_site_point.*
@@ -49,11 +50,12 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             if (siteData.size<2){
                 showToast("请添加界址点")
             }else{
-                fragChangeListener?.onFragGoto(SketchMainFragment.Sketch_Feature,siteData)
+                mSharedPrefUtil.putString("siteList",Gson().toJson(siteData))
+                SketchLoadActivity.startAction(mActivity,false)
             }
         }
         siteAdapter.setOnItemClickListener { adapter, view, position ->
-            fragChangeListener?.onFragGoto(SketchMainFragment.RTK_Point,siteData[position])
+            fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteData[position])
         }
     }
 
@@ -93,7 +95,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                             val siteBean = SiteBean(title = data[which], point = point)
                             siteData.add(siteBean)
                             siteAdapter.notifyDataSetChanged()
-                            fragChangeListener?.onFragGoto(SketchMainFragment.RTK_Point,siteBean)
+                            fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteBean)
                         }
                     },
                     DialogInterface.OnClickListener { dialog, which ->

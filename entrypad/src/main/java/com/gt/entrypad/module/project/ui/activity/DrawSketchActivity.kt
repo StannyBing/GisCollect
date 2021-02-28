@@ -2,39 +2,31 @@ package com.gt.entrypad.module.project.ui.activity
 
 import android.Manifest
 import android.app.Activity
-import android.app.ActivityOptions
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.view.animation.TranslateAnimation
 import androidx.core.app.ActivityCompat
-import com.alibaba.android.arouter.facade.annotation.Route
-import com.esri.arcgisruntime.data.GeoPackage
-import com.esri.arcgisruntime.layers.FeatureLayer
-import com.esri.arcgisruntime.loadable.LoadStatus
 import com.gt.base.activity.BaseActivity
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
-import com.gt.entrypad.app.RouterPath
 import com.gt.entrypad.module.project.bean.HouseTableBean
-import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.mvp.contract.DrawSketchContract
 import com.gt.entrypad.module.project.mvp.model.DrawSketchModel
 import com.gt.entrypad.module.project.mvp.presenter.DrawSketchPresenter
+import com.gt.entrypad.module.project.ui.fragment.LoadMainFragment
 import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
-import com.gt.entrypad.tool.CopyAssetsToSd
-import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXFragmentUtil
 import com.zx.zxutils.util.ZXSystemUtil
-import com.zx.zxutils.views.PhotoPicker.ZXPhotoPreview
+import kotlinx.android.synthetic.main.activity_draw_sketch.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
 
-@Route(path =RouterPath.DRAW_SKETCH)
 class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),DrawSketchContract.View{
+    private var loadMainFragment:LoadMainFragment?=null
     companion object {
         /**
          * 启动器
@@ -91,7 +83,12 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     })*/
                     //获取所有楼层
                     val string = mSharedPrefUtil.getString("graphicList")?.let {
-                        SketchLoadActivity.startAction(this@DrawSketchActivity,false)
+                        iv_data_show.performClick()
+                        loadMainFragment?.let {
+
+                        }?:ZXFragmentUtil.addFragment(supportFragmentManager, LoadMainFragment.newInstance().apply {
+                            loadMainFragment=this
+                        },R.id.fm_data)
                     }?:showToast("请绘制草图")
 
                 }
@@ -104,11 +101,34 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         }
     }
     override fun onViewListener() {
-
+        //收起菜单
+        iv_data_hide.setOnClickListener {
+            rl_main_data.animation =
+                TranslateAnimation(0f, ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f)
+                    .apply {
+                        duration = 500
+                        start()
+                    }
+            rl_main_data.visibility = View.GONE
+            iv_data_show.visibility = View.VISIBLE
+        }
+        //打开菜单
+        iv_data_show.setOnClickListener {
+            if (rl_main_data.visibility != View.VISIBLE) {
+                rl_main_data.animation =
+                    TranslateAnimation(ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f, 0f)
+                        .apply {
+                            duration = 500
+                            start()
+                        }
+                rl_main_data.visibility = View.VISIBLE
+            }
+            iv_data_show.visibility = View.GONE
+        }
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.activity_sketch_draw
+        return R.layout.activity_draw_sketch
     }
     /**
      * 上传填写信息

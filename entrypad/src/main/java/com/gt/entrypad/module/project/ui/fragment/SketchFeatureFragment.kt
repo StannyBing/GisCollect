@@ -132,16 +132,15 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 excuteLayer(it,true)
                 mSharedPrefUtil.remove("isEdit")
             }
+        }else{
+            mSharedPrefUtil.getString("siteList")?.let {
+                val points = Gson().fromJson<ArrayList<SiteBean>>(it, object : TypeToken<ArrayList<SiteBean>>() {}.type)
+                showData(points)
+            }
         }
     }
 
     fun showData(any: Any?){
-        if ( mSharedPrefUtil.getBool("isEdit")){
-            ConstString.feature?.let {
-                excuteLayer(it,true)
-                mSharedPrefUtil.remove("isEdit")
-            }
-        }
         any?.let {
             if (it is ArrayList<*>){
                 val list = it as ArrayList<SiteBean>
