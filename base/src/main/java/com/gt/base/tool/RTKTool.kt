@@ -2,9 +2,12 @@ package com.gt.base.tool
 
 import android.graphics.Point
 import android.graphics.PointF
+import androidx.annotation.Px
 import com.gt.base.bean.RtkInfoBean
 import java.lang.Exception
 import java.text.DecimalFormat
+import kotlin.math.cos
+import kotlin.math.sin
 
 object RTKTool {
     /**
@@ -88,16 +91,39 @@ object RTKTool {
 
     /**
      * 根据一点经纬度 距离 已经方向夹角 计算另外一点坐标
-     * @param angle 角度 正北顺时针方向开始计算
-     * @param startLng 起始点经度
-     * @param startLat 起始点维度
+     * @param angle
      * @param distance 距离 单位m
+     * @param pointDistance 两个参考点之间的距离
      */
-    fun locationByDistanceAndDirectionAndLocation(angle:Double,startLat:Double,startLng:Double,distance:Float):Array<Double?>{
-        var decimalFormat =DecimalFormat("0.000000")
+    fun locationByDistanceAndDirectionAndLocation(angle:Double,startX:Double,startY:Double,endX:Double,endY:Double,distance:Double,pointDistance:Double):Array<Double?>{
+      /*  var decimalFormat =DecimalFormat("0.000000")
         val result = arrayOfNulls<Double>(2)
         result[0]=decimalFormat.format(startLat+(distance*Math.cos(angle*Math.PI/180))/111).toDouble()
-        result[1]=decimalFormat.format(startLng+(distance*Math.sin(angle*Math.PI/180))/(111*Math.cos(startLat*Math.PI/180))).toDouble()
-        return  result
+        result[1]=decimalFormat.format(startLng+(distance*Math.sin(angle*Math.PI/180))/(111*Math.cos(startLat*Math.PI/180))).toDouble()*/
+        val result = arrayOfNulls<Double>(2)
+        val p1X = startX
+        val p1Y = startY
+        val p2X =endX
+        val p2Y =endY
+
+        val mAngle = Math.toDegrees(Math.atan((p2Y - p1Y) / (p2X - p1X))).let {
+            if (p2Y >= p1Y && p2X >= p1X) {
+                180 + it
+            } else if (p2Y >= p1Y && p2X < p1X) {
+                360 + it
+            } else if (p2Y < p1Y && p2X >= p1X) {
+                180 + it
+            } else {
+                it
+            }
+        } - angle
+
+        val mDistance = distance * Math.sqrt(Math.pow(p1X - p2X, 2.0) + Math.pow(p1Y - p2Y, 2.0)) / pointDistance
+
+        val pX = p2X + mDistance * cos(Math.toRadians(mAngle))
+        val pY = p2Y + mDistance * sin(Math.toRadians(mAngle))
+        result[0]=pX
+        result[1]=pY
+        return result
     }
 }

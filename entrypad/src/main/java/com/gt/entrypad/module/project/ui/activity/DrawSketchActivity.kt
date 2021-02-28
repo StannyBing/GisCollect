@@ -89,7 +89,11 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     },DialogInterface.OnClickListener { dialog, which ->
 
                     })*/
-                    SketchLoadActivity.startAction(this@DrawSketchActivity,false)
+                    //获取所有楼层
+                    val string = mSharedPrefUtil.getString("graphicList")?.let {
+                        SketchLoadActivity.startAction(this@DrawSketchActivity,false)
+                    }?:showToast("请绘制草图")
+
                 }
 
             })

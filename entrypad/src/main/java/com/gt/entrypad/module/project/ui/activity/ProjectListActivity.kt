@@ -29,6 +29,7 @@ import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
 import com.gt.entrypad.tool.CopyAssetsToSd
+import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.GeoPackageTool
@@ -97,6 +98,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
         rvProject.apply {
             layoutManager=LinearLayoutManager(mContext)
             adapter = projectAdapter
+            addItemDecoration(SimpleDecoration(mContext))
         }
 
         ZXRecyclerDeleteHelper(this, rvProject)

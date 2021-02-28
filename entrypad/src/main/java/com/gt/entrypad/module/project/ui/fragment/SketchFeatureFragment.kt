@@ -1,6 +1,8 @@
 package com.gt.entrypad.module.project.ui.fragment
 
+import android.content.DialogInterface
 import android.graphics.Color
+import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,13 +19,18 @@ import com.esri.arcgisruntime.mapping.view.SketchCreationMode
 import com.esri.arcgisruntime.mapping.view.SketchEditor
 import com.esri.arcgisruntime.mapping.view.SketchStyle
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.gt.base.app.AppInfoManager
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
 import com.gt.base.app.TempIdsBean
+import com.gt.base.bean.RtkInfoBean
+import com.gt.base.tool.RTKTool
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.ProjectListBean
@@ -48,6 +55,10 @@ import rx.functions.Action1
 import java.io.File
 import java.text.DecimalFormat
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * Create By XB
@@ -74,6 +85,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private val featureAdapter = SketchFeatureAdapter(featureList)
     private var editPosition = -1
     private var keyList = arrayListOf<String>()
+    private var selectSite = arrayListOf<PointF>()
+    //角度集合
+    private var degreeList = arrayListOf<Int>()
+    //推导坐标点集合
+    private var latLngList = arrayListOf<Point>()
     /**
      * layout配置
      */
@@ -109,9 +125,69 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                excuteLayer(it,true)
                mSharedPrefUtil.remove("isEdit")
            }
-       }
+       }else{
+         showSiteDialog("请选择一个界址点")
+      }
     }
 
+    private fun showSiteDialog(notice:String){
+        var data = arrayListOf<String>()
+        val siteHashmap = LinkedHashMap<String,PointF>()
+        mSharedPrefUtil.getString("graphicList")?.let {
+            val points =   Gson().fromJson<List<PointF>>(it,object : TypeToken<List<PointF>>(){}.type)
+            points.forEachIndexed { index, pointF ->
+                val key = "界址点${index+1}"
+                siteHashmap[key]=pointF
+                data.add(key)
+            }
+        }
+        showToast(notice)
+        ZXDialogUtil.showListDialog(mContext,"请选择","确定",data,DialogInterface.OnClickListener { dialog, which ->
+            siteHashmap[data[which]]?.let {
+                selectSite.add(it)
+                if (selectSite.size<2){
+                    showSiteDialog("请按照顺时针方向选择另外一个界址点")
+                }else{
+                   //计算角度
+                    var sitePoint = arrayListOf<PointF>()
+                    siteHashmap.entries.forEach {
+                        sitePoint.add(it.value)
+                    }
+                    sitePoint.removeAll(selectSite)
+                    sitePoint.forEach {
+                      var degree =  RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),it.x.toDouble(),it.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble())
+                        degreeList.add(degree)
+                    }
+
+                }
+            }
+        },DialogInterface.OnClickListener { dialog, which ->
+
+        },false)
+    }
+
+    /**
+     * 绘制草图
+     */
+    private fun  drawSketch(){
+        val endPoint  = GeometryEngine.project(Point(106.548146, 29.564422)  , SpatialReferences.getWgs84()) as Point
+        val endPoint2 =GeometryEngine.project(Point(106.548532,29.564422), SpatialReferences.getWgs84()) as Point
+        val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint ,endPoint2))).toGeometry())
+       if (selectSite.size>=2){
+           //平面距离
+           val flatDistance = sqrt(
+               ((selectSite[1].x - selectSite[0].x).toDouble().pow(2.0)
+                       + (selectSite[1].y - selectSite[0].y).toDouble().pow(2.0))
+           ).toFloat()
+           latLngList.add(endPoint)
+           latLngList.add(endPoint2)
+           degreeList.forEach {
+               val result = RTKTool.locationByDistanceAndDirectionAndLocation(it.toDouble(),endPoint.x,endPoint.y,endPoint2.x,endPoint2.y,flatDistance.toDouble(),length.toDouble())
+               latLngList.add(Point(result[0]!!,result[1]!!))
+           }
+           createFeature(latLngList)
+       }
+    }
     /**
      * 获取模板列表
      */
@@ -255,7 +331,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
 
     }
 
-    private fun createFeature() {
+    private fun createFeature(latLngs:ArrayList<Point>) {
         var feature: Feature? = null
         currentLayer?.featureTable?.loadAsync()
         currentLayer?.featureTable?.addDoneLoadingListener {
@@ -263,30 +339,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         }
         feature = currentLayer?.featureTable?.createFeature()
         val pointCollection = PointCollection(arrayListOf<Point>().apply {
-            add(
-                GeometryEngine.project(
-                    Point(106.5635978468597, 29.575631491622985),
-                    SpatialReferences.getWgs84()
-                ) as Point
-            )
-            add(
-                GeometryEngine.project(
-                    Point(106.58894815535211, 29.57216102606911),
-                    SpatialReferences.getWgs84()
-                ) as Point
-            )
-            add(
-                GeometryEngine.project(
-                    Point(106.56553432975977, 29.554704814709538),
-                    SpatialReferences.getWgs84()
-                ) as Point
-            )
-            add(
-                GeometryEngine.project(
-                    Point(106.5635978468597, 29.575631491622985),
-                    SpatialReferences.getWgs84()
-                ) as Point
-            )
+            latLngs.forEach {
+                add(
+                    GeometryEngine.project(it  , SpatialReferences.getWgs84()) as Point
+                )
+            }
         })
         feature?.geometry = Polygon(pointCollection)
         //获取筛选内容
@@ -319,7 +376,9 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             tv_collect_feature_title.text =
                 "要素列表(${currentLayer?.featureTable?.totalFeatureCount})"
         }
-        featureList.add(feature!!)
+       feature?.let {
+           featureList.add(it)
+       }
         featureAdapter.loadMoreEnd()
         featureAdapter.notifyDataSetChanged()
     }
@@ -367,7 +426,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             et_collect_rename.visibility=View.GONE
             sp_create_layer_model.visibility=View.VISIBLE
             btnSketchFinish.visibility=View.VISIBLE
-            createFeature()
+            drawSketch()
         }
     }
 

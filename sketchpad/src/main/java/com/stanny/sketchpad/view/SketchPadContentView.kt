@@ -480,6 +480,14 @@ class SketchPadContentView @JvmOverloads constructor(
             }.run()
         } catch (e: FileNotFoundException) {
         }
+        val points = arrayListOf<PointF>()
+        //保存所有点
+        graphicList.forEach {
+            it.points.forEach { point->
+                points.add(PointF(point.x+it.offsetX,point.y+it.offsetY))
+            }
+        }
+        ZXSharedPrefUtil().putString("graphicList",Gson().toJson(points))
         callBack()
     }
 
