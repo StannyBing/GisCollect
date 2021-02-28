@@ -1,4 +1,4 @@
-package com.gt.base.tool
+package com.stanny.module_rtk.tool
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Handler
 import com.woncan.whand.WHandInfo
 import com.woncan.whand.WHandManager
+import com.woncan.whand.device.IDevice
 import com.woncan.whand.listener.OnConnectListener
 import com.woncan.whand.scan.ScanCallback
 import com.zx.zxutils.util.ZXDialogUtil
@@ -21,6 +22,8 @@ object WHandTool {
     private val handler = Handler()
     private var deviceList = arrayListOf<BluetoothDevice>()
 
+    private var iDivice: IDevice? = null
+    private var openLaser = false
     private var newWHandInfo: WHandInfo? = null
 
     interface WHandRegisterListener {
@@ -97,7 +100,8 @@ object WHandTool {
      */
     fun registerWHand(
         context: Context,
-        listener: WHandRegisterListener = object : WHandRegisterListener {}
+        listener: WHandRegisterListener = object :
+            WHandRegisterListener {}
     ) {
         ZXDialogUtil.showYesNoDialog(
             context,
@@ -118,7 +122,10 @@ object WHandTool {
                     }
                     if (!isContains) {
                         deviceList.add(p0)
-                        showDeviceList(context, listener)
+                        showDeviceList(
+                            context,
+                            listener
+                        )
                     }
                 }
 
@@ -153,7 +160,11 @@ object WHandTool {
         ZXDialogUtil.dismissDialog()
         ZXDialogUtil.showListDialog(context, "设备列表", "取消", nameList) { dialog, which ->
             WHandManager.getInstance().stopScan()
-            getDeviceInfo(context, listener, deviceList[which])
+            getDeviceInfo(
+                context,
+                listener,
+                deviceList[which]
+            )
         }.setOnCancelListener {
             WHandManager.getInstance().stopScan()
         }
@@ -165,22 +176,22 @@ object WHandTool {
         bluetoothDevice: BluetoothDevice
     ) {
         listener.onDeviceLogIn(context, bluetoothDevice)
-        val iDivice = WHandManager.getInstance().connect(context, bluetoothDevice)
+        iDivice = WHandManager.getInstance().connect(context, bluetoothDevice)
         val whandAccount = listener.initWHandAccount()
-        iDivice.setNtripConfig(
+        iDivice?.setNtripConfig(
             whandAccount.ip,
             whandAccount.port,
             whandAccount.mountpoint,
             whandAccount.account,
             whandAccount.password
         )
-        iDivice.setOnConnectionStateChangeListener { status, newState ->
+        iDivice?.setOnConnectionStateChangeListener { status, newState ->
             handler.post {
-                iDivice.showLaser(true)
+                iDivice?.showLaser(openLaser)
                 listener.onDeviceStatusChange(context, status)
             }
         }
-        iDivice.setOnConnectListener(object : OnConnectListener {
+        iDivice?.setOnConnectListener(object : OnConnectListener {
             override fun onDeviceChanged(p0: WHandInfo?) {
                 handler.post {
                     isRegister = true
@@ -209,5 +220,34 @@ object WHandTool {
         })
     }
 
+    fun openLaser(open: Boolean) {
+        iDivice?.showLaser(open)
+        openLaser = open
+    }
+
+    fun getRtkInfo(): String {
+        val info = newWHandInfo
+        val rtkInfoBuilder = StringBuilder()
+        rtkInfoBuilder.append("GPS收星颗数：${info?.gpsNum}\n")
+        rtkInfoBuilder.append(
+            "解算精度：${when (info?.rtkType) {
+                -1 -> "未收到"
+                1 -> "单点定位"
+                2 -> "码差分定位"
+                4 -> "固定定位"
+                5 -> "浮点定位"
+                else -> "未收到"
+            }
+            }\n"
+        )
+        rtkInfoBuilder.append(
+            "定位精度：水平:${(info?.accuracyFlat ?: 0) / 1000.0}米,高程:${(info?.accuracyAlt
+                ?: 0) / 1000.0}米\n"
+        )
+        rtkInfoBuilder.append("经纬度：${info?.longitude},${info?.latitude}\n")
+        rtkInfoBuilder.append("加速度：${info?.accelerationX},${info?.accelerationY},${info?.accelerationZ}\n")
+        rtkInfoBuilder.append("角速度：${info?.spinX},${info?.spinY},${info?.spinZ}")
+        return rtkInfoBuilder.toString()
+    }
 
 }

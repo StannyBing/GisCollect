@@ -1,11 +1,7 @@
-package com.gt.base.tool
+package com.stanny.module_rtk.tool
 
-import android.graphics.Point
-import android.graphics.PointF
-import androidx.annotation.Px
 import com.gt.base.bean.RtkInfoBean
 import java.lang.Exception
-import java.text.DecimalFormat
 import kotlin.math.cos
 import kotlin.math.sin
 

@@ -55,5 +55,6 @@ dependencies {
     implementation project(path: ':module_map')
     implementation project(path: ':camera')
     implementation project(path: ':base')
+    implementation project(path: ':module_rtk')
 
 }

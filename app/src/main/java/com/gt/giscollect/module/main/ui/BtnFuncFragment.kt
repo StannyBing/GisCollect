@@ -8,7 +8,7 @@ import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.location.LocationDataSource
 import com.gt.base.fragment.BaseFragment
-import com.gt.base.tool.WHandTool
+import com.stanny.module_rtk.tool.WHandTool
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
@@ -192,27 +192,8 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                     e.printStackTrace()
                 }
 
-                val rtkInfoBuilder = StringBuilder()
-                rtkInfoBuilder.append("GPS收星颗数：${info?.gpsNum}\n")
-                rtkInfoBuilder.append(
-                    "解算精度：${when (info?.rtkType) {
-                        -1 -> "未收到"
-                        1 -> "单点定位"
-                        2 -> "码差分定位"
-                        4 -> "固定定位"
-                        5 -> "浮点定位"
-                        else -> "未收到"
-                    }
-                    }\n"
-                )
-                rtkInfoBuilder.append(
-                    "定位精度：水平:${(info?.accuracyFlat ?: 0) / 1000.0}米,高程:${(info?.accuracyAlt
-                        ?: 0) / 1000.0}米\n"
-                )
-                rtkInfoBuilder.append("经纬度：${info?.longitude},${info?.latitude}\n")
-                rtkInfoBuilder.append("加速度：${info?.accelerationX},${info?.accelerationY},${info?.accelerationZ}\n")
-                rtkInfoBuilder.append("角速度：${info?.spinX},${info?.spinY},${info?.spinZ}")
-                tv_rtk_info.setText(rtkInfoBuilder)
+
+                tv_rtk_info.text = WHandTool.getRtkInfo()
             }
         })
     }

@@ -1,20 +1,15 @@
 package com.gt.base.activity
 
-import android.Manifest
 import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.view.Window
 import android.view.WindowManager
-import androidx.core.app.ActivityCompat
 import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.RxBaseActivity
-import com.gt.base.R
-import com.gt.base.tool.WHandTool
 import com.zx.zxutils.util.*
 import com.zx.zxutils.views.ZXStatusBarCompat
 

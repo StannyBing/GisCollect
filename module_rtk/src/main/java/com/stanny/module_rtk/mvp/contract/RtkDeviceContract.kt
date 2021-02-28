@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.system.mvp.contract
+package com.stanny.module_rtk.mvp.contract
 
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IView

@@ -1,25 +1,20 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.esri.arcgisruntime.data.Feature
-import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.entrypad.R
-import com.gt.entrypad.app.ConstString
-import com.gt.entrypad.module.project.bean.RtkPointBean
 import com.gt.entrypad.module.project.mvp.contract.SketchMainContract
 import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
-import com.gt.module_map.tool.GeoPackageTool
+import com.gt.entrypad.module.project.ui.fragment.LoadMainFragment.Companion.Site_Point
 import com.gt.module_map.tool.MapTool
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_sketch_main.*
 import java.io.Serializable
-import java.lang.Exception
 
 /**
  * create by 96212 on 2021/2/22.
@@ -43,11 +38,13 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         }
         const val Sketch_Feature = "要素编辑"
         const val Sketch_Field = "登记信息"
+        const val RTK_Set = "定位设置"
     }
 
     private lateinit var sketchFieldFragment: SketchFiledFragment
     private lateinit var sketchFeatureFragment: SketchFeatureFragment
     private var currentFragType = Sketch_Feature
+    private lateinit var rtkDeviceFragment: RtkDeviceFragment
 
     /**
      * layout配置
@@ -62,12 +59,15 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
     override fun initView(savedInstanceState: Bundle?) {
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
+        rtkDeviceFragment = RtkDeviceFragment.newInstance()
         sketchFieldFragment.fragChangeListener = this
         sketchFeatureFragment.fragChangeListener = this
+        rtkDeviceFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
             add(sketchFeatureFragment)
             add(sketchFieldFragment)
+            add(rtkDeviceFragment)
         }, R.id.fm_sketch_main, 0)
 
         tv_collect_title_name.text = currentFragType
@@ -94,6 +94,9 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
                 onFragGoto(Sketch_Feature)
                 sketchFeatureFragment?.reInit()
             }
+            RTK_Set -> {
+                onFragGoto(Site_Point)
+            }
         }
     }
 
@@ -116,6 +119,11 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
                         sketchFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
                     }
                 }
+            }
+            RTK_Set -> {
+                iv_collect_title_back.visibility = View.VISIBLE
+                ZXFragmentUtil.hideAllShowFragment(rtkDeviceFragment)
+                rtkDeviceFragment.reInit()
             }
         }
     }

@@ -21,7 +21,7 @@ import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
-import com.gt.base.tool.WHandTool
+import com.stanny.module_rtk.tool.WHandTool
 import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.collect.func.adapter.CollectFeatureAdapter
 import com.gt.giscollect.module.collect.func.tool.CollectDistanceTool
