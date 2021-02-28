@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">base</string>
+    <string name="app_name">entrypad</string>
+    <string name="emptyText">--</string>
+    <string name="createProject">创建工程</string>
+    <string name="registrationList">竣工验收列表</string>
+    <string name="lastStep">上一步</string>
+    <string name="nextStep">下一步</string>
+    <string name="finish">完成</string>
+    <string name="save">保存</string>
+    <string name="submit">提交</string>
+    <string name="load">落地</string>
+    <string name="print">打印</string>
+    <string name="registrationPlatform">农房竣工验收平台</string>
+    <string name="registrationInfo">登记信息</string>
+    <string name="takePhoto">现场拍照</string>
+    <string name="sketchDraw">草图绘制</string>
+    <string name="groundFigure">宗地落图</string>
+    <string name="resultShow">成果展示</string>
+    <string name="add">添加</string>
+    <string name="scanIdCard">扫描身份证</string>
+    <string name="inputMsg">输入信息</string>
+    <string name="cancel">取消</string>
+    <string name="photo">相册</string>
+    <string name="camera">拍照</string>
+    <string name="sketch">拍摄草图</string>
 </resources>

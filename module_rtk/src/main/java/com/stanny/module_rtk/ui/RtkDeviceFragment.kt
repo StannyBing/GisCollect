@@ -1,15 +1,15 @@
-package com.gt.giscollect.module.system.ui
+package com.stanny.module_rtk.ui
 
 import android.content.Context
 import android.os.Bundle
 import android.view.View
 import com.gt.base.fragment.BaseFragment
-import com.gt.base.tool.WHandTool
-import com.gt.giscollect.R
 import com.gt.base.listener.FragChangeListener
-import com.gt.giscollect.module.system.mvp.contract.RtkDeviceContract
-import com.gt.giscollect.module.system.mvp.model.RtkDeviceModel
-import com.gt.giscollect.module.system.mvp.presenter.RtkDevicePresenter
+import com.stanny.module_rtk.R
+import com.stanny.module_rtk.mvp.contract.RtkDeviceContract
+import com.stanny.module_rtk.mvp.model.RtkDeviceModel
+import com.stanny.module_rtk.mvp.presenter.RtkDevicePresenter
+import com.stanny.module_rtk.tool.WHandTool
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.fragment_rtk_device.*
 
@@ -104,6 +104,9 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
         sw_rtk_open.setOnCheckedChangeListener { buttonView, isChecked ->
             WHandTool.isOpen = isChecked
             reInit()
+        }
+        sw_rtk_openLaser.setOnCheckedChangeListener { buttonView, isChecked ->
+            WHandTool.openLaser(isChecked)
         }
     }
 

@@ -1,3 +1,4 @@
 rootProject.name='GisCollect'
 include ':app', ':zxmvp', ':ocr_ui', ':entrypad', ':sketchpad', ':camera', ':base'
 include ':module_map'
+include ':module_rtk'

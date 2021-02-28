@@ -120,6 +120,7 @@ dependencies {
     implementation 'com.tencent.bugly:crashreport:3.0.0'
     implementation project(path: ':entrypad')
     implementation project(path: ':camera')
+    implementation project(path: ':module_rtk')
     implementation project(path: ':base')
 
 

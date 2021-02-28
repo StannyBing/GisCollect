@@ -9,6 +9,7 @@ import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.system.mvp.contract.SettingMainContract
 import com.gt.giscollect.module.system.mvp.model.SettingMainModel
 import com.gt.giscollect.module.system.mvp.presenter.SettingMainPresenter
+import com.stanny.module_rtk.ui.RtkDeviceFragment
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_setting_main.*
 

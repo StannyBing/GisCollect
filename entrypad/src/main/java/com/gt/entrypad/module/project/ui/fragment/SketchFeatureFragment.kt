@@ -1,39 +1,22 @@
 package com.gt.entrypad.module.project.ui.fragment
 
-import android.content.DialogInterface
-import android.graphics.Color
 import android.graphics.PointF
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.*
-import com.esri.arcgisruntime.internal.jni.it
-import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
-import com.esri.arcgisruntime.mapping.Viewpoint
-import com.esri.arcgisruntime.mapping.view.SketchCreationMode
-import com.esri.arcgisruntime.mapping.view.SketchEditor
-import com.esri.arcgisruntime.mapping.view.SketchStyle
-import com.esri.arcgisruntime.symbology.SimpleFillSymbol
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.gt.base.app.AppInfoManager
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
-import com.gt.base.manager.UserManager
-import com.gt.base.app.TempIdsBean
-import com.gt.base.bean.RtkInfoBean
-import com.gt.base.tool.RTKTool
+import com.stanny.module_rtk.tool.RTKTool
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
-import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.bean.SiteBean
 import com.gt.entrypad.module.project.func.adapter.SketchFeatureAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchFeatureContract
@@ -44,24 +27,15 @@ import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.*
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
-import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
-import kotlinx.android.synthetic.main.fragment_sketch_create.*
 import kotlinx.android.synthetic.main.fragment_sketch_feature.*
 import kotlinx.android.synthetic.main.fragment_sketch_feature.sp_create_layer_model
-import kotlinx.android.synthetic.main.layout_tool_bar.*
-import org.json.JSONObject
-import rx.functions.Action1
 import java.io.File
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashMap
 import kotlin.math.cos
-import kotlin.math.pow
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 /**
  * Create By XB
@@ -165,7 +139,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                     points.removeAll(selectSite)
                     sitePoint.addAll(points)
                     sitePoint.forEach {
-                        degreeList.add(RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),it.x.toDouble(),it.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
+                        degreeList.add(com.stanny.module_rtk.tool.RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),it.x.toDouble(),it.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
                     }
                 }
             }

@@ -16,6 +16,7 @@ import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
 import com.gt.module_map.tool.GeoPackageTool
 import com.gt.module_map.tool.MapTool
+import com.stanny.module_rtk.ui.RtkDeviceFragment
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_sketch_main.*
 import java.io.Serializable
@@ -45,11 +46,13 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         const val RTK_Point = "RTK打点"
         const val Sketch_Feature = "要素编辑"
         const val Sketch_Field = "登记信息"
+        const val RTK_Set = "定位设置"
     }
     private lateinit var sitePointFragment: SitePointFragment
     private lateinit var rtkPointFragment: RTKPointFragment
     private lateinit var sketchFieldFragment: SketchFiledFragment
     private lateinit var sketchFeatureFragment: SketchFeatureFragment
+    private lateinit var rtkDeviceFragment: RtkDeviceFragment
     private var currentFragType = Site_Point
 
     /**
@@ -67,10 +70,12 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         rtkPointFragment = RTKPointFragment.newInstance()
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
+        rtkDeviceFragment = RtkDeviceFragment.newInstance()
         sitePointFragment.fragChangeListener = this
         rtkPointFragment.fragChangeListener = this
         sketchFieldFragment.fragChangeListener = this
         sketchFeatureFragment.fragChangeListener = this
+        rtkDeviceFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
             if (!mSharedPrefUtil.getBool("isEdit")){
@@ -82,6 +87,7 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
             }
             add(sketchFeatureFragment)
             add(sketchFieldFragment)
+            add(rtkDeviceFragment)
         }, R.id.fm_sketch_main, 0)
 
         tv_collect_title_name.text = currentFragType
@@ -110,6 +116,9 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
             Sketch_Field -> {
                 onFragGoto(Sketch_Feature)
                 sketchFeatureFragment?.reInit()
+            }
+            RTK_Set -> {
+                onFragGoto(Site_Point)
             }
         }
     }
@@ -147,6 +156,11 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
                         sketchFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
                     }
                 }
+            }
+            RTK_Set -> {
+                iv_collect_title_back.visibility = View.VISIBLE
+                ZXFragmentUtil.hideAllShowFragment(rtkDeviceFragment)
+                rtkDeviceFragment.reInit()
             }
         }
     }

@@ -3,7 +3,6 @@ package com.gt.entrypad.module.project.ui.fragment
 import android.Manifest
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.data.ShapefileFeatureTable
@@ -11,25 +10,22 @@ import com.esri.arcgisruntime.geometry.GeometryType
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.layers.FeatureLayer
-import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.layers.WebTiledLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.LocationDisplay
-import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.esri.arcgisruntime.symbology.UniqueValueRenderer
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
-import com.gt.base.tool.WHandTool
+import com.stanny.module_rtk.tool.WHandTool
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.mvp.contract.MapContract
 import com.gt.entrypad.module.project.mvp.model.MapModel
 import com.gt.entrypad.module.project.mvp.presenter.MapPresenter
 import com.gt.giscollect.module.main.func.maplayer.TdtLayerTool
 import com.gt.module_map.tool.PointTool
-import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.fragment_map.*
 import java.io.File
 
@@ -102,8 +98,8 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 //                )
 //                return@getPermission
 //            }
-            if (WHandTool.isOpen && WHandTool.isRegister()) {
-                val info = WHandTool.getDeviceInfoOneTime()
+            if (com.stanny.module_rtk.tool.WHandTool.isOpen && com.stanny.module_rtk.tool.WHandTool.isRegister()) {
+                val info = com.stanny.module_rtk.tool.WHandTool.getDeviceInfoOneTime()
                 if (info != null) {
                     map_view.setViewpointCenterAsync(
                         PointTool.change4326To3857(
