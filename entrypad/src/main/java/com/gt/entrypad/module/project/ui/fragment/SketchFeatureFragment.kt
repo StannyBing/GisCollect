@@ -34,6 +34,7 @@ import com.gt.base.tool.RTKTool
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.ProjectListBean
+import com.gt.entrypad.module.project.bean.SiteBean
 import com.gt.entrypad.module.project.func.adapter.SketchFeatureAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchFeatureContract
 import com.gt.entrypad.module.project.mvp.model.SketchFeatureModel
@@ -57,7 +58,9 @@ import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashMap
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -88,6 +91,8 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private var selectSite = arrayListOf<PointF>()
     //角度集合
     private var degreeList = arrayListOf<Int>()
+     //剩余界址点集合
+    private var sitePoint = arrayListOf<PointF>()
     //推导坐标点集合
     private var latLngList = arrayListOf<Point>()
     /**
@@ -120,72 +125,66 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             .setDefaultItem("请选择模板")
             .build()
         getGpkgList()
-      if ( mSharedPrefUtil.getBool("isEdit")){
-           ConstString.feature?.let {
-               excuteLayer(it,true)
-               mSharedPrefUtil.remove("isEdit")
-           }
-       }else{
-         showSiteDialog("请选择一个界址点")
-      }
-    }
-
-    private fun showSiteDialog(notice:String){
-        var data = arrayListOf<String>()
-        val siteHashmap = LinkedHashMap<String,PointF>()
-        mSharedPrefUtil.getString("graphicList")?.let {
-            val points =   Gson().fromJson<List<PointF>>(it,object : TypeToken<List<PointF>>(){}.type)
-            points.forEachIndexed { index, pointF ->
-                val key = "界址点${index+1}"
-                siteHashmap[key]=pointF
-                data.add(key)
+        if ( mSharedPrefUtil.getBool("isEdit")){
+            ConstString.feature?.let {
+                excuteLayer(it,true)
+                mSharedPrefUtil.remove("isEdit")
             }
         }
-        showToast(notice)
-        ZXDialogUtil.showListDialog(mContext,"请选择","确定",data,DialogInterface.OnClickListener { dialog, which ->
-            siteHashmap[data[which]]?.let {
-                selectSite.add(it)
-                if (selectSite.size<2){
-                    showSiteDialog("请按照顺时针方向选择另外一个界址点")
-                }else{
-                   //计算角度
-                    var sitePoint = arrayListOf<PointF>()
-                    siteHashmap.entries.forEach {
-                        sitePoint.add(it.value)
-                    }
-                    sitePoint.removeAll(selectSite)
-                    sitePoint.forEach {
-                      var degree =  RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),it.x.toDouble(),it.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble())
-                        degreeList.add(degree)
-                    }
-
-                }
-            }
-        },DialogInterface.OnClickListener { dialog, which ->
-
-        },false)
     }
 
+    fun showData(any: Any?){
+        if ( mSharedPrefUtil.getBool("isEdit")){
+            ConstString.feature?.let {
+                excuteLayer(it,true)
+                mSharedPrefUtil.remove("isEdit")
+            }
+        }
+        any?.let {
+            if (it is ArrayList<*>){
+                val list = it as ArrayList<SiteBean>
+                if (!list.isNullOrEmpty()){
+                    for (index in list.indices){
+                        selectSite.add(list[index].point)
+                    }
+                }
+            }
+        }
+        //去除所选界址点
+        mSharedPrefUtil.getString("graphicList")?.let {
+            val points = Gson().fromJson<ArrayList<PointF>>(it, object : TypeToken<ArrayList<PointF>>() {}.type)
+            if (!points.isNullOrEmpty()) {
+                //计算角度
+                if (selectSite.size>=2){
+                    points.removeAll(selectSite)
+                    sitePoint.addAll(points)
+                    sitePoint.forEach {
+                        degreeList.add(RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),it.x.toDouble(),it.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
+                    }
+                }
+            }
+        }
+    }
     /**
      * 绘制草图
      */
     private fun  drawSketch(){
+        latLngList.clear()
         val endPoint  = GeometryEngine.project(Point(106.548146, 29.564422)  , SpatialReferences.getWgs84()) as Point
         val endPoint2 =GeometryEngine.project(Point(106.548532,29.564422), SpatialReferences.getWgs84()) as Point
         val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint ,endPoint2))).toGeometry())
-       if (selectSite.size>=2){
-           //平面距离
-           val flatDistance = sqrt(
-               ((selectSite[1].x - selectSite[0].x).toDouble().pow(2.0)
-                       + (selectSite[1].y - selectSite[0].y).toDouble().pow(2.0))
-           ).toFloat()
+        //推导经纬度
+        if (selectSite.size>=2){
+            val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
            latLngList.add(endPoint)
-           latLngList.add(endPoint2)
-           degreeList.forEach {
-               val result = RTKTool.locationByDistanceAndDirectionAndLocation(it.toDouble(),endPoint.x,endPoint.y,endPoint2.x,endPoint2.y,flatDistance.toDouble(),length.toDouble())
-               latLngList.add(Point(result[0]!!,result[1]!!))
-           }
-           createFeature(latLngList)
+            latLngList.add(endPoint2)
+            degreeList.forEachIndexed { index, it ->
+             var flatDistance = Math.sqrt(Math.pow((sitePoint[index].x-selectSite[0].x).toDouble(),2.0)+Math.pow((sitePoint[index].y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength.toDouble())
+             val pX = endPoint.x + flatDistance * cos(Math.toRadians(degreeList[index].toDouble()))
+             val pY = endPoint.y + flatDistance * sin(Math.toRadians(degreeList[index].toDouble()))
+             latLngList.add(GeometryEngine.project(Point(pX,pY)  , SpatialReferences.getWgs84()) as Point)
+         }
+            createFeature(latLngList)
        }
     }
     /**
