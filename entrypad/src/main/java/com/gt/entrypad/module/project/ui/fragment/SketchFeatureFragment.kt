@@ -2,6 +2,7 @@ package com.gt.entrypad.module.project.ui.fragment
 
 import android.graphics.PointF
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.core.content.ContextCompat
@@ -123,7 +124,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                         selectSite.add(list[index].point)
                         val rtkList = list[index].rtkList
                         if (!rtkList.isNullOrEmpty()){
-                            referSitePoint.add(rtkList[0].sitePoint)
+                            referSitePoint.add(rtkList[0].resultSitePoint)
                         }
                     }
                 }
@@ -153,17 +154,32 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         if (selectSite.size>=2){
             //referSitePoint[0]= PointF(106.548146f, 29.564422f)
           //  referSitePoint[1]= PointF(106.548532f,29.564422f)
-            val endPoint  = GeometryEngine.project(Point(106.548146, 29.564422)  , SpatialReferences.getWgs84()) as Point
-            val endPoint2 =GeometryEngine.project(Point(106.548532,29.564422), SpatialReferences.getWgs84()) as Point
+            val endPoint  = Point(105.93642,29.895739)
+            val endPoint2 =Point(106.422565,30.021857)
             val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint ,endPoint2))).toGeometry())
             val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
            latLngList.add(endPoint)
             latLngList.add(endPoint2)
             degreeList.forEachIndexed { index, it ->
+                val p2X = selectSite[1].x.toDouble()
+                val  p2Y = selectSite[1].y.toDouble()
+                val p1X = selectSite[0].x.toDouble()
+                val  p1Y = selectSite[0].y.toDouble()
+               val mAngle = Math.toDegrees(Math.atan((p2Y - p1Y) / (p2X - p1X))).let {
+                    if (p2Y >= p1Y && p2X >= p1X) {
+                        180 + it
+                    } else if (p2Y >= p1Y && p2X < p1X) {
+                        360 + it
+                    } else if (p2Y < p1Y && p2X >= p1X) {
+                        180 + it
+                    } else {
+                        it
+                    }
+                } - degreeList[index].toDouble()
              var flatDistance = Math.sqrt(Math.pow((sitePoint[index].x-selectSite[0].x).toDouble(),2.0)+Math.pow((sitePoint[index].y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength.toDouble())
              val pX = endPoint.x + flatDistance * cos(Math.toRadians(degreeList[index].toDouble()))
              val pY = endPoint.y + flatDistance * sin(Math.toRadians(degreeList[index].toDouble()))
-             latLngList.add(GeometryEngine.project(Point(pX,pY)  , SpatialReferences.getWgs84()) as Point)
+             latLngList.add(Point(pX,pY))
          }
             createFeature(latLngList)
        }
@@ -321,7 +337,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         val pointCollection = PointCollection(arrayListOf<Point>().apply {
             latLngs.forEach {
                 add(
-                    GeometryEngine.project(it  , SpatialReferences.getWgs84()) as Point
+                   it
                 )
             }
         })

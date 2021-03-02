@@ -63,11 +63,11 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                val rtkPointBean1 = rtkData[0]
                val rtkPointBean2 = rtkData[1]
                val rtkPointBean3 = rtkData[2]
-               val rtkInfoBean = RTKTool.rtkActualLocation(RtkInfoBean(rtkPointBean1.point.x.toDouble(),rtkPointBean1.point.y.toDouble(),rtkPointBean1.distance),
-                   RtkInfoBean(rtkPointBean2.point.x.toDouble(),rtkPointBean2.point.y.toDouble(),rtkPointBean2.distance),
-                   RtkInfoBean(rtkPointBean3.point.x.toDouble(),rtkPointBean3.point.y.toDouble(),rtkPointBean3.distance))
+               val rtkInfoBean = RTKTool.rtkActualLocation(RtkInfoBean(rtkPointBean1.sitePoint.x,rtkPointBean1.sitePoint.y,rtkPointBean1.distance),
+                   RtkInfoBean(rtkPointBean2.sitePoint.x,rtkPointBean2.sitePoint.y,rtkPointBean2.distance),
+                   RtkInfoBean(rtkPointBean3.sitePoint.x,rtkPointBean3.sitePoint.y,rtkPointBean3.distance))
                rtkData.forEach {
-                   it.sitePoint = Point(rtkInfoBean.pointX,rtkInfoBean.pointY)
+                   it.resultSitePoint = Point(rtkInfoBean.pointX,rtkInfoBean.pointY)
                }
                fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point,rtkData)
            }
@@ -120,7 +120,9 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                                     title = "参考点P$index",
                                     parentId = it.id,
                                     distance = rtkPointBean.distance,
-                                    point = rtkPointBean.point
+                                    point = rtkPointBean.point,
+                                    sitePoint = rtkPointBean.sitePoint,
+                                    resultSitePoint = rtkPointBean.resultSitePoint
                                 )
                             )
                         }
