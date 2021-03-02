@@ -35,6 +35,7 @@ import kotlinx.android.synthetic.main.fragment_sketch_feature.sp_create_layer_mo
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -65,13 +66,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private var keyList = arrayListOf<String>()
     private var selectSite = arrayListOf<PointF>()
     //角度集合
-    private var degreeList = arrayListOf<Int>()
-     //剩余界址点集合
-    private var sitePoint = arrayListOf<PointF>()
+    private var degreeHashMap =LinkedHashMap<Int,SiteBean>()
     //推导坐标点集合
-    private var latLngList = arrayListOf<Point>()
+    private var latLngList= arrayListOf<Point>()
     //参考点集合
-    private var referSitePoint = arrayListOf<Point>()
+    private var referSiteHashMap = LinkedHashMap<Int,Point>()
     /**
      * layout配置
      */
@@ -124,7 +123,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                         selectSite.add(list[index].point)
                         val rtkList = list[index].rtkList
                         if (!rtkList.isNullOrEmpty()){
-                            referSitePoint.add(rtkList[0].resultSitePoint)
+                            referSiteHashMap[list[index].index]=rtkList[0].resultSitePoint
                         }
                     }
                 }
@@ -136,10 +135,17 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             if (!points.isNullOrEmpty()) {
                 //计算角度
                 if (selectSite.size>=2){
-                    points.removeAll(selectSite)
-                    sitePoint.addAll(points)
-                    sitePoint.forEach {
-                        degreeList.add(com.stanny.module_rtk.tool.RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),it.x.toDouble(),it.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
+                    loop@ for (index in points.indices){
+                        val pointF = points[index]
+                        //默认设置值
+                        latLngList.add(Point(pointF.x.toDouble(),pointF.y.toDouble()))
+                        for (j in selectSite.indices){
+                            val pointF1 = selectSite[j]
+                            if (pointF.x==pointF1.x&&pointF.y==pointF1.y){
+                                continue@loop
+                            }
+                        }
+                        degreeHashMap[index] = SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
                     }
                 }
             }
@@ -149,38 +155,24 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
      * 绘制草图
      */
     private fun  drawSketch(){
-        latLngList.clear()
         //推导经纬度
         if (selectSite.size>=2){
-            //referSitePoint[0]= PointF(106.548146f, 29.564422f)
-          //  referSitePoint[1]= PointF(106.548532f,29.564422f)
-            val endPoint  = Point(105.93642,29.895739)
-            val endPoint2 =Point(106.422565,30.021857)
-            val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint ,endPoint2))).toGeometry())
-            val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
-           latLngList.add(endPoint)
-            latLngList.add(endPoint2)
-            degreeList.forEachIndexed { index, it ->
-                val p2X = selectSite[1].x.toDouble()
-                val  p2Y = selectSite[1].y.toDouble()
-                val p1X = selectSite[0].x.toDouble()
-                val  p1Y = selectSite[0].y.toDouble()
-               val mAngle = Math.toDegrees(Math.atan((p2Y - p1Y) / (p2X - p1X))).let {
-                    if (p2Y >= p1Y && p2X >= p1X) {
-                        180 + it
-                    } else if (p2Y >= p1Y && p2X < p1X) {
-                        360 + it
-                    } else if (p2Y < p1Y && p2X >= p1X) {
-                        180 + it
-                    } else {
-                        it
-                    }
-                } - degreeList[index].toDouble()
-             var flatDistance = Math.sqrt(Math.pow((sitePoint[index].x-selectSite[0].x).toDouble(),2.0)+Math.pow((sitePoint[index].y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength.toDouble())
-             val pX = endPoint.x + flatDistance * cos(Math.toRadians(degreeList[index].toDouble()))
-             val pY = endPoint.y + flatDistance * sin(Math.toRadians(degreeList[index].toDouble()))
-             latLngList.add(Point(pX,pY))
-         }
+            var sitePointList= arrayListOf<Point>()
+            referSiteHashMap.entries.forEach {
+                latLngList[it.key] = it.value
+                sitePointList.add(it.value)
+            }
+            if (sitePointList.isNotEmpty()){
+                val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(sitePointList)).toGeometry())
+                val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
+                degreeHashMap.entries.forEach {
+                    val siteBean = it.value
+                    var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength.toDouble())
+                    val pX = sitePointList[0].x + flatDistance * cos(Math.toRadians(siteBean.angle.toDouble()))
+                    val pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(siteBean.angle.toDouble()))
+                    latLngList[it.key] = Point(pX,pY)
+                }
+            }
             createFeature(latLngList)
        }
     }

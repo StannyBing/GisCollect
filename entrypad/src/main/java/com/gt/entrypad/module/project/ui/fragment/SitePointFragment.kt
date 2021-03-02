@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.graphics.PointF
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.esri.arcgisruntime.geometry.Point
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gt.base.fragment.BaseFragment
@@ -20,6 +21,13 @@ import com.gt.entrypad.module.project.ui.activity.SketchLoadActivity
 import com.gt.entrypad.tool.SimpleDecoration
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.fragment_site_point.*
+import com.google.gson.GsonBuilder
+import com.frame.zxmvp.base.BaseModel
+import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
+
+
 
 class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), SketchMainContract.View {
     private var siteData = arrayListOf<SiteBean>()
@@ -50,7 +58,10 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             if (siteData.size<2){
                 showToast("请添加界址点")
             }else{
-                mSharedPrefUtil.putString("siteList",Gson().toJson(siteData))
+                val gsonBuilder = GsonBuilder()
+                gsonBuilder.serializeSpecialFloatingPointValues()
+                val gson = gsonBuilder.create()
+                mSharedPrefUtil.putString("siteList",gson.toJson(siteData))
                 SketchLoadActivity.startAction(mActivity,false)
             }
         }
@@ -71,28 +82,34 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
     override fun getLayoutId(): Int {
         return R.layout.fragment_site_point
     }
+
     private fun showSiteDialog(){
         var data = arrayListOf<String>()
-        val siteHashmap = LinkedHashMap<String, PointF>()
+        val siteHashmap = LinkedHashMap<String, SiteBean>()
         mSharedPrefUtil.getString("graphicList")?.let {
             val points =   Gson().fromJson<List<PointF>>(it,object : TypeToken<List<PointF>>(){}.type)
             if (!points.isNullOrEmpty()){
                 points.forEachIndexed { index, pointF ->
                     val key = "界址点${index+1}"
-                    siteHashmap[key]=pointF
+                    //保存界址对象
+                    siteHashmap[key]=SiteBean(title = key,point = pointF,index = index)
                     data.add(key)
                 }
                 ZXDialogUtil.showListDialog(mContext,"请选择","确定",data,
                     DialogInterface.OnClickListener { dialog, which ->
-                        siteHashmap[data[which]]?.let {point->
+                        siteHashmap[data[which]]?.let {siteBean->
                             //是否相同
                             siteData.forEach {
-                                if (it.title==data[which]&&it.point==point){
+                                if (it.title==siteBean.title&&it.point==siteBean.point){
                                     showToast("界址点不能为同一个点")
                                     return@let
                                 }
                             }
-                            val siteBean = SiteBean(title = data[which], point = point)
+                            if (siteData.size==0){
+                               siteBean.rtkList?.add(RtkPointBean(resultSitePoint = Point(106.079242,30.048013)))
+                            }else{
+                                siteBean.rtkList?.add(RtkPointBean(resultSitePoint = Point(106.260516,30.245145)))
+                            }
                             siteData.add(siteBean)
                             siteAdapter.notifyDataSetChanged()
                             fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteBean)
