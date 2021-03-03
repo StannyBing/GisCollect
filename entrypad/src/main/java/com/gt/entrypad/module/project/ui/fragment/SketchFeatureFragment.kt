@@ -33,6 +33,8 @@ import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_sketch_feature.*
 import kotlinx.android.synthetic.main.fragment_sketch_feature.sp_create_layer_model
 import java.io.File
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashMap
@@ -167,10 +169,10 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
                 degreeHashMap.entries.forEach {
                     val siteBean = it.value
-                    var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength.toDouble())
-                    val pX = sitePointList[0].x + flatDistance * cos(Math.toRadians(siteBean.angle.toDouble()))
-                    val pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(siteBean.angle.toDouble()))
-                    latLngList[it.key] = Point(pX,pY)
+                    var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength)
+                    var pX = sitePointList[0].x + flatDistance * cos(Math.toRadians(siteBean.angle))
+                    val pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(siteBean.angle))
+                    latLngList[it.key] =Point(pX,pY)
                 }
             }
             createFeature(latLngList)
@@ -326,13 +328,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
 
         }
         feature = currentLayer?.featureTable?.createFeature()
-        val pointCollection = PointCollection(arrayListOf<Point>().apply {
-            latLngs.forEach {
-                add(
-                   it
-                )
-            }
-        })
+        val pointCollection = PointCollection(latLngs)
         feature?.geometry = Polygon(pointCollection)
         //获取筛选内容
         try {

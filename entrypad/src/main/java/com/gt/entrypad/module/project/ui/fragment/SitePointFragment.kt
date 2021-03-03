@@ -25,6 +25,10 @@ import com.google.gson.GsonBuilder
 import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import com.esri.arcgisruntime.geometry.GeometryEngine
+import com.esri.arcgisruntime.geometry.SpatialReference
+import com.gt.module_map.tool.GeometrySizeTool
+import com.gt.module_map.tool.PointTool
 import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
 
 
@@ -106,9 +110,9 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                                 }
                             }
                             if (siteData.size==0){
-                               siteBean.rtkList?.add(RtkPointBean(resultSitePoint = Point(106.079242,30.048013)))
+                               siteBean.rtkList?.add(RtkPointBean(resultSitePoint = PointTool.change4326To3857(Point(106.079242,30.048013, SpatialReference.create(4326)))))
                             }else{
-                                siteBean.rtkList?.add(RtkPointBean(resultSitePoint = Point(106.260516,30.245145)))
+                                siteBean.rtkList?.add(RtkPointBean(resultSitePoint =PointTool.change4326To3857(Point(106.260516,30.245145, SpatialReference.create(4326)))))
                             }
                             siteData.add(siteBean)
                             siteAdapter.notifyDataSetChanged()
