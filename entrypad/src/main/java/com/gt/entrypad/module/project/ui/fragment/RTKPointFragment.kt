@@ -1,6 +1,5 @@
 package com.gt.entrypad.module.project.ui.fragment
 
-import android.graphics.PointF
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.geometry.Point
@@ -16,11 +15,9 @@ import com.gt.entrypad.module.project.mvp.contract.SketchMainContract
 import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
 import com.gt.entrypad.tool.SimpleDecoration
-import com.gt.module_map.tool.MapTool
 import com.gt.module_map.tool.PointTool
 import com.stanny.module_rtk.tool.RTKTool
 import com.stanny.module_rtk.tool.WHandTool
-import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.fragment_rtk_point.*
 
 class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
@@ -49,6 +46,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
             addItemDecoration(SimpleDecoration(mContext, height = 2))
         }
         rtkAdapter.bindToRecyclerView(rtkPointRv)
+        RTKTool.rtkActualLocationTest()
     }
 
     override fun onViewListener() {
@@ -59,18 +57,32 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     return@setOnClickListener
                 }
             }
-           if (rtkData.size==3){
-               val rtkPointBean1 = rtkData[0]
-               val rtkPointBean2 = rtkData[1]
-               val rtkPointBean3 = rtkData[2]
-               val rtkInfoBean = RTKTool.rtkActualLocation(RtkInfoBean(rtkPointBean1.sitePoint.x,rtkPointBean1.sitePoint.y,rtkPointBean1.distance),
-                   RtkInfoBean(rtkPointBean2.sitePoint.x,rtkPointBean2.sitePoint.y,rtkPointBean2.distance),
-                   RtkInfoBean(rtkPointBean3.sitePoint.x,rtkPointBean3.sitePoint.y,rtkPointBean3.distance))
-               rtkData.forEach {
-                   it.resultSitePoint = Point(rtkInfoBean.pointX,rtkInfoBean.pointY)
-               }
-               fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point,rtkData)
-           }
+            if (rtkData.size == 3) {
+                val rtkPointBean1 = rtkData[0]
+                val rtkPointBean2 = rtkData[1]
+                val rtkPointBean3 = rtkData[2]
+                val rtkInfoBean = RTKTool.rtkActualLocation(
+                    RtkInfoBean(
+                        rtkPointBean1.sitePoint.x,
+                        rtkPointBean1.sitePoint.y,
+                        rtkPointBean1.distance
+                    ),
+                    RtkInfoBean(
+                        rtkPointBean2.sitePoint.x,
+                        rtkPointBean2.sitePoint.y,
+                        rtkPointBean2.distance
+                    ),
+                    RtkInfoBean(
+                        rtkPointBean3.sitePoint.x,
+                        rtkPointBean3.sitePoint.y,
+                        rtkPointBean3.distance
+                    )
+                )
+                rtkData.forEach {
+                    it.resultSitePoint = Point(rtkInfoBean.pointX, rtkInfoBean.pointY)
+                }
+                fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point, rtkData)
+            }
         }
         rtkAdapter.addTextChangeListener { i, s ->
             rtkData[i].distance = if (s.isNotEmpty()) s.toDouble() else 0.0
@@ -78,7 +90,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
         rtkAdapter.setOnItemChildClickListener { adapter, view, position ->
             when (view.id) {
                 R.id.rtkTv -> {
-                    if (WHandTool.isRegister() && WHandTool.isOpen) {
+                    if (WHandTool.isConnect && WHandTool.isOpen) {
                         val info = WHandTool.getDeviceInfoOneTime()
                         if (info != null) {
                             val location = PointTool.change4326To3857(
@@ -88,8 +100,8 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                                     SpatialReference.create(4326)
                                 )
                             )
-                          rtkData[position].sitePoint = location
-                          rtkAdapter.notifyDataSetChanged()
+                            rtkData[position].sitePoint = location
+                            rtkAdapter.notifyDataSetChanged()
                         }
                     } else {
                         fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Set)

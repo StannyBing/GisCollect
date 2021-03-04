@@ -98,8 +98,8 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 //                )
 //                return@getPermission
 //            }
-            if (com.stanny.module_rtk.tool.WHandTool.isOpen && com.stanny.module_rtk.tool.WHandTool.isRegister()) {
-                val info = com.stanny.module_rtk.tool.WHandTool.getDeviceInfoOneTime()
+            if (WHandTool.isOpen && WHandTool.isConnect) {
+                val info = WHandTool.getDeviceInfoOneTime()
                 if (info != null) {
                     map_view.setViewpointCenterAsync(
                         PointTool.change4326To3857(

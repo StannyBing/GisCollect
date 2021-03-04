@@ -133,7 +133,7 @@ class SettingMainFragment : BaseFragment<SettingMainPresenter, SettingMainModel>
             RTK_Set -> {
                 iv_setting_title_back.visibility = View.VISIBLE
                 ZXFragmentUtil.hideAllShowFragment(rtkDeviceFragment)
-                rtkDeviceFragment.reInit()
+                rtkDeviceFragment.reInitWhandInfo()
             }
         }
     }

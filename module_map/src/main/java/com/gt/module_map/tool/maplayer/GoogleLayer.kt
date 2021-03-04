@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.main.func.maplayer
+package com.gt.module_map.tool.maplayer
 
 import android.app.Activity
 import com.esri.arcgisruntime.arcgisservices.LevelOfDetail

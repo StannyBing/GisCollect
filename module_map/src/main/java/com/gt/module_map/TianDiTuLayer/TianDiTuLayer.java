@@ -1,4 +1,4 @@
-package com.gt.giscollect.module.main.func.TianDiTuLayer;
+package com.gt.module_map.TianDiTuLayer;
 
 import com.esri.arcgisruntime.arcgisservices.TileInfo;
 import com.esri.arcgisruntime.data.TileKey;

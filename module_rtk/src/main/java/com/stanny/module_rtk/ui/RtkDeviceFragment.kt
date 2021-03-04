@@ -64,8 +64,8 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
 
             override fun onDeviceStatusChange(context: Context, status: Int) {
                 super.onDeviceStatusChange(context, status)
-                if (WHandTool.isRegister()) {
-                    reInit()
+                if (WHandTool.isConnect) {
+                    reInitWhandInfo()
                 }
             }
 
@@ -98,19 +98,19 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
                 "是否断开当前设备连接？"
             ) { dialog, which ->
                 WHandTool.disConnectDivice()
-                reInit()
+                reInitWhandInfo()
             }
         }
         sw_rtk_open.setOnCheckedChangeListener { buttonView, isChecked ->
             WHandTool.isOpen = isChecked
-            reInit()
+            reInitWhandInfo()
         }
         sw_rtk_openLaser.setOnCheckedChangeListener { buttonView, isChecked ->
             WHandTool.openLaser(isChecked)
         }
     }
 
-    fun reInit() {
+    fun reInitWhandInfo() {
         val whandAccount = mSharedPrefUtil.getObject<WHandTool.WHandAccount>("whandAccount")
         et_rtk_ip.setText(whandAccount?.ip ?: "183.230.183.10")
         et_rtk_port.setText((whandAccount?.port ?: "2102").toString())
@@ -118,7 +118,7 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
         et_rtk_password.setText(whandAccount?.password ?: "")
         et_rtk_point.setText(whandAccount?.mountpoint ?: "RTKRTCM32")
 
-        if (WHandTool.isRegister()) {
+        if (WHandTool.isConnect) {
             btn_rtk_connect.visibility = View.GONE
             btn_rtk_cancel.visibility = View.VISIBLE
         } else {

@@ -520,7 +520,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             ) {
-                val location = if (WHandTool.isRegister() && WHandTool.isOpen) {
+                val location = if (WHandTool.isConnect && WHandTool.isOpen) {
                     val info = WHandTool.getDeviceInfoOneTime()
                     if (info == null) {
                         null

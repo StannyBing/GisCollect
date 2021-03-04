@@ -12,10 +12,8 @@ import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
 import com.stanny.module_rtk.ui.RtkDeviceFragment
 import com.zx.zxutils.util.ZXFragmentUtil
-import kotlinx.android.synthetic.main.fragment_load_main.*
 import kotlinx.android.synthetic.main.fragment_load_main.iv_collect_title_back
 import kotlinx.android.synthetic.main.fragment_load_main.tv_collect_title_name
-import kotlinx.android.synthetic.main.fragment_sketch_main.*
 import java.io.Serializable
 
 class LoadMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),SketchMainContract.View,FragChangeListener{
@@ -103,7 +101,7 @@ class LoadMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sket
             RTK_Set -> {
                 iv_collect_title_back.visibility = View.VISIBLE
                 ZXFragmentUtil.hideAllShowFragment(rtkDeviceFragment)
-                rtkDeviceFragment.reInit()
+                rtkDeviceFragment.reInitWhandInfo()
             }
         }
     }

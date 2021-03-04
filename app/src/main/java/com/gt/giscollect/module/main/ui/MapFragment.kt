@@ -20,7 +20,7 @@ import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.stanny.module_rtk.tool.WHandTool
 import com.gt.module_map.listener.MapListener
-import com.gt.giscollect.module.main.func.maplayer.GoogleLayer
+import com.gt.module_map.tool.maplayer.GoogleLayer
 import com.gt.giscollect.module.main.func.maplayer.TdtLayerTool
 import com.gt.giscollect.module.main.func.tool.LayerTool
 import com.gt.module_map.tool.MapTool
@@ -503,8 +503,8 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 //                )
 //                return@getPermission
 //            }
-            if (com.stanny.module_rtk.tool.WHandTool.isOpen && com.stanny.module_rtk.tool.WHandTool.isRegister()) {
-                val info = com.stanny.module_rtk.tool.WHandTool.getDeviceInfoOneTime()
+            if (WHandTool.isOpen && WHandTool.isConnect) {
+                val info = WHandTool.getDeviceInfoOneTime()
                 if (info != null) {
                     map_view.setViewpointCenterAsync(
                         PointTool.change4326To3857(

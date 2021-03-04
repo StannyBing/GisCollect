@@ -9,7 +9,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
-import com.stanny.module_rtk.tool.RTKTool
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.RtkPointBean
 import com.gt.entrypad.module.project.bean.SiteBean

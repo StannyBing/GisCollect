@@ -170,13 +170,28 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 degreeHashMap.entries.forEach {
                     val siteBean = it.value
                     var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength)
-                    var pX = sitePointList[0].x + flatDistance * cos(Math.toRadians(siteBean.angle))
-                    val pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(siteBean.angle))
-                    latLngList[it.key] =Point(pX,pY)
+                    val angle = resetDegree(siteBean.angle, sitePointList[1].x, sitePointList[1].y, sitePointList[0].x, sitePointList[0].y)
+                    var pX = sitePointList[0].x + flatDistance * cos(Math.toRadians(angle))
+                    val pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(angle))
+                    latLngList[it.key] =Point(pX,pY, SpatialReference.create(3857))
                 }
             }
             createFeature(latLngList)
        }
+    }
+
+    private fun resetDegree(mAngle : Double, point0X : Double, point0Y : Double, point1X : Double, point1Y : Double) : Double{
+        return Math.toDegrees(Math.atan((point1Y - point0Y) / (point1X - point0X))).let {
+            if (point1Y >= point0Y && point1X >= point0X) {
+                180 + it
+            } else if (point1Y >= point0Y && point1X < point0X) {
+                360 + it
+            } else if (point1Y < point0Y && point1X >= point0X) {
+                180 + it
+            } else {
+                it
+            }
+        } - mAngle
     }
     /**
      * 获取模板列表

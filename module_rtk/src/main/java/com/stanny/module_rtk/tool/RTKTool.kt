@@ -1,6 +1,10 @@
 package com.stanny.module_rtk.tool
 
+import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.SpatialReference
 import com.gt.base.bean.RtkInfoBean
+import com.gt.module_map.tool.PointTool
+import com.zx.zxutils.util.ZXLogUtil
 import java.lang.Exception
 import kotlin.math.cos
 import kotlin.math.sin
@@ -9,6 +13,35 @@ import com.google.android.material.math.MathUtils.dist
 
 
 object RTKTool {
+
+
+    fun rtkActualLocationTest() {
+        val p1 = PointTool.change4326To3857(
+            Point(
+                106.520004, 29.634763,
+                SpatialReference.create(4326)
+            )
+        )
+        val p2 = PointTool.change4326To3857(
+            Point(
+                106.520117, 29.634660,
+                SpatialReference.create(4326)
+            )
+        )
+        val p3 = PointTool.change4326To3857(
+            Point(
+                106.519983, 29.634557,
+                SpatialReference.create(4326)
+            )
+        )
+        val point = rtkActualLocation(
+            RtkInfoBean(p1.x, p1.y, 17.3),
+            RtkInfoBean(p2.x, p2.y, 24.4),
+            RtkInfoBean(p3.x, p3.y, 17.3)
+        )
+        ZXLogUtil.loge(point.toString())
+    }
+
     /*
 	 * 大地坐标系资料WGS-84 长半径a=6378137 短半径b=6356752.3142 扁率f=1/298.2572236
 	 */
@@ -38,14 +71,14 @@ object RTKTool {
                 ) + Math.pow(rtkBean1.pointY, 2.0) - Math.pow(rtkBean2.pointY, 2.0) - Math.pow(
                     rtkBean1.distance,
                     2.0
-                ) +Math.pow(rtkBean2.distance, 2.0))
+                ) + Math.pow(rtkBean2.distance, 2.0))
             -(rtkBean1.pointY - rtkBean2.pointY) * (Math.pow(rtkBean2.pointX, 2.0) - Math.pow(
                 rtkBean3.pointX,
                 2.0
             ) + Math.pow(rtkBean2.pointY, 2.0) - Math.pow(
                 rtkBean3.pointY,
                 2.0
-            ) - Math.pow(rtkBean2.distance, 2.0)+ Math.pow(rtkBean3.distance, 2.0))
+            ) - Math.pow(rtkBean2.distance, 2.0) + Math.pow(rtkBean3.distance, 2.0))
             //分母
             var denominatorX =
                 2 * (rtkBean1.pointX - rtkBean2.pointX) * (rtkBean2.pointY - rtkBean3.pointY) - 2 * (rtkBean2.pointX - rtkBean3.pointX) * (rtkBean1.pointY - rtkBean2.pointY)
@@ -68,7 +101,7 @@ object RTKTool {
                 ) + Math.pow(rtkBean2.pointY, 2.0) - Math.pow(rtkBean3.pointY, 2.0) - Math.pow(
                     rtkBean2.distance,
                     2.0
-                ) +Math.pow(rtkBean3.distance, 2.0))
+                ) + Math.pow(rtkBean3.distance, 2.0))
             var denominatorY2 =
                 2 * (rtkBean2.pointX - rtkBean3.pointX) * (rtkBean1.pointY - rtkBean2.pointY) - 2 * (rtkBean2.pointY - rtkBean3.pointY) * (rtkBean1.pointX - rtkBean2.pointX)
             var b = elementsX2 / denominatorY2
@@ -88,14 +121,17 @@ object RTKTool {
      */
     fun getDegree(vertexPointX:Double,vertexPointY:Double,point0X:Double,point0Y:Double,point1X:Double,point1Y:Double):Double{
         //向量的点乘
-        val vector = (point0X - vertexPointX) * (point1X - vertexPointX) + (point0Y - vertexPointY) * (point1Y - vertexPointY)
+        val vector =
+            (point0X - vertexPointX) * (point1X - vertexPointX) + (point0Y - vertexPointY) * (point1Y - vertexPointY)
         //向量的模乘
-        var sqrt = Math.sqrt((Math.abs((point0X-vertexPointX)*(point0X-vertexPointX))+Math.abs((point0Y-vertexPointY)*(point0Y-vertexPointY)))*(
-                Math.abs((point1X-vertexPointX)*(point1X-vertexPointX))+Math.abs((point1Y-vertexPointY)*(point1Y-vertexPointY))))
+        var sqrt = Math.sqrt(
+            (Math.abs((point0X - vertexPointX) * (point0X - vertexPointX)) + Math.abs((point0Y - vertexPointY) * (point0Y - vertexPointY))) * (
+                    Math.abs((point1X - vertexPointX) * (point1X - vertexPointX)) + Math.abs((point1Y - vertexPointY) * (point1Y - vertexPointY)))
+        )
         //反余弦计算弧度
-        var radian = Math.acos(vector/sqrt)
+        var radian = Math.acos(vector / sqrt)
         //弧度转角度制
-        return (180*radian/Math.PI)
+        return (180*radian/Math.PI).toDouble()
     }
 
     /**

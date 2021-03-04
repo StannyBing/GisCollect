@@ -10,14 +10,13 @@ import com.woncan.whand.device.IDevice
 import com.woncan.whand.listener.OnConnectListener
 import com.woncan.whand.scan.ScanCallback
 import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXToastUtil
 import java.io.Serializable
 
 object WHandTool {
 
-    private var isRegister = false
-    var isOpen = true
+    var isConnect = false//是否连接
+    var isOpen = true//是否允许接入
     private val infoListenerList: ArrayList<WHandDeviceListener> = arrayListOf()
     private val handler = Handler()
     private var deviceList = arrayListOf<BluetoothDevice>()
@@ -48,6 +47,7 @@ object WHandTool {
 
         fun onDeviceStatusChange(context: Context, status: Int) {
             ZXDialogUtil.dismissLoadingDialog()
+            isConnect = true
             when (status) {
                 BluetoothProfile.STATE_CONNECTING -> {
 //                    ZXToastUtil.showToast("QX:设备连接中")
@@ -55,7 +55,8 @@ object WHandTool {
                 BluetoothProfile.STATE_CONNECTED -> {
                     ZXDialogUtil.dismissDialog()
 //                    ZXToastUtil.showToast("设备连接成功")
-                    ZXToastUtil.showToast("连接已设备")
+//                    ZXToastUtil.showToast("连接已设备")
+//                    isConnect = true
                 }
                 BluetoothProfile.STATE_DISCONNECTING -> {
 //                    ZXToastUtil.showToast("QX:设备断开中")
@@ -63,9 +64,10 @@ object WHandTool {
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     ZXDialogUtil.dismissDialog()
 //                    ZXToastUtil.showToast("设备已断开")
+//                    isConnect = false
                 }
             }
-            isRegister = true
+//            isConnect = true
         }
 
         fun onDeviceAccess() {
@@ -110,7 +112,6 @@ object WHandTool {
         ) { dialog, which ->
             listener.onScanStart(context)
             deviceList.clear()
-            WHandManager.getInstance().stopScan()
             WHandManager.getInstance().startScan(object : ScanCallback {
                 override fun onLeScan(p0: BluetoothDevice, p1: Int, p2: ByteArray) {
                     var isContains = false
@@ -137,8 +138,18 @@ object WHandTool {
     }
 
     fun disConnectDivice() {
-        isRegister = false
+        isConnect = false
+        WHandManager.getInstance().device?.setOnConnectListener(null)
+        WHandManager.getInstance().device?.setOnConnectionStateChangeListener(null)
+        try {
+            infoListenerList.forEach {
+                it.onDeviceInfoCallBack(null)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         WHandManager.getInstance().device?.disconnect()
+        iDivice = null
     }
 
     fun addDeviceInfoListener(listener: WHandDeviceListener) {
@@ -148,8 +159,6 @@ object WHandTool {
     fun getDeviceInfoOneTime(): WHandInfo? {
         return newWHandInfo
     }
-
-    fun isRegister() = isRegister
 
     private fun showDeviceList(context: Context, listener: WHandRegisterListener) {
         val nameList = arrayListOf<String>()
@@ -194,7 +203,9 @@ object WHandTool {
         iDivice?.setOnConnectListener(object : OnConnectListener {
             override fun onDeviceChanged(p0: WHandInfo?) {
                 handler.post {
-                    isRegister = true
+                    if (iDivice != null) {
+                        isConnect = true
+                    }
                     newWHandInfo = p0
                     try {
                         infoListenerList.forEach {

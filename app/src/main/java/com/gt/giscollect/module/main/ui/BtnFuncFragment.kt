@@ -71,7 +71,6 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
      * 初始化
      */
     override fun initView(savedInstanceState: Bundle?) {
-        super.initView(savedInstanceState)
 
         if (MyApplication.isOfflineMode) {
             tv_func_offlinemode.visibility = View.VISIBLE
@@ -108,6 +107,8 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
             adapter = funcAdapter
             addItemDecoration(SimpleDecoration(requireActivity()))
         }
+
+        super.initView(savedInstanceState)
     }
 
     /**
@@ -161,11 +162,11 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         WHandTool.addDeviceInfoListener(object : WHandTool.WHandDeviceListener {
             override fun onDeviceInfoCallBack(info: WHandInfo?) {
                 try {
-                    if (!WHandTool.isOpen) {
-                        tv_rtk_info.visibility = View.GONE
+                    if (!WHandTool.isOpen || !WHandTool.isConnect) {
+                        handler.post { tv_rtk_info?.visibility = View.GONE}
                         return
                     }
-                    tv_rtk_info.visibility = View.VISIBLE
+                    handler.post { tv_rtk_info?.visibility = View.VISIBLE}
                     if (info?.longitude != null && info.longitude != 0.0) {
                         val method =
                             Class.forName("com.esri.arcgisruntime.location.LocationDataSource")
@@ -193,7 +194,7 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                 }
 
 
-                tv_rtk_info.text = WHandTool.getRtkInfo()
+                handler.post { tv_rtk_info?.text = WHandTool.getRtkInfo()}
             }
         })
     }
