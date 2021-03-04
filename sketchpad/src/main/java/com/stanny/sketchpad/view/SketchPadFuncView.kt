@@ -63,13 +63,13 @@ class SketchPadFuncView @JvmOverloads constructor(
             setPadding(0, ZXSystemUtil.dp2px(20f), 0, 0)
         }
         addView(rvList)
-        funcList.add(
+    /*    funcList.add(
             SketchPadFuncBean(
                 "保存",
                 R.drawable.icon_sketch_save,
                 R.drawable.icon_sketch_noraml_save
             )
-        )
+        )*/
         funcList.add(
             SketchPadFuncBean(
                 "居中",

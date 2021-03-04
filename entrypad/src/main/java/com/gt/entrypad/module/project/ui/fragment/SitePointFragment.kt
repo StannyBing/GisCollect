@@ -95,7 +95,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                 points.forEachIndexed { index, pointF ->
                     val key = "界址点${index+1}"
                     //保存界址对象
-                    siteHashmap[key]=SiteBean(title = key,point = pointF,index = index)
+                    siteHashmap[key]=SiteBean(title = key,point = pointF)
                     data.add(key)
                 }
                 ZXDialogUtil.showListDialog(mContext,"请选择","确定",data,

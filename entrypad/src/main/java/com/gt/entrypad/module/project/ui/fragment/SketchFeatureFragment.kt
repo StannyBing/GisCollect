@@ -26,6 +26,8 @@ import com.gt.entrypad.module.project.mvp.presenter.SketchFeaturePresenter
 import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.*
+import com.stanny.sketchpad.bean.SketchPadFloorBean
+import com.stanny.sketchpad.tool.SketchPointTool
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXFileUtil
@@ -67,12 +69,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private var editPosition = -1
     private var keyList = arrayListOf<String>()
     private var selectSite = arrayListOf<PointF>()
-    //角度集合
-    private var degreeHashMap =LinkedHashMap<Int,SiteBean>()
-    //推导坐标点集合
-    private var latLngList= arrayListOf<Point>()
+    //楼层对应的角度集合
+    private var graphicDegreeList = arrayListOf<LinkedHashMap<String,SiteBean>>()
     //参考点集合
-    private var referSiteHashMap = LinkedHashMap<Int,Point>()
+    private var sitePointList= arrayListOf<Point>()
+
     /**
      * layout配置
      */
@@ -125,29 +126,35 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                         selectSite.add(list[index].point)
                         val rtkList = list[index].rtkList
                         if (!rtkList.isNullOrEmpty()){
-                            referSiteHashMap[list[index].index]=rtkList[0].resultSitePoint
+                            sitePointList.add(rtkList[0].resultSitePoint)
                         }
                     }
                 }
             }
         }
         //去除所选界址点
-        mSharedPrefUtil.getString("graphicList")?.let {
-            val points = Gson().fromJson<ArrayList<PointF>>(it, object : TypeToken<ArrayList<PointF>>() {}.type)
-            if (!points.isNullOrEmpty()) {
-                //计算角度
-                if (selectSite.size>=2){
-                    loop@ for (index in points.indices){
-                        val pointF = points[index]
-                        //默认设置值
-                        latLngList.add(Point(pointF.x.toDouble(),pointF.y.toDouble()))
-                        for (j in selectSite.indices){
-                            val pointF1 = selectSite[j]
-                            if (pointF.x==pointF1.x&&pointF.y==pointF1.y){
-                                continue@loop
+        mSharedPrefUtil.getString("floorList")?.let {
+            val floorList = Gson().fromJson<ArrayList<SketchPadFloorBean>>(it, object : TypeToken<ArrayList<SketchPadFloorBean>>() {}.type)
+            floorList?.forEach {
+                it.sketchList.forEach {
+                    //取出对应图形坐标点集合
+                    var points = arrayListOf<PointF>()
+                    it.points.forEach {pointF->
+                        points.add(PointF(pointF.x+it.offsetX,pointF.y+it.offsetY))
+                    }
+                    //求出对应的角度
+                    if (!points.isNullOrEmpty()) {
+                        //计算角度
+                        if (selectSite.size>=2){
+                            loop@ for (index in points.indices){
+                                val pointF = points[index]
+                                //角度集合(key 楼层id)
+                                var degreeHashMap = LinkedHashMap<String,SiteBean>()
+                                degreeHashMap[it.id.toString()] = SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
+                                //楼层对应的图形角度
+                                graphicDegreeList.add(degreeHashMap)
                             }
                         }
-                        degreeHashMap[index] = SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
                     }
                 }
             }
@@ -159,24 +166,30 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private fun  drawSketch(){
         //推导经纬度
         if (selectSite.size>=2){
-            var sitePointList= arrayListOf<Point>()
-            referSiteHashMap.entries.forEach {
-                latLngList[it.key] = it.value
-                sitePointList.add(it.value)
-            }
             if (sitePointList.isNotEmpty()){
                 val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(sitePointList)).toGeometry())
                 val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
-                degreeHashMap.entries.forEach {
-                    val siteBean = it.value
-                    var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength)
-                    val angle = resetDegree(siteBean.angle, sitePointList[1].x, sitePointList[1].y, sitePointList[0].x, sitePointList[0].y)
-                    var pX = sitePointList[0].x + flatDistance * cos(Math.toRadians(angle))
-                    val pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(angle))
-                    latLngList[it.key] =Point(pX,pY, SpatialReference.create(3857))
+                var latLngs = arrayListOf<Point>()
+                graphicDegreeList.forEach {
+                    it.entries.forEach {
+                        //对应的角度
+                        val siteBean = it.value
+                        var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength)
+                        var pX = 0.0
+                        var pY=0.0
+                        if (siteBean.angle.isNaN()){
+                            pX= sitePointList[0].x
+                            pY = sitePointList[0].y
+                        }else{
+                            val angle = resetDegree(siteBean.angle, sitePointList[1].x, sitePointList[1].y, sitePointList[0].x, sitePointList[0].y)
+                            pX= sitePointList[0].x + flatDistance * cos(Math.toRadians(angle))
+                            pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(angle))
+                        }
+                        latLngs.add(Point(pX,pY, SpatialReference.create(3857)))
+                    }
                 }
+                createFeature(latLngs)
             }
-            createFeature(latLngList)
        }
     }
 

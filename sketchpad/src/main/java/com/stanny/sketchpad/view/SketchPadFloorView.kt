@@ -112,6 +112,8 @@ class SketchPadFloorView @JvmOverloads constructor(
                 floorAdapter.notifyDataSetChanged()
             } else {
                 ZXSharedPrefUtil().putString("floorGraphicList", Gson().toJson(floorGraphicData))
+                ZXSharedPrefUtil().remove("floorList")
+                ZXSharedPrefUtil().putString("floorList", Gson().toJson(floorData))
                 ZXToastUtil.showToast("保存成功")
                 floorBackIv.performClick()
                 floorGraphicData.clear()

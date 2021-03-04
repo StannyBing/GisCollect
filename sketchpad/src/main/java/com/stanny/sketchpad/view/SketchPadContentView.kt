@@ -473,44 +473,48 @@ class SketchPadContentView @JvmOverloads constructor(
      * 保存图形
      */
     fun saveGraphicInfo(callBack: () -> Unit) {
-        showSizeInfo(true)
-        showSite(true)
-        resetCenter()
-        val minPoint = getDrawMin()
-        val maxPoint = getDrawMax()
-        val viewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        draw(Canvas(viewBitmap))
-        val ivDraw = ImageView(context)
-        ivDraw.setImageBitmap(viewBitmap)
-        ZXDialogUtil.showCustomViewDialog(
-            context,
-            "",
-            ivDraw
-        ) { dialog: DialogInterface?, which: Int ->
-            ZXBitmapUtil.bitmapToFile(viewBitmap, File(ZXSystemUtil.getSDCardPath() + "test.jpg"))
-        }
-        val file = context.filesDir.path
-        //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
-        val s = "$file/sketch/draw.jpg"
-        try {
-            Runnable {
-                viewBitmap.compress(
-                    Bitmap.CompressFormat.JPEG,
-                    100,
-                    FileOutputStream(ZXFileUtil.createNewFile(s))
-                )
-            }.run()
-        } catch (e: FileNotFoundException) {
-        }
-        val points = arrayListOf<PointF>()
-        //保存所有点
-        graphicList.forEach {
-            it.points.forEach { point->
-                points.add(PointF(point.x+it.offsetX,point.y+it.offsetY))
+        if (graphicList.isNotEmpty()){
+            showSizeInfo(true)
+            showSite(true)
+            resetCenter()
+            val minPoint = getDrawMin()
+            val maxPoint = getDrawMax()
+            val viewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            draw(Canvas(viewBitmap))
+            val ivDraw = ImageView(context)
+            ivDraw.setImageBitmap(viewBitmap)
+            ZXDialogUtil.showCustomViewDialog(
+                context,
+                "",
+                ivDraw
+            ) { dialog: DialogInterface?, which: Int ->
+                ZXBitmapUtil.bitmapToFile(viewBitmap, File(ZXSystemUtil.getSDCardPath() + "test.jpg"))
             }
+            val file = context.filesDir.path
+            //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
+            val s = "$file/sketch/draw.jpg"
+            try {
+                Runnable {
+                    viewBitmap.compress(
+                        Bitmap.CompressFormat.JPEG,
+                        100,
+                        FileOutputStream(ZXFileUtil.createNewFile(s))
+                    )
+                }.run()
+            } catch (e: FileNotFoundException) {
+            }
+            val points = arrayListOf<PointF>()
+            //保存所有点
+            graphicList.forEach {
+                it.points.forEach { point->
+                    points.add(PointF(point.x+it.offsetX,point.y+it.offsetY))
+                }
+            }
+            ZXSharedPrefUtil().putString("graphicList",Gson().toJson(points))
+            callBack()
+        }else{
+            ZXToastUtil.showToast("请绘制草图")
         }
-        ZXSharedPrefUtil().putString("graphicList",Gson().toJson(points))
-        callBack()
     }
 
     /**

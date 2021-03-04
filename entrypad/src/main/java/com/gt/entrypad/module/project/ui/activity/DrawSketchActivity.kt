@@ -81,16 +81,18 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     },DialogInterface.OnClickListener { dialog, which ->
 
                     })*/
+                   sketchPadView.saveGraphicInfo()
                     //获取所有楼层
                     val string = mSharedPrefUtil.getString("graphicList")?.let {
-                        iv_data_show.performClick()
-                        loadMainFragment?.let {
+                       if (it.isNotEmpty()){
+                           iv_data_show.performClick()
+                           loadMainFragment?.let {
 
-                        }?:ZXFragmentUtil.addFragment(supportFragmentManager, LoadMainFragment.newInstance().apply {
-                            loadMainFragment=this
-                        },R.id.fm_data)
+                           }?:ZXFragmentUtil.addFragment(supportFragmentManager, LoadMainFragment.newInstance().apply {
+                               loadMainFragment=this
+                           },R.id.fm_data)
+                       }
                     }?:showToast("请绘制草图")
-
                 }
 
             })
