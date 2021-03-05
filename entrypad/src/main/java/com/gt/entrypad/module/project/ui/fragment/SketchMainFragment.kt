@@ -117,6 +117,10 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         }
     }
 
+    override fun onDestroy() {
+        reInit()
+        super.onDestroy()
+    }
     fun reInit() {
         sketchFeatureFragment.reInit()
     }

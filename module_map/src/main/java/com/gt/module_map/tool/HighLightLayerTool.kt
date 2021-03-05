@@ -1,6 +1,7 @@
 package com.gt.module_map.tool
 
 import android.graphics.Color
+import android.util.Log
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.geometry.GeometryType
 import com.esri.arcgisruntime.mapping.view.Graphic
@@ -9,12 +10,12 @@ import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.gt.module_map.R
+import com.zx.zxutils.util.ZXToastUtil
 
 object HighLightLayerTool {
 
-    private val highLightLayer = GraphicsOverlay()
 
-    fun showHighLight(feature: Feature) {
+    fun showHighLight(feature: Feature,highLightLayer:GraphicsOverlay = GraphicsOverlay()) {
         clearHighLight()
         if (feature.geometry == null) return
         MapTool.mapListener?.getMapView()?.setViewpointGeometryAsync(feature.geometry, 80.0)
@@ -46,7 +47,11 @@ object HighLightLayerTool {
             if (MapTool.mapListener?.getMapView()?.graphicsOverlays != null
                 && MapTool.mapListener?.getMapView()?.graphicsOverlays?.contains(highLightLayer) == false
             ) {
-                MapTool.mapListener?.getMapView()?.graphicsOverlays?.add(highLightLayer)
+
+                MapTool.mapListener?.getMapView()?.graphicsOverlays?.apply {
+                    clear()
+                    add(highLightLayer)
+                }
             }
         } catch (e: Exception) {
 
@@ -54,7 +59,7 @@ object HighLightLayerTool {
     }
 
     fun clearHighLight() {
-        highLightLayer.graphics.clear()
+
     }
 
 }

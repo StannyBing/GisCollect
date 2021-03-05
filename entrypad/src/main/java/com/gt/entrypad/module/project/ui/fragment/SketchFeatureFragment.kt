@@ -18,6 +18,7 @@ import com.gt.base.listener.FragChangeListener
 import com.stanny.module_rtk.tool.RTKTool
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
+import com.gt.entrypad.module.project.bean.FloorSiteBean
 import com.gt.entrypad.module.project.bean.SiteBean
 import com.gt.entrypad.module.project.func.adapter.SketchFeatureAdapter
 import com.gt.entrypad.module.project.mvp.contract.SketchFeatureContract
@@ -31,6 +32,7 @@ import com.stanny.sketchpad.tool.SketchPointTool
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXToastUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_sketch_feature.*
 import kotlinx.android.synthetic.main.fragment_sketch_feature.sp_create_layer_model
@@ -69,10 +71,9 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private var editPosition = -1
     private var keyList = arrayListOf<String>()
     private var selectSite = arrayListOf<PointF>()
-    //楼层对应的角度集合
-    private var graphicDegreeList = arrayListOf<LinkedHashMap<String,SiteBean>>()
     //参考点集合
     private var sitePointList= arrayListOf<Point>()
+    private var floorGraphicList = arrayListOf<FloorSiteBean>()
 
     /**
      * layout配置
@@ -115,6 +116,10 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 showData(points)
             }
         }
+        //获取保存的工程id
+        mSharedPrefUtil.getList<String>("sketchId")?.let {
+            if (!it.isNullOrEmpty())keyList.addAll(it)
+        }
     }
 
     fun showData(any: Any?){
@@ -136,27 +141,23 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         mSharedPrefUtil.getString("floorList")?.let {
             val floorList = Gson().fromJson<ArrayList<SketchPadFloorBean>>(it, object : TypeToken<ArrayList<SketchPadFloorBean>>() {}.type)
             floorList?.forEach {
+                var floorSiteList = arrayListOf<ArrayList<SiteBean>>()
                 it.sketchList.forEach {
                     //取出对应图形坐标点集合
-                    var points = arrayListOf<PointF>()
-                    it.points.forEach {pointF->
-                        points.add(PointF(pointF.x+it.offsetX,pointF.y+it.offsetY))
-                    }
-                    //求出对应的角度
-                    if (!points.isNullOrEmpty()) {
-                        //计算角度
-                        if (selectSite.size>=2){
-                            loop@ for (index in points.indices){
-                                val pointF = points[index]
-                                //角度集合(key 楼层id)
-                                var degreeHashMap = LinkedHashMap<String,SiteBean>()
-                                degreeHashMap[it.id.toString()] = SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble()))
-                                //楼层对应的图形角度
-                                graphicDegreeList.add(degreeHashMap)
-                            }
+                    var siteList = arrayListOf<SiteBean>()
+                    if (selectSite.size>=2){
+                        //求出对应的角度
+                        it.points?.forEach {point->
+                           var pointF =  PointF(point.x+it.offsetX,point.y+it.offsetY)
+                            siteList.add(SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble())))
                         }
                     }
+                    siteList.forEach {
+                        Log.e("fdfd","${it.angle}")
+                    }
+                    floorSiteList.add(siteList)
                 }
+                floorGraphicList.add(FloorSiteBean(it.id.toString(),floorSiteList))
             }
         }
     }
@@ -169,26 +170,30 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             if (sitePointList.isNotEmpty()){
                 val length = GeometrySizeTool.getLength(PolylineBuilder(PointCollection(sitePointList)).toGeometry())
                 val flatLength = Math.sqrt(Math.pow((selectSite[0].x-selectSite[1].x).toDouble(),2.0)+Math.pow((selectSite[0].y-selectSite[1].y).toDouble(),2.0))
-                var latLngs = arrayListOf<Point>()
-                graphicDegreeList.forEach {
-                    it.entries.forEach {
-                        //对应的角度
-                        val siteBean = it.value
-                        var flatDistance = Math.sqrt(Math.pow((siteBean.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((siteBean.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength)
-                        var pX = 0.0
-                        var pY=0.0
-                        if (siteBean.angle.isNaN()){
-                            pX= sitePointList[0].x
-                            pY = sitePointList[0].y
-                        }else{
-                            val angle = resetDegree(siteBean.angle, sitePointList[1].x, sitePointList[1].y, sitePointList[0].x, sitePointList[0].y)
-                            pX= sitePointList[0].x + flatDistance * cos(Math.toRadians(angle))
-                            pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(angle))
+                floorGraphicList.forEach {
+                    var floorLatLngs =  arrayListOf<ArrayList<Point>>()
+                    //图形
+                    it.graphicList?.forEach {
+                        var latLngs = arrayListOf<Point>()
+                        it.forEach {
+                            //对应的角度
+                            var flatDistance = Math.sqrt(Math.pow((it.point.x-selectSite[0].x).toDouble(),2.0)+Math.pow((it.point.y-selectSite[0].y).toDouble(),2.0))*(length.toDouble()/flatLength)
+                            var pX = 0.0
+                            var pY=0.0
+                            if (it.angle.isNaN()){
+                                pX= sitePointList[0].x
+                                pY = sitePointList[0].y
+                            }else{
+                                val angle = resetDegree(it.angle, sitePointList[1].x, sitePointList[1].y, sitePointList[0].x, sitePointList[0].y)
+                                pX= sitePointList[0].x + flatDistance * cos(Math.toRadians(angle))
+                                pY = sitePointList[0].y + flatDistance * sin(Math.toRadians(angle))
+                            }
+                            latLngs.add(Point(pX,pY, SpatialReference.create(3857)))
                         }
-                        latLngs.add(Point(pX,pY, SpatialReference.create(3857)))
+                        floorLatLngs.add(latLngs)
                     }
+                   if (floorLatLngs.isNotEmpty()) createFeature(floorLatLngs)
                 }
-                createFeature(latLngs)
             }
        }
     }
@@ -201,7 +206,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 360 + it
             } else if (point1Y < point0Y && point1X >= point0X) {
                 180 + it
-            } else {
+            } else{
                 it
             }
         } - mAngle
@@ -299,12 +304,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                 id: Long
             ) {
                 if (sp_create_layer_model.selectedValue.toString().isNotEmpty()) {
-                    ConstStrings.sktchId = UUID.randomUUID().toString()
+                    var geoPackage:GeoPackage?=null
                     if (!keyList.contains(ConstStrings.sktchId)){
                         keyList.add(ConstStrings.sktchId)
-                        mSharedPrefUtil.putList("sketchId",keyList)
+                        geoPackage= copyGpkgFromTemplate(ConstStrings.sktchId)
                     }
-                    val geoPackage = copyGpkgFromTemplate("竣工验收")
                     geoPackage?.loadAsync()
                     geoPackage?.addDoneLoadingListener {
                         if (geoPackage.loadStatus == LoadStatus.LOADED) {
@@ -341,6 +345,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
      //完成
         btnSketchFinish.setOnClickListener {
             if (sp_create_layer_model.selectedKey.toString()!="请选择模板"){
+                mSharedPrefUtil.putList("sketchId",keyList)
                  ProjectListActivity.startAction(mActivity,true)
             }else{
                 showToast("请选择模板")
@@ -349,15 +354,18 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
 
     }
 
-    private fun createFeature(latLngs:ArrayList<Point>) {
+    private fun createFeature(latLngs:ArrayList<ArrayList<Point>>) {
         var feature: Feature? = null
         currentLayer?.featureTable?.loadAsync()
         currentLayer?.featureTable?.addDoneLoadingListener {
 
         }
         feature = currentLayer?.featureTable?.createFeature()
-        val pointCollection = PointCollection(latLngs)
-        feature?.geometry = Polygon(pointCollection)
+       val partCollection = PartCollection(SpatialReference.create(3857))
+        latLngs.forEach {
+            partCollection.add(PointCollection(it))
+        }
+        feature?.geometry = Polygon(partCollection)
         //获取筛选内容
         try {
             feature?.featureTable?.fields?.forEach OUT@{ field ->
@@ -444,8 +452,8 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
 
 
     fun reInit() {
-        HighLightLayerTool.clearHighLight()
         currentLayer?.clearSelection()
+        HighLightLayerTool.clearHighLight()
         featureAdapter.notifyDataSetChanged()
     }
 

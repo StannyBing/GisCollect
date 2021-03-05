@@ -26,10 +26,12 @@ import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.geometry.SpatialReference
+import com.gt.base.app.ConstStrings
 import com.gt.module_map.tool.GeometrySizeTool
 import com.gt.module_map.tool.PointTool
 import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
-
+import com.zx.zxutils.util.ZXTimeUtil
+import java.text.SimpleDateFormat
 
 
 class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), SketchMainContract.View {
@@ -65,6 +67,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                 gsonBuilder.serializeSpecialFloatingPointValues()
                 val gson = gsonBuilder.create()
                 mSharedPrefUtil.putString("siteList",gson.toJson(siteData))
+               // ConstStrings.sktchId= ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
                 SketchLoadActivity.startAction(mActivity,false)
             }
         }

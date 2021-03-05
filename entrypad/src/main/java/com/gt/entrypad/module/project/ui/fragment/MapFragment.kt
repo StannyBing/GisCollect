@@ -25,6 +25,7 @@ import com.gt.entrypad.module.project.mvp.contract.MapContract
 import com.gt.entrypad.module.project.mvp.model.MapModel
 import com.gt.entrypad.module.project.mvp.presenter.MapPresenter
 import com.gt.giscollect.module.main.func.maplayer.TdtLayerTool
+import com.gt.module_map.tool.MapTool
 import com.gt.module_map.tool.PointTool
 import kotlinx.android.synthetic.main.fragment_map.*
 import java.io.File
@@ -207,4 +208,5 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
             }
         }
     }
+
 }

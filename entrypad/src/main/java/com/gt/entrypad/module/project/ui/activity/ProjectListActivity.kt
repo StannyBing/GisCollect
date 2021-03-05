@@ -36,15 +36,14 @@ import com.gt.module_map.tool.GeoPackageTool
 import com.gt.module_map.tool.MapTool
 import com.zx.bui.ui.buidialog.BUIDialog
 import com.zx.zxutils.entity.KeyValueEntity
-import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXFileUtil
-import com.zx.zxutils.util.ZXSystemUtil
-import com.zx.zxutils.util.ZXToastUtil
+import com.zx.zxutils.util.*
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import com.zx.zxutils.views.SwipeRecylerView.ZXSRListener
 import kotlinx.android.synthetic.main.activity_project_list.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Create By admin On 2017/7/11
@@ -86,6 +85,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                   ConstStrings.sktchId= ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
                    DrawSketchActivity.startAction(this@ProjectListActivity,false, arrayListOf(), arrayListOf())
                }
 
@@ -107,6 +107,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 when(id){
                     R.id.tv_delete->{
                         ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否删除该项目，这将同时删除该项目的草图数据？"){ dialog, which ->
+                            ConstStrings.sktchId = data[pos].id
                             data[pos].featureLayer?.let {
                                 FileUtils.deleteFilesByName(
                                     ConstStrings.getSketchLayersPath(),
@@ -116,6 +117,9 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                     ConstStrings.getSketchLayersPath() + it.name + "/file/",
                                     it
                                 )
+                                val list = mSharedPrefUtil.getList<String>("sketchId")
+                                list?.remove(ConstStrings.sktchId)
+                                mSharedPrefUtil.putList("sketchId",list)
                                 data.removeAt(pos)
                                 projectAdapter.notifyDataSetChanged()
                             }
@@ -128,6 +132,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             }
             .setClickable { position ->
                 ConstString.feature = data[position].featureLayer
+                ConstStrings.sktchId = data[position].id
                 mSharedPrefUtil.putBool("isEdit",true)
                SketchLoadActivity.startAction(this,false)
             }
@@ -137,33 +142,34 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
      * 模板下载
      */
     private fun downloadModule(){
-        if (!ZXFileUtil.isFileExists("${ConstStrings.getSketchTemplatePath()}jungong.gpkg")){
+        if (!ZXFileUtil.isFileExists("${ConstStrings.getSketchTemplatePath()}竣工验收.gpkg")){
             showLoading("模板下载中...")
-            CopyAssetsToSd.copy(mContext,"jungong.gpkg", ConstStrings.getSketchTemplatePath(),"jungong.gpkg")
+            CopyAssetsToSd.copy(mContext,"jungong.gpkg", ConstStrings.getSketchTemplatePath(),"竣工验收.gpkg")
             dismissLoading()
         }
     }
 
     private fun refresh(){
         mSharedPrefUtil.getList<String>("sketchId")?.apply {
-            forEach {
-                ConstStrings.sktchId=it
-                val file = File(ConstStrings.getSketchLayersPath())
-                if (file.exists() && file.isDirectory) {
-                    file.listFiles()?.forEach {
-                        if (it.isFile && it.name.endsWith(".gpkg")) {
-                            GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
-                                featureTableList.forEach {featureTable->
-                                    data.add(ProjectListBean(featureLayer = FeatureLayer(featureTable)))
-                                }
-                                projectAdapter.notifyDataSetChanged()
-                            }
-                        }
-                    }
-                }
+            forEach {projectId->
+            ConstStrings.sktchId = projectId
+             if (!projectId.isNullOrEmpty()){   val file = File(ConstStrings.getSketchLayersPath())
+                 if (file.exists() && file.isDirectory) {
+                     file.listFiles()?.forEach {
+                         if (it.isFile && it.name.endsWith(".gpkg")) {
+                             GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
+                                 featureTableList.forEach {featureTable->
+                                     data.add(ProjectListBean(id=projectId,featureLayer = FeatureLayer(featureTable)))
+                                 }
+                                 projectAdapter.notifyDataSetChanged()
+                             }
+                         }
+                     }
+                 }
+             }
             }
         }
-        }
+    }
 }
 
 

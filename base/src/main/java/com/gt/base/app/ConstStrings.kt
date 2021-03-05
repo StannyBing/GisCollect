@@ -111,7 +111,7 @@ object ConstStrings {
     }
 
     fun getSketchTemplatePath():String{
-        return "$LOCAL_PATH$APPNAME/jungong/"
+        return "$LOCAL_PATH$APPNAME/jungong/"+UserManager.user?.userId
     }
 
     //地图默认中心点
@@ -124,4 +124,7 @@ object ConstStrings {
     //两点之间距离容差（在此距离内可视为同一点）
     var TolDistance = 1.0f
 
+    fun clear(){
+        sktchId =""
+    }
 }
