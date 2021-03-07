@@ -17,10 +17,5 @@ import rx.Observable
  */
 class DrawSketchModel : BaseModel(), DrawSketchContract.Model{
 
-    override fun uploadInfo(body: RequestBody): Observable<HouseTableBean> {
-        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
-            .uploadInfo(body)
-            .compose(RxHelper.handleResult())
-            .compose(RxSchedulers.io_main())
-    }
+
 }

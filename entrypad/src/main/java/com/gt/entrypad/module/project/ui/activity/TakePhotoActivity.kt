@@ -74,7 +74,7 @@ class TakePhotoActivity : BaseActivity<TakePhotoPresenter, TakePhotoModel>(),Tak
             setData(TitleViewViewModel(getString(R.string.nextStep)))
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   DrawSketchActivity.startAction(this@TakePhotoActivity,false,photoList,if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData")as ArrayList<String> else arrayListOf())
+                   //DrawSketchActivity.startAction(this@TakePhotoActivity,false,photoList,if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData")as ArrayList<String> else arrayListOf())
                 }
 
             })

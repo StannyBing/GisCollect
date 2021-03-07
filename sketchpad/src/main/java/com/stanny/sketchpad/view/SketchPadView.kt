@@ -87,7 +87,7 @@ class SketchPadView @JvmOverloads constructor(
      */
     override fun saveGraphicInfo() {
         resetCenter()
-        sketch_content.saveGraphicInfo {
+        sketch_content.saveGraphicInfo{
             ZXToastUtil.showToast("保存成功")
         }
     }

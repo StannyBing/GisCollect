@@ -157,7 +157,6 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
         //文字编辑
         fieldAdapter.addTextChangedCall { position, value ->
             fieldList[position] = fieldList[position].first to value
-            Log.e("fdfdfdf","$value")
             saveField(fieldList[position].first.name)
         }
 

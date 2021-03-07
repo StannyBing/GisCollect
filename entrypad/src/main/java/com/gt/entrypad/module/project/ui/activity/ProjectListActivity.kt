@@ -1,5 +1,6 @@
 package com.gt.entrypad.module.project.ui.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -26,8 +27,10 @@ import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
 import com.zx.zxutils.views.ZXStatusBarCompat
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
+import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
+import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
 import com.gt.entrypad.tool.CopyAssetsToSd
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.DeleteLayerFileTool
@@ -44,6 +47,7 @@ import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.reflect.typeOf
 
 /**
  * Create By admin On 2017/7/11
@@ -85,7 +89,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   DrawSketchActivity.startAction(this@ProjectListActivity,false, arrayListOf(), arrayListOf())
+                   DrawSketchActivity.startAction(this@ProjectListActivity,false,ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss")))
                }
 
            })
@@ -116,6 +120,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                     ConstStrings.getSketchLayersPath() + it.name + "/file/",
                                     it
                                 )
+                                FileUtils.deleteFiles(mContext.filesDir.path+"/${ data[pos].id}/sketch/draw.jpg")
                                 MapTool.postLayerChange(ChangeTag,it,MapTool.ChangeType.OperationalRemove)
                                 val list = mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
                                 list?.remove(ConstStrings.sktchId)
@@ -126,7 +131,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                         }
                     }
                     R.id.tv_upload->{
-
+                        Log.e("sketch",data[pos].sketchPath)
                     }
                 }
             }
@@ -159,7 +164,12 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
         mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)?.apply {
             forEach {projectId->
             ConstStrings.sktchId = projectId
-             if (!projectId.isNullOrEmpty()){   val file = File(ConstStrings.getSketchLayersPath())
+                var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
+                var toPath = mContext.filesDir.path+"/$projectId/sketch/draw.jpg"
+                toPath = if (ZXFileUtil.isFileExists(toPath)){
+                     ZXFileUtil.copyFile(filePath, toPath)?.path?:""
+                } else toPath
+                if (!projectId.isNullOrEmpty()){   val file = File(ConstStrings.getSketchLayersPath())
                  if (file.exists() && file.isDirectory) {
                      file.listFiles()?.forEach {
                          if (it.isFile && it.name.endsWith(".gpkg")) {
@@ -168,7 +178,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                      data.add(ProjectListBean(id=projectId,featureLayer = FeatureLayer(featureTable).apply {
                                          name = projectId
                                          featureTable.displayName = projectId
-                                     }))
+                                     },sketchPath =toPath))
                                  }
                                  projectAdapter.notifyDataSetChanged()
                              }
@@ -177,6 +187,45 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                  }
              }
             }
+        }
+    }
+
+    /**
+     * 下载成功接口回调
+     */
+    override fun onFileDownloadResult(file: File) {
+        ResultShowActivity.startAction(this,false,file.absolutePath)
+    }
+
+    /**
+     * 上传接口回调
+     */
+    override fun uploadResult(uploadResult: HouseTableBean?) {
+        uploadResult?.let {
+            mPresenter.downloadFile("房屋勘查表.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
+        }
+    }
+    /**
+     * 上传填写信息
+     */
+    private fun uploadInfo(tplName:String){
+        getPermission(
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        ){
+            var fileData = arrayListOf<String>()
+            val photoList = intent?.getSerializableExtra("photoData") as ArrayList<PhotoViewViewModel>
+            var infoData = if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData") as ArrayList<String> else arrayListOf()
+            //获取文件信息
+            photoList.forEach {
+                fileData.add(it.url)
+            }
+            //获取草图
+            val sketch = mContext.filesDir.path + "/sketch/draw.jpg"
+            if (ZXFileUtil.isFileExists(sketch)) fileData.add(sketch)
+            mPresenter.uploadInfo(infoData,fileData,tplName)
         }
     }
 }

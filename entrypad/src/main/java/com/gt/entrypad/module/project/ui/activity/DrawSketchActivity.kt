@@ -27,14 +27,14 @@ import java.io.File
 
 class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),DrawSketchContract.View{
     private var loadMainFragment:LoadMainFragment?=null
+    private var projectId=""
     companion object {
         /**
          * 启动器
          */
-        fun startAction(activity: Activity, isFinish: Boolean,data:ArrayList<PhotoViewViewModel>,infoData:ArrayList<String>) {
+        fun startAction(activity: Activity, isFinish: Boolean,id:String) {
             val intent = Intent(activity, DrawSketchActivity::class.java)
-            intent.putExtra("photoData",data)
-            intent.putExtra("infoData",infoData)
+            intent.putExtra("projectId",id)
            activity.startActivity(intent)
             if (isFinish) activity.finish()
         }
@@ -43,6 +43,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         toolBarTitleTv.text = getString(R.string.registrationPlatform)
+        projectId = if (intent.hasExtra("projectId")) intent.getStringExtra("projectId") else ""
         leftTv.apply {
             setData(TitleViewViewModel(getString(R.string.lastStep)))
             setActionListener(object : ICustomViewActionListener {
@@ -81,6 +82,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     },DialogInterface.OnClickListener { dialog, which ->
 
                     })*/
+
                     sketchPadView.saveGraphicInfo()
                           //获取所有楼层
                     val string = mSharedPrefUtil.getString("graphicList","")?.let {
@@ -145,45 +147,8 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
     override fun getLayoutId(): Int {
         return R.layout.activity_draw_sketch
     }
-    /**
-     * 上传填写信息
-     */
-    private fun uploadInfo(tplName:String){
-        getPermission(
-            arrayOf(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-        ){
-            var fileData = arrayListOf<String>()
-            val photoList = intent?.getSerializableExtra("photoData") as ArrayList<PhotoViewViewModel>
-            var infoData = if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData") as ArrayList<String> else arrayListOf()
-            //获取文件信息
-            photoList.forEach {
-                fileData.add(it.url)
-            }
-            //获取草图
-            val sketch = mContext.filesDir.path + "/sketch/draw.jpg"
-            if (ZXFileUtil.isFileExists(sketch)) fileData.add(sketch)
-            mPresenter.uploadInfo(infoData,fileData,tplName)
-        }
-    }
 
-    /**
-     * 上传回调接口
-     */
-    override fun uploadResult(uploadResult: HouseTableBean?) {
-       uploadResult?.let {
-           mPresenter.downloadFile("房屋勘查表.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
-       }
-    }
 
-    /**
-     * 下载文件成功回调
-     */
-    override fun onFileDownloadResult(file: File) {
-        ResultShowActivity.startAction(this,false,file.absolutePath)
-    }
 
     override fun onDestroy() {
         mSharedPrefUtil.remove("graphicList")
