@@ -23,6 +23,7 @@ import com.gt.giscollect.module.query.ui.IdentifyFragment
 import com.gt.giscollect.module.system.ui.SplashActivity
 import com.gt.giscollect.tool.SimpleDecoration
 import com.woncan.whand.WHandInfo
+import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.fragment_btn_func.*
 
 
@@ -46,6 +47,7 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         enum class DataType {
             Layer,
             Collect,
+            Survey,
             Search,
             Identify,
             Statistics,
@@ -89,6 +91,9 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         )
         if (ConstStrings.appfuncList.firstOrNull { it.url == "appm04" } != null) funcList.add(
             FuncBean("采集", R.drawable.btn_func_collect)
+        )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm09" } != null) funcList.add(
+            FuncBean("调查", R.drawable.btn_func_survey)
         )
         if (ConstStrings.appfuncList.firstOrNull { it.url == "appm05" } != null) funcList.add(
             FuncBean("查要素", R.drawable.btn_func_identify)
@@ -136,8 +141,12 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
 //                    }
                     call(DataType.Collect)
                 }
+                "调查" -> {
+                    call(DataType.Survey)
+                }
                 "查要素" -> {
                     val identifyFragment = call(DataType.Identify) as IdentifyFragment
+                    ZXToastUtil.showToast("请点击地图查询要素！")
                     IdentifyTool.startQueryIdentify(mContext) {
                         try {
                             identifyFragment.initIdentifyList(it)
@@ -163,10 +172,10 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
             override fun onDeviceInfoCallBack(info: WHandInfo?) {
                 try {
                     if (!WHandTool.isOpen || !WHandTool.isConnect) {
-                        handler.post { tv_rtk_info?.visibility = View.GONE}
+                        handler.post { tv_rtk_info?.visibility = View.GONE }
                         return
                     }
-                    handler.post { tv_rtk_info?.visibility = View.VISIBLE}
+                    handler.post { tv_rtk_info?.visibility = View.VISIBLE }
                     if (info?.longitude != null && info.longitude != 0.0) {
                         val method =
                             Class.forName("com.esri.arcgisruntime.location.LocationDataSource")
@@ -194,7 +203,7 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                 }
 
 
-                handler.post { tv_rtk_info?.text = WHandTool.getRtkInfo()}
+                handler.post { tv_rtk_info?.text = WHandTool.getRtkInfo() }
             }
         })
     }

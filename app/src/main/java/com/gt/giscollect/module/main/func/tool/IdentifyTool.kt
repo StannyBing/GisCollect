@@ -31,7 +31,6 @@ object IdentifyTool {
     }
 
     fun startQueryIdentify(context: Context, callback: (List<Feature>) -> Unit) {
-        ZXToastUtil.showToast("请点击地图查询要素！")
         clearAllFeatureSelect()
 
         this.context = context

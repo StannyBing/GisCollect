@@ -37,6 +37,7 @@ import com.gt.giscollect.tool.SimpleDecoration
 import com.gt.base.manager.UserManager
 import com.gt.module_map.tool.GeometrySizeTool
 import com.gt.base.app.TempIdsBean
+import com.gt.giscollect.module.main.func.tool.IdentifyTool
 import com.gt.module_map.tool.PointTool
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
@@ -73,7 +74,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 
     private val sketchEditor = SketchEditor()
 
-    private var isInEdit = false
+    private var isInEdit = false//是否正在编辑
+    private var isClickEdit = false//可以通过点击查找图形
     private var editPosition = 0
 
     private var tempSize = 0.0
@@ -525,7 +527,13 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     if (info == null) {
                         null
                     } else {
-                        PointTool.change4326To3857(Point(info.longitude, info.latitude, SpatialReference.create(4326)))
+                        PointTool.change4326To3857(
+                            Point(
+                                info.longitude,
+                                info.latitude,
+                                SpatialReference.create(4326)
+                            )
+                        )
                     }
                 } else {
                     MapTool.mapListener?.getMapView()?.locationDisplay?.mapLocation
@@ -755,9 +763,15 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     /**
      * 处理图层
      */
-    fun excuteLayer(featureLayer: FeatureLayer, isEdit: Boolean, canRename: Boolean) {
+    fun excuteLayer(
+        featureLayer: FeatureLayer,
+        isEdit: Boolean,
+        canRename: Boolean,
+        clickEdit: Boolean = false
+    ) {
         startNum = 0
         isInEdit = false
+        isClickEdit = clickEdit
 //        et_collect_rename.isEnabled = canRename
 //        tv_collect_rename.visibility = if (canRename) View.VISIBLE else View.GONE
         et_collect_rename.isEnabled = false
@@ -798,6 +812,20 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //        moveToLayer(featureLayer)
         featureList.clear()
         getFeatureList()
+
+        if (isClickEdit) {
+            showToast("可点击图斑获取图形")
+            IdentifyTool.startQueryIdentify(mContext) {
+                isInEdit = false
+                currentLayer?.clearSelection()
+                HighLightLayerTool.showHighLight(it.first())
+                currentLayer?.selectFeature(it.first())
+                fragChangeListener?.onFragGoto(
+                    CollectMainFragment.Collect_Field,
+                    it.first() to (ll_collect_edit_bar.visibility == View.VISIBLE)
+                )
+            }
+        }
     }
 
     private fun getFeatureList() {
