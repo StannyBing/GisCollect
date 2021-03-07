@@ -2,14 +2,13 @@ package com.gt.giscollect.module.collect.ui
 
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.data.GeoPackage
-import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.frame.zxmvp.http.unzip.ZipUtils
-import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
@@ -18,9 +17,7 @@ import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.*
 import com.gt.base.app.CheckBean
-import com.gt.giscollect.module.collect.func.adapter.CollectListAdapter
 import com.gt.module_map.tool.DeleteLayerFileTool
-import com.gt.module_map.tool.GeometrySizeTool
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.giscollect.module.collect.mvp.model.CollectListModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
@@ -28,44 +25,42 @@ import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.MapTool
 import com.gt.base.app.TempIdsBean
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
+import com.gt.giscollect.module.collect.func.adapter.SurveyListAdapter
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXSystemUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_list.*
-import org.json.JSONObject
 import java.io.File
-import java.text.DecimalFormat
 
 /**
  * Create By XB
  * 功能：采集列表
  */
-class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>(),
+class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(),
     CollectListContract.View {
     companion object {
         /**
          * 启动器
          */
-        fun newInstance(): CollectListFragment {
-            val fragment = CollectListFragment()
+        fun newInstance(): SurveyListFragment {
+            val fragment = SurveyListFragment()
             val bundle = Bundle()
 
             fragment.arguments = bundle
             return fragment
         }
 
-        private const val ChangeTag = "collect_list"
+        private const val ChangeTag = "survey_list"
     }
 
     private val totalCheckList = arrayListOf<CollectCheckBean>()
-    private val collectList = arrayListOf<CollectCheckBean>()
-    private val collectAdapter = CollectListAdapter(collectList)
+    private val surveyList = arrayListOf<CollectCheckBean>()
+    private val surveyAdapter = SurveyListAdapter(surveyList)
 
     var fragChangeListener: FragChangeListener? = null
 
-    private var editCollectPosition = 0//当前编辑的采集任务的列表
+    private var editSurveyPosition = 0//当前编辑的采集任务的列表
 
     /**
      * layout配置
@@ -81,7 +76,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
         rv_collect_layers.apply {
             layoutManager = ZXInScrollRecylerManager(mContext) as RecyclerView.LayoutManager?
-            adapter = collectAdapter
+            adapter = surveyAdapter
             addItemDecoration(SimpleDecoration(mContext))
         }
         refresh()
@@ -89,7 +84,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         ZXRecyclerDeleteHelper(activity, rv_collect_layers)
             .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
-                val layer = collectList[pos].featureLayer
+                val layer = surveyList[pos].featureLayer
                 //滑动菜单点击事件
                 when (id) {
                     R.id.tv_upload -> {
@@ -103,7 +98,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                 "提示",
                                 "是否下载该条采集数据?"
                             ) { dialog, which ->
-                                downloadCollect(collectList[pos])
+                                downloadCollect(surveyList[pos])
 //                                showToast("正在建设中")
                             }
                             return@setSwipeable
@@ -120,8 +115,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             if (file?.exists() == true) {
                                 val path = ZipUtils.zip(file.path, false)
                                 if (path != null) {
-                                    var mTempId = collectList[pos].checkInfo?.templateId ?: ""
-                                    var mCataId = collectList[pos].checkInfo?.catalogId ?: ""
+                                    var mTempId = surveyList[pos].checkInfo?.templateId ?: ""
+                                    var mCataId = surveyList[pos].checkInfo?.catalogId ?: ""
                                     if (mTempId.isEmpty() || mCataId.isEmpty()) {
                                         val templateIds =
                                             mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
@@ -141,7 +136,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                         mPresenter.uploadCollect(
                                             path,
                                             layer.name,
-                                            collectId = collectList[pos].checkInfo?.collectId ?: ""
+                                            collectId = surveyList[pos].checkInfo?.collectId ?: ""
                                         )
                                     } else {
                                         mPresenter.uploadCollect(
@@ -149,7 +144,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                             layer.name,
                                             mTempId,
                                             mCataId,
-                                            collectId = collectList[pos].checkInfo?.collectId ?: ""
+                                            collectId = surveyList[pos].checkInfo?.collectId ?: ""
                                         )
                                     }
                                 }
@@ -178,27 +173,29 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                 layer,
                                 MapTool.ChangeType.OperationalRemove
                             )
-                            collectList.removeAt(pos)
-                            collectAdapter.notifyItemRemoved(pos)
-                            collectAdapter.notifyItemRangeChanged(pos, 5)
+                            surveyList.removeAt(pos)
+                            surveyAdapter.notifyItemRemoved(pos)
+                            surveyAdapter.notifyItemRangeChanged(pos, 5)
                         }
                     }
                 }
             }
             .setClickable { position ->
-                if (collectList[position].featureLayer == null) {
+                if (surveyList[position].featureLayer == null) {
                     showToast("本机不存在该采集任务")
                 } else {
-                    editCollectPosition = position
+                    editSurveyPosition = position
                     fragChangeListener?.onFragGoto(
-                        CollectMainFragment.Collect_Feature,
-                        collectList[position].featureLayer to arrayOf(
-                            collectList[position].isEdit(),
-                            collectList[position].checkInfo == null
+                        SurveyMainFragment.Survey_Feature,
+                        surveyList[position].featureLayer to arrayOf(
+                            surveyList[position].isEdit(),
+                            surveyList[position].checkInfo == null
                         )
                     )
                 }
             }
+
+        btn_collect_create.visibility = View.GONE
         super.initView(savedInstanceState)
     }
 
@@ -215,15 +212,6 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         //刷新
         sr_collect_layers.setOnRefreshListener {
             refresh()
-        }
-        //审核
-        btn_collect_check.setOnClickListener {
-            fragChangeListener?.onFragGoto(CollectMainFragment.Collect_Check)
-        }
-
-        //创建
-        btn_collect_create.setOnClickListener {
-            fragChangeListener?.onFragGoto(CollectMainFragment.Collect_Create)
         }
 
         //切换
@@ -297,8 +285,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     }
 
     private fun setCheckList() {
-        collectList.clear()
-        collectList.addAll(if (rb_collect_listlocal.isChecked) {
+        surveyList.clear()
+        surveyList.addAll(if (rb_collect_listlocal.isChecked) {
             totalCheckList.filter {
                 it.checkInfo == null
             }
@@ -309,7 +297,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         } else {
             totalCheckList
         })
-        collectAdapter.notifyDataSetChanged()
+        surveyAdapter.notifyDataSetChanged()
     }
 
     override fun onDownloadProgress(progress: Int) {

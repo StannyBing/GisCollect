@@ -149,7 +149,7 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                         //求出对应的角度
                         it.points?.forEach {point->
                            var pointF =  PointF(point.x+it.offsetX,point.y+it.offsetY)
-                            siteList.add(SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble())))
+                            siteList.add(SiteBean(point = pointF,angle = RTKTool.excuteDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble())))
                         }
                     }
                     siteList.forEach {

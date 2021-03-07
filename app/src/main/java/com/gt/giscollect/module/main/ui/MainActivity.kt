@@ -12,6 +12,7 @@ import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.module.collect.ui.CollectMainFragment
+import com.gt.giscollect.module.collect.ui.SurveyMainFragment
 import com.gt.giscollect.module.layer.ui.LayerFragment
 import com.gt.module_map.listener.MapListener
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
@@ -59,6 +60,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
     private lateinit var btnFuncFragment: BtnFuncFragment
     private var layerFragment: LayerFragment? = null
     private var collectMainFragment: CollectMainFragment? = null
+    private var surveyMainFragment: SurveyMainFragment? = null
     private var searchFragment: SearchFragment? = null
     private var identifyFragment: IdentifyFragment? = null
     private var statisticsFragment: StatisticsFragment? = null
@@ -77,9 +79,13 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
      */
     override fun initView(savedInstanceState: Bundle?) {
         //地图
-        ZXFragmentUtil.addFragment(supportFragmentManager, com.gt.map.MapFragment.newInstance().apply {
-            mapFragment = this
-        }, R.id.fm_map)
+        ZXFragmentUtil.addFragment(
+            supportFragmentManager,
+            com.gt.map.MapFragment.newInstance().apply {
+                mapFragment = this
+            },
+            R.id.fm_map
+        )
         //功能按钮
         ZXFragmentUtil.addFragment(supportFragmentManager, BtnFuncFragment.newInstance().apply {
             btnFuncFragment = this
@@ -155,6 +161,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         var showFragment: Fragment? = null
         layerFragment?.let { ZXFragmentUtil.hideFragment(it) }
         collectMainFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        surveyMainFragment?.let { ZXFragmentUtil.hideFragment(it) }
         searchFragment?.let { ZXFragmentUtil.hideFragment(it) }
         identifyFragment?.let { ZXFragmentUtil.hideFragment(it) }
         statisticsFragment?.let { ZXFragmentUtil.hideFragment(it) }
@@ -185,6 +192,19 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
                 }
                 collectMainFragment?.reInit()
                 showFragment = collectMainFragment
+            }
+            BtnFuncFragment.Companion.DataType.Survey -> {
+                if (surveyMainFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        SurveyMainFragment.newInstance().apply {
+                            surveyMainFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                surveyMainFragment?.reInit()
+                showFragment = surveyMainFragment
             }
             BtnFuncFragment.Companion.DataType.Search -> {
                 if (searchFragment == null) {
