@@ -1,5 +1,6 @@
 package com.gt.base.app
 
+import android.util.Log
 import com.gt.base.manager.UserManager
 import com.zx.zxutils.util.ZXSharedPrefUtil
 
@@ -44,6 +45,7 @@ object ConstStrings {
     const val TemplateIdList = "template_id_list"
     const val DataIdList = "data_id_list"
     const val RxLayerChange = "rx_layer_change"
+    const val SketchIdList = "sketch_id_list"
 
     fun getDatabasePath(): String {
         return "$INI_PATH/$APPNAME/DATABASE/"

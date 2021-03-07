@@ -31,6 +31,7 @@ import com.gt.module_map.tool.GeometrySizeTool
 import com.gt.module_map.tool.PointTool
 import com.trello.rxlifecycle.RxLifecycle.bindUntilEvent
 import com.zx.zxutils.util.ZXTimeUtil
+import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import java.text.SimpleDateFormat
 
 
@@ -67,12 +68,8 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                 gsonBuilder.serializeSpecialFloatingPointValues()
                 val gson = gsonBuilder.create()
                 mSharedPrefUtil.putString("siteList",gson.toJson(siteData))
-               // ConstStrings.sktchId= ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
                 SketchLoadActivity.startAction(mActivity,false)
             }
-        }
-        siteAdapter.setOnItemClickListener { adapter, view, position ->
-            fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteData[position])
         }
     }
 
@@ -83,6 +80,21 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             adapter = siteAdapter
             addItemDecoration(SimpleDecoration(mContext))
         }
+        ZXRecyclerDeleteHelper(mActivity, sitRv)
+            .setSwipeOptionViews(R.id.tv_delete)
+            .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
+                when(id){
+                    R.id.tv_delete->{
+                        ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否删除该界址点？"){ dialog, which ->
+                            siteData.removeAt(pos)
+                            siteAdapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+            }
+            .setClickable {
+                fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteData[it])
+            }
     }
 
     override fun getLayoutId(): Int {
@@ -96,7 +108,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             val points =   Gson().fromJson<List<PointF>>(it,object : TypeToken<List<PointF>>(){}.type)
             if (!points.isNullOrEmpty()){
                 points.forEachIndexed { index, pointF ->
-                    val key = "界址点${index+1}"
+                    val key = "界址点$index"
                     //保存界址对象
                     siteHashmap[key]=SiteBean(title = key,point = pointF)
                     data.add(key)

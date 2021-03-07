@@ -5,6 +5,7 @@ import android.os.Build
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -29,17 +30,20 @@ class SketchFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
 
     var readonlyList = arrayListOf<String>()
 
+    var cardList = hashMapOf<Int,String>()
     @RequiresApi(Build.VERSION_CODES.N)
     override fun convert(helper: ZXBaseHolder, item: Pair<Field, Any?>) {
         helper.setText(R.id.tv_collect_edit_field_name, item.first.name)
+        helper.setGone(R.id.tvScan,item.first.name=="身份证号")
+        helper.addOnClickListener(R.id.tvScan)
         when (item.first.fieldType) {
             Field.Type.TEXT -> "字符型"
             Field.Type.INTEGER -> "整型"
             Field.Type.FLOAT -> "浮点型"
             else -> "字符型"
         }
-        helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.GONE
-        helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.GONE
+        helper.getView<LinearLayout>(R.id.ll_collect_edit_field_value).visibility = View.GONE
+        helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = if (item.first.fieldType==Field.Type.DATE) View.VISIBLE else View.GONE
         helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = View.GONE
         helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value).visibility = View.GONE
         helper.getView<TextView>(R.id.tv_collect_edit_field_link).visibility = View.GONE
@@ -113,7 +117,6 @@ class SketchFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                     )
                 }
             )
-            helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.VISIBLE
             helper.getView<TextView>(R.id.tv_collect_edit_field_date).setOnClickListener {
                 val calendar = Calendar.getInstance()
                 DatePickerDialog(
@@ -132,20 +135,28 @@ class SketchFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 ).show()
             }
         } else {//默认输入
-            helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.VISIBLE
+            helper.getView<LinearLayout>(R.id.ll_collect_edit_field_value).visibility = View.VISIBLE
             helper.getView<EditText>(R.id.et_collect_edit_field_value).isEnabled =
                 item.first.isEditable && editable && !readonlyList.contains(item.first.name) && item.first.name != "uuid" && item.first.name != "UUID"
+
             helper.setText(
                 R.id.et_collect_edit_field_value, if (item.second == null) "" else {
                     item.second.toString()
                 }
             )
+
+
             if (if (item.second == null) "" else {
                     item.second.toString()
                 }.startsWith("http")
             ) {
                 helper.getView<TextView>(R.id.tv_collect_edit_field_link).visibility = View.VISIBLE
                 helper.addOnClickListener(R.id.tv_collect_edit_field_link)
+            }
+            cardList.entries.forEach {
+                if (it.key==helper.adapterPosition){
+                    helper.setText(R.id.et_collect_edit_field_value,cardList[it.key])
+                }
             }
             helper.getView<EditText>(R.id.et_collect_edit_field_value)
                 .addTextChangedListener(object : TextWatcher {

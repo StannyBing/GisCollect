@@ -1,14 +1,25 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.Manifest
+import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.baidu.ocr.sdk.OCR
+import com.baidu.ocr.sdk.OnResultListener
+import com.baidu.ocr.sdk.exception.OCRError
+import com.baidu.ocr.sdk.model.IDCardParams
+import com.baidu.ocr.sdk.model.IDCardResult
+import com.baidu.ocr.ui.camera.CameraActivity
 import com.esri.arcgisruntime.data.*
+import com.google.gson.Gson
 import com.gt.base.app.AppInfoManager
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
@@ -16,6 +27,7 @@ import com.gt.base.listener.FragChangeListener
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.FileInfoBean
+import com.gt.entrypad.module.project.bean.IDCardInfoBean
 import com.gt.entrypad.module.project.func.adapter.SketchFieldEditAdapter
 import com.gt.entrypad.module.project.func.adapter.SketchFileAdapter
 import com.gt.entrypad.module.project.func.tool.FileUtils
@@ -23,8 +35,12 @@ import com.gt.entrypad.module.project.mvp.contract.SketchFiledContract
 import com.gt.entrypad.module.project.mvp.model.SketchFiledModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchFiledPresenter
 import com.gt.entrypad.module.project.ui.activity.FilePreviewActivity
+import com.gt.entrypad.module.project.ui.activity.ScanIdCardActivity
+import com.gt.entrypad.module.project.ui.view.idCardView.IdCardViewViewModel
+import com.gt.entrypad.tool.FileUtil
 import com.gt.entrypad.tool.SimpleDecoration
 import com.zx.zxutils.util.*
+import kotlinx.android.synthetic.main.activity_scan_id_card.*
 import kotlinx.android.synthetic.main.fragment_sketch_filed.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -42,6 +58,7 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     private var currentFeature: Feature? = null
     private var uploadTempFile: File? = null
     var fragChangeListener: FragChangeListener? = null
+    private val REQUEST_CODE_CAMERA = 102
 
     companion object {
         /**
@@ -119,12 +136,28 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
                         }
                     }
                 }
+                "身份证号"->{
+                    //扫描正面
+                    Intent(mActivity, CameraActivity::class.java).apply {
+                        putExtra(
+                            CameraActivity.KEY_OUTPUT_FILE_PATH,
+                            FileUtil.getSaveFile(mContext).absolutePath)
+                        putExtra(CameraActivity.KEY_NATIVE_ENABLE, true)
+                        // KEY_NATIVE_MANUAL设置了之后CameraActivity中不再自动初始化和释放模型
+                        // 请手动使用CameraNativeHelper初始化和释放模型
+                        // 推荐这样做，可以避免一些activity切换导致的不必要的异常
+                        putExtra(CameraActivity.KEY_NATIVE_MANUAL, true)
+                        putExtra(CameraActivity.KEY_CONTENT_TYPE, CameraActivity.CONTENT_TYPE_ID_CARD_FRONT)
+                        startActivityForResult(this, REQUEST_CODE_CAMERA)
+                    }
+                }
             }
         }
 
         //文字编辑
         fieldAdapter.addTextChangedCall { position, value ->
             fieldList[position] = fieldList[position].first to value
+            Log.e("fdfdfdf","$value")
             saveField(fieldList[position].first.name)
         }
 
@@ -208,8 +241,50 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
                 saveField("video")
             }
         }
+        if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                val contentType = data.getStringExtra(CameraActivity.KEY_CONTENT_TYPE)
+                val filePath = FileUtil.getSaveFile(mContext).absolutePath
+                if (!TextUtils.isEmpty(contentType)) {
+                    if (CameraActivity.CONTENT_TYPE_ID_CARD_FRONT == contentType) {
+                        recIDCard(IDCardParams.ID_CARD_SIDE_FRONT, filePath)
+                    } else if (CameraActivity.CONTENT_TYPE_ID_CARD_BACK == contentType) {
+                        recIDCard(IDCardParams.ID_CARD_SIDE_BACK, filePath)
+                    }
+                }
+            }
+        }
     }
+    private fun recIDCard(idCardSide: String, filePath: String) {
+        val param = IDCardParams()
+        param.imageFile = File(filePath)
+        // 设置身份证正反面
+        param.idCardSide = idCardSide
+        // 设置方向检测
+        param.isDetectDirection = true
+        // 设置图像参数压缩质量0-100, 越大图像质量越好但是请求时间越长。 不设置则默认值为20
+        param.imageQuality = 20
 
+        OCR.getInstance(mContext).recognizeIDCard(param, object : OnResultListener<IDCardResult> {
+            override fun onResult(result: IDCardResult?) {
+                result?.let {idResult->
+                    //民身份证号码",it.idNumber.toString()  "姓名",it.name.toString()
+                   fieldList.forEachIndexed field@{ index, pair ->
+                       if (pair.first.name=="身份证号"){
+                          fieldAdapter.cardList[index]=idResult.idNumber.toString()
+                       }else if (pair.first.name=="户主"){
+                           fieldAdapter.cardList[index]=idResult.name.toString()
+                       }
+                   }
+                    fieldAdapter.notifyDataSetChanged()
+                }
+            }
+
+            override fun onError(error: OCRError) {
+
+            }
+        })
+    }
     /**
      * 保存文件信息
      */
@@ -457,5 +532,9 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
             fileAdapter.notifyDataSetChanged()
         }
 
+    }
+    fun reInit() {
+      fieldAdapter.cardList.clear()
+      fieldAdapter.notifyDataSetChanged()
     }
 }

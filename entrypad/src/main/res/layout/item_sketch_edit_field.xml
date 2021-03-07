@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/content_bg"
@@ -42,15 +43,35 @@
 
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/et_collect_edit_field_value"
+        <LinearLayout
+            android:id="@+id/ll_collect_edit_field_value"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textColor="@color/gray_8f"
-            android:textSize="@dimen/text_size_small" />
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/et_collect_edit_field_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textColor="@color/gray_8f"
+                android:textSize="@dimen/text_size_small"
+                tools:ignore="NestedWeights" />
+
+
+            <ImageView
+                android:id="@+id/tvScan"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="0.2"
+                android:visibility="gone"
+                android:gravity="center_vertical"
+                android:src="@drawable/icon_scan"
+                />
+        </LinearLayout>
 
 
         <TextView

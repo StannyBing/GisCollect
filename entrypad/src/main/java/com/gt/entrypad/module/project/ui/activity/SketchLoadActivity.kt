@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.fragment_map.*
 
 class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View,MapListener{
   private lateinit var mapFragment:MapFragment
+    private lateinit var sketchFragment :SketchMainFragment
     companion object {
         /**
          * 启动器
@@ -43,7 +44,9 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
             mapFragment = this
         },R.id.mapFl)
         iv_data_show.performClick()
-        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance(),R.id.fm_data)
+        ZXFragmentUtil.addFragment(supportFragmentManager,SketchMainFragment.newInstance().apply {
+            sketchFragment = this
+        },R.id.fm_data)
         MapTool.mapListener = this
     }
 
@@ -98,4 +101,8 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
         return null
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        sketchFragment?.onActivityResult(requestCode,resultCode,data)
+    }
 }

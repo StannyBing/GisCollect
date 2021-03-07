@@ -81,18 +81,31 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                     },DialogInterface.OnClickListener { dialog, which ->
 
                     })*/
-                   sketchPadView.saveGraphicInfo()
-                    //获取所有楼层
-                    val string = mSharedPrefUtil.getString("graphicList")?.let {
-                       if (it.isNotEmpty()){
-                           iv_data_show.performClick()
-                           loadMainFragment?.let {
+                    sketchPadView.saveGraphicInfo()
+                          //获取所有楼层
+                    val string = mSharedPrefUtil.getString("graphicList","")?.let {
+                        if (it.isNotEmpty()) {
+                            mSharedPrefUtil.getString("floorList")?.let {
+                                if (it.isNotEmpty()) {
 
-                           }?:ZXFragmentUtil.addFragment(supportFragmentManager, LoadMainFragment.newInstance().apply {
-                               loadMainFragment=this
-                           },R.id.fm_data)
-                       }
-                    }?:showToast("请绘制草图")
+                                    iv_data_show.performClick()
+                                    loadMainFragment?.let {
+
+                                    } ?: ZXFragmentUtil.addFragment(
+                                        supportFragmentManager,
+                                        LoadMainFragment.newInstance().apply {
+                                            loadMainFragment = this
+                                        },
+                                        R.id.fm_data
+                                    )
+                                } else {
+                                    showToast("请设置楼层")
+                                }
+                            }
+                        }else{
+                            showToast("请绘制草图")
+                        }
+                    }
                 }
 
             })
@@ -170,5 +183,10 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
      */
     override fun onFileDownloadResult(file: File) {
         ResultShowActivity.startAction(this,false,file.absolutePath)
+    }
+
+    override fun onDestroy() {
+        mSharedPrefUtil.remove("graphicList")
+        super.onDestroy()
     }
 }

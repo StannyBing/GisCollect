@@ -10,6 +10,7 @@ import com.esri.arcgisruntime.geometry.GeometryType
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.layers.FeatureLayer
+import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.layers.WebTiledLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.ArcGISMap
@@ -28,6 +29,7 @@ import com.gt.giscollect.module.main.func.maplayer.TdtLayerTool
 import com.gt.module_map.tool.MapTool
 import com.gt.module_map.tool.PointTool
 import kotlinx.android.synthetic.main.fragment_map.*
+import rx.functions.Action1
 import java.io.File
 
 class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
@@ -62,7 +64,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         map_view.isAttributionTextVisible = false
         map = ArcGISMap(SpatialReference.create(3857))
         initBaseLayers()
-        addOpreationalLayer(ConstStrings.getSketchLayersPath())
+
         doLocation()
         map_view.map = map
         map_view.setViewpointCenterAsync(
@@ -150,7 +152,20 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         )
         map.basemap.baseLayers.add(vectorLayer.apply { name = "矢量地图" })
         map.basemap.baseLayers.add(vectorLableLayer.apply { name = "矢量标注" })
-
+        MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
+            override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
+//                initOperationalLayers()
+                if (type == MapTool.ChangeType.OperationalAdd) {
+                    map.operationalLayers.add(layer)
+                } else if (type == MapTool.ChangeType.OperationalRemove) {
+                    map.operationalLayers.remove(layer)
+                } else if (type == MapTool.ChangeType.BaseAdd) {
+                    map.basemap.baseLayers.add(layer)
+                } else if (type == MapTool.ChangeType.BaseRemove) {
+                    map.basemap.baseLayers.remove(layer)
+                }
+            }
+        })
     }
 
     /**

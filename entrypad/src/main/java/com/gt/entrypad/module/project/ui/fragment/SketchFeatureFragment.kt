@@ -35,7 +35,6 @@ import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXToastUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_sketch_feature.*
-import kotlinx.android.synthetic.main.fragment_sketch_feature.sp_create_layer_model
 import java.io.File
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -69,7 +68,6 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     private val featureList = arrayListOf<Feature>()
     private val featureAdapter = SketchFeatureAdapter(featureList)
     private var editPosition = -1
-    private var keyList = arrayListOf<String>()
     private var selectSite = arrayListOf<PointF>()
     //参考点集合
     private var sitePointList= arrayListOf<Point>()
@@ -99,26 +97,13 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             .setItemTextSizeSp(12)
             .build()
 
-        sp_create_layer_model.showUnderineColor(false)
-            .setItemHeightDp(40)
-            .showSelectedTextColor(true, ContextCompat.getColor(mContext, R.color.colorPrimary))
-            .setDefaultItem("请选择模板")
-            .build()
-        getGpkgList()
-        if ( mSharedPrefUtil.getBool("isEdit")){
-            ConstString.feature?.let {
-                excuteLayer(it,true)
-                mSharedPrefUtil.remove("isEdit")
+        mSharedPrefUtil.getBool("isEdit",false).apply {
+            if (this){
+                ConstString.feature?.let {
+                    excuteLayer(it,true)
+                }
             }
-        }else{
-            mSharedPrefUtil.getString("siteList")?.let {
-                val points = Gson().fromJson<ArrayList<SiteBean>>(it, object : TypeToken<ArrayList<SiteBean>>() {}.type)
-                showData(points)
-            }
-        }
-        //获取保存的工程id
-        mSharedPrefUtil.getList<String>("sketchId")?.let {
-            if (!it.isNullOrEmpty())keyList.addAll(it)
+            mSharedPrefUtil.remove("isEdit")
         }
     }
 
@@ -151,9 +136,6 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                            var pointF =  PointF(point.x+it.offsetX,point.y+it.offsetY)
                             siteList.add(SiteBean(point = pointF,angle = RTKTool.getDegree(selectSite[0].x.toDouble(),selectSite[0].y.toDouble(),pointF.x.toDouble(),pointF.y.toDouble(),selectSite[1].x.toDouble(),selectSite[1].y.toDouble())))
                         }
-                    }
-                    siteList.forEach {
-                        Log.e("fdfd","${it.angle}")
                     }
                     floorSiteList.add(siteList)
                 }
@@ -211,53 +193,8 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
             }
         } - mAngle
     }
-    /**
-     * 获取模板列表
-     */
-    private fun getGpkgList() {
-        val templateList = arrayListOf<KeyValueEntity>()
-        val file = File(ConstStrings.getSketchTemplatePath())
-        if (file.exists() && file.isDirectory) {
-            file.listFiles()?.forEach {
-                if (it.isFile && it.name.endsWith(".gpkg")) {
-                    templateList.add(
-                        KeyValueEntity(
-                            it.name.substring(0, it.name.lastIndexOf(".")),
-                            it.path
-                        )
-                    )
-                }
-            }
-        }
-        sp_create_layer_model.apply {
-            dataList.clear()
-            dataList.addAll(templateList)
-            setDefaultItem("请选择模板")
-            setSelection(0)
-            notifyDataSetChanged()
-        }
-    }
-    /**
-     * 从模板分钟复制gpkg
-     */
-    private fun copyGpkgFromTemplate(name: String): GeoPackage? {
-        val file = File(sp_create_layer_model.selectedValue.toString())
-        if (file.exists() && file.isFile) {
-            val destFile =
-                File(ConstStrings.getSketchLayersPath() + "/")
-            destFile.mkdirs()
-            val copyFile = ZXFileUtil.copyFile(
-                file.path,
-                destFile.path + "/" + name + file.name.substring(file.name.lastIndexOf("."))
-            )
-            if (copyFile.exists()) {
-                val geoPackage = GeoPackage(copyFile.path)
-                return geoPackage
-            }
-        }
 
-        return null
-    }
+
 
     /**
      * View事件设置
@@ -292,66 +229,6 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                     featureAdapter.notifyDataSetChanged()
                 }
             }
-        //模板选择监听
-        sp_create_layer_model.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
-
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                if (sp_create_layer_model.selectedValue.toString().isNotEmpty()) {
-                    var geoPackage:GeoPackage?=null
-                    if (!keyList.contains(ConstStrings.sktchId)){
-                        keyList.add(ConstStrings.sktchId)
-                        geoPackage= copyGpkgFromTemplate(ConstStrings.sktchId)
-                    }
-                    geoPackage?.loadAsync()
-                    geoPackage?.addDoneLoadingListener {
-                        if (geoPackage.loadStatus == LoadStatus.LOADED) {
-                            geoPackage.geoPackageFeatureTables?.let {
-                                if (it.isNotEmpty()) {
-                                    val table = it.first()
-                                    var fieldList = arrayListOf<KeyValueEntity>()
-                                    table.loadAsync()
-                                    table.addDoneLoadingListener {
-                                        table.fields.forEach {
-                                            if (it.isEditable) {//不能加载FID字段
-                                                fieldList.add(KeyValueEntity(
-                                                   it.name,
-                                                   it
-                                                ))
-                                            }
-                                        }
-                                        table.cancelLoad()
-                                    }
-                                    sp_collect_feature_showfield.apply {
-                                        dataList.addAll(fieldList)
-                                        notifyDataSetChanged()
-                                    }
-                                   it.forEach {
-                                        excuteLayer(FeatureLayer(it))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-     //完成
-        btnSketchFinish.setOnClickListener {
-            if (sp_create_layer_model.selectedKey.toString()!="请选择模板"){
-                mSharedPrefUtil.putList("sketchId",keyList)
-                 ProjectListActivity.startAction(mActivity,true)
-            }else{
-                showToast("请选择模板")
-            }
-        }
-
     }
 
     private fun createFeature(latLngs:ArrayList<ArrayList<Point>>) {
@@ -423,6 +300,11 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
         sp_collect_feature_showfield.notifyDataSetChanged()
         sp_collect_feature_showfield.setSelection(showIndex)
         featureList.clear()
+        et_collect_rename.apply {
+            visibility=View.VISIBLE
+            isEnabled=false
+            setText(currentLayer?.name?:"")
+        }
         if (isEdit){
             currentLayer?.featureTable?.loadAsync()
             currentLayer?.featureTable?.addDoneLoadingListener {
@@ -435,18 +317,12 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                     featureAdapter.notifyDataSetChanged()
                 }
             }
-            et_collect_rename.apply {
-                visibility=View.VISIBLE
-                isEnabled=false
-                setText(currentLayer?.name?:"")
-            }
-            sp_create_layer_model.visibility=View.GONE
-            btnSketchFinish.visibility=View.GONE
         }else{
-            et_collect_rename.visibility=View.GONE
-            sp_create_layer_model.visibility=View.VISIBLE
-            btnSketchFinish.visibility=View.VISIBLE
-            drawSketch()
+            mSharedPrefUtil.getString("siteList")?.let {
+                val points = Gson().fromJson<ArrayList<SiteBean>>(it, object : TypeToken<ArrayList<SiteBean>>() {}.type)
+                showData(points)
+                drawSketch()
+            }
         }
     }
 

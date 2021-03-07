@@ -85,7 +85,6 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   ConstStrings.sktchId= ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
                    DrawSketchActivity.startAction(this@ProjectListActivity,false, arrayListOf(), arrayListOf())
                }
 
@@ -117,9 +116,10 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                     ConstStrings.getSketchLayersPath() + it.name + "/file/",
                                     it
                                 )
-                                val list = mSharedPrefUtil.getList<String>("sketchId")
+                                MapTool.postLayerChange(ChangeTag,it,MapTool.ChangeType.OperationalRemove)
+                                val list = mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
                                 list?.remove(ConstStrings.sktchId)
-                                mSharedPrefUtil.putList("sketchId",list)
+                                mSharedPrefUtil.putList(ConstStrings.SketchIdList,list)
                                 data.removeAt(pos)
                                 projectAdapter.notifyDataSetChanged()
                             }
@@ -137,6 +137,11 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                SketchLoadActivity.startAction(this,false)
             }
         refresh()
+        MapTool.registerLayerChange(ChangeTag,object :MapTool.LayerChangeListener{
+            override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
+                refresh()
+            }
+        })
     }
     /**
      * 模板下载
@@ -150,7 +155,8 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
     }
 
     private fun refresh(){
-        mSharedPrefUtil.getList<String>("sketchId")?.apply {
+        data.clear()
+        mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)?.apply {
             forEach {projectId->
             ConstStrings.sktchId = projectId
              if (!projectId.isNullOrEmpty()){   val file = File(ConstStrings.getSketchLayersPath())
@@ -159,7 +165,10 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                          if (it.isFile && it.name.endsWith(".gpkg")) {
                              GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
                                  featureTableList.forEach {featureTable->
-                                     data.add(ProjectListBean(id=projectId,featureLayer = FeatureLayer(featureTable)))
+                                     data.add(ProjectListBean(id=projectId,featureLayer = FeatureLayer(featureTable).apply {
+                                         name = projectId
+                                         featureTable.displayName = projectId
+                                     }))
                                  }
                                  projectAdapter.notifyDataSetChanged()
                              }

@@ -1,9 +1,11 @@
 package com.gt.entrypad.module.project.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.esri.arcgisruntime.data.Feature
+import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.entrypad.R
@@ -36,13 +38,14 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
             fragment.arguments = bundle
             return fragment
         }
+        const val Sketch_Create="图层新增"
         const val Sketch_Feature = "要素编辑"
         const val Sketch_Field = "登记信息"
     }
-
+    private lateinit var sketchCreateFragment: SketchCreateFragment
     private lateinit var sketchFieldFragment: SketchFiledFragment
     private lateinit var sketchFeatureFragment: SketchFeatureFragment
-    private var currentFragType = Sketch_Feature
+    private var currentFragType = Sketch_Create
 
     /**
      * layout配置
@@ -55,16 +58,29 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
      * 初始化
      */
     override fun initView(savedInstanceState: Bundle?) {
+        sketchCreateFragment = SketchCreateFragment.newInstance()
         sketchFieldFragment = SketchFiledFragment.newInstance()
         sketchFeatureFragment = SketchFeatureFragment.newInstance()
         sketchFieldFragment.fragChangeListener = this
         sketchFeatureFragment.fragChangeListener = this
+        sketchCreateFragment.fragChangeListener = this
 
-        ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
-            add(sketchFeatureFragment)
-            add(sketchFieldFragment)
-        }, R.id.fm_sketch_main, 0)
-
+        mSharedPrefUtil.getBool("isEdit",false).apply {
+            if (this){
+                currentFragType = Sketch_Feature
+                ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
+                    add(sketchFeatureFragment)
+                    add(sketchFieldFragment)
+                }, R.id.fm_sketch_main, 0)
+            }else{
+                currentFragType = Sketch_Create
+                ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
+                    add(sketchCreateFragment)
+                    add(sketchFeatureFragment)
+                    add(sketchFieldFragment)
+                }, R.id.fm_sketch_main, 0)
+            }
+        }
         tv_collect_title_name.text = currentFragType
         super.initView(savedInstanceState)
     }
@@ -84,8 +100,10 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         when (type) {
             Sketch_Feature -> {
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
+                onFragGoto(Sketch_Create)
             }
             Sketch_Field -> {
+                sketchFieldFragment.reInit()
                 onFragGoto(Sketch_Feature)
                 sketchFeatureFragment?.reInit()
             }
@@ -97,9 +115,16 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         currentFragType = type
         tv_collect_title_name.text = type
         when (type) {
-            Sketch_Feature -> {
+            Sketch_Create->{
                 iv_collect_title_back.visibility = View.GONE
+                ZXFragmentUtil.hideAllShowFragment(sketchCreateFragment)
+            }
+            Sketch_Feature -> {
                 ZXFragmentUtil.hideAllShowFragment(sketchFeatureFragment)
+                any?.let {
+                    sketchFeatureFragment.excuteLayer(it as FeatureLayer,false)
+                }
+                iv_collect_title_back.visibility = if (mSharedPrefUtil.getBool("isEdit",false))View.VISIBLE else View.GONE
             }
             Sketch_Field -> {
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
@@ -125,4 +150,8 @@ class SketchMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sk
         sketchFeatureFragment.reInit()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        sketchFeatureFragment?.onActivityResult(requestCode,resultCode,data)
+    }
 }

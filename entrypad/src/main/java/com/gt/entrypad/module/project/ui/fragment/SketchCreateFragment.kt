@@ -1,6 +1,7 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.core.content.ContextCompat
@@ -62,12 +63,8 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
 
     private var recordUtil: ZXRecordUtil? = null
 
-    private var createLayer: FeatureLayer? = null
 
     private var tempalteType: GeometryType? = GeometryType.POLYGON
-
-    private var isEditCollect = true//是否是编辑状态
-    private var editSpotIndex = 0//图斑编辑位置
 
     /**
      * layout配置
@@ -207,18 +204,16 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         geoPackage?.addDoneLoadingListener {
             geoPackage.geoPackageFeatureTables?.forEach {
                 val layer = FeatureLayer(it)
-                val templateIds =
-                    mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-                templateIds?.forEach {
-                    if (it.name.contains(sp_create_layer_model.selectedKey)) {
-                        it.layerNames.add(et_create_layer_name.text.toString())
-                        mSharedPrefUtil.putList(
-                            ConstStrings.TemplateIdList,
-                            templateIds
-                        )
-                        return@forEach
-                    }
+                var tempSketchList = arrayListOf<String>()
+                val sketchIdList = mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
+                sketchIdList?.let {
+                    tempSketchList.addAll(it)
                 }
+                val layerName = et_create_layer_name.text.toString()
+                if (!tempSketchList.contains(layerName)){
+                      tempSketchList.add(layerName)
+                  }
+                mSharedPrefUtil.putList(ConstStrings.SketchIdList,tempSketchList)
                 if (geoPackage.geoPackageFeatureTables.size == 1) {
                     layer.loadAsync()
                     layer.name = et_create_layer_name.text.toString()
@@ -257,32 +252,10 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
     }
 
     /**
-     * 从模板中复制shape
-     * @param name shape名称
-     */
-    private fun copyShapeFromTempalte(name: String): String {
-        var shpPath = ""
-        val file = File(sp_create_layer_model.selectedValue.toString())
-        if (file.exists() && file.isDirectory) {
-            val destFile = File(ConstStrings.getSketchLayersPath() + name + "/shape/")
-            destFile.mkdirs()
-            file.listFiles().forEach {
-                val copyFile = ZXFileUtil.copyFile(
-                    it.path,
-                    destFile.path + "/" + name + it.name.substring(it.name.lastIndexOf("."))
-                )
-                if (copyFile.exists() && copyFile.name.endsWith(".shp")) {
-                    shpPath = copyFile.path
-                }
-            }
-        }
-        return shpPath
-    }
-
-    /**
      * 从模板分钟复制gpkg
      */
     private fun copyGpkgFromTemplate(name: String): GeoPackage? {
+        ConstStrings.clear()
         val file = File(sp_create_layer_model.selectedValue.toString())
         if (file.exists() && file.isFile) {
             val destFile =
@@ -365,5 +338,10 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         identifyList.clear()
         identifyAdapter.notifyDataSetChanged()
         et_create_layer_name.setText("")
+    }
+
+    override fun onDestroy() {
+        ConstStrings.clear()
+        super.onDestroy()
     }
 }
