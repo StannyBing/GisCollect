@@ -2,6 +2,7 @@ package com.gt.entrypad.module.project.ui.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.esri.arcgisruntime.data.GeoPackage
+import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
@@ -131,7 +133,22 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                         }
                     }
                     R.id.tv_upload->{
-                        Log.e("sketch",data[pos].sketchPath)
+                       //获取所选图形数据
+                        data[pos].featureLayer?.let {
+                            it.featureTable?.loadAsync()
+                            it.featureTable?.addDoneLoadingListener {
+                                val queryGet = it?.featureTable?.queryFeaturesAsync(QueryParameters())
+                                queryGet?.addDoneListener {
+                                    val list = queryGet.get()
+                                    list.forEach {
+                                        it.attributes.entries.forEach {
+                                            Log.e("fdfdf","${it.key}   ${it.value}")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        showDialog()
                     }
                 }
             }
@@ -194,7 +211,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
      * 下载成功接口回调
      */
     override fun onFileDownloadResult(file: File) {
-        ResultShowActivity.startAction(this,false,file.absolutePath)
+
     }
 
     /**
@@ -205,6 +222,19 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             mPresenter.downloadFile("房屋勘查表.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
         }
     }
+
+    private fun showDialog(){
+      val arrayList = arrayListOf<String>().apply {
+          add("房屋图.docx")
+          add("宗地图.docx")
+          add("渝北现场查勘表.docx")
+      }
+      //信息上传
+        ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList, { dialog, which ->
+            uploadInfo(arrayList[which])
+        }, { dialog, which -> })
+    }
+
     /**
      * 上传填写信息
      */
