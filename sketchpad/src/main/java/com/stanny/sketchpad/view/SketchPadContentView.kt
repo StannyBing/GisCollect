@@ -68,7 +68,7 @@ class SketchPadContentView @JvmOverloads constructor(
     private var showMeters: Boolean = false//尺寸
     private var drawHighlight = false//是否高亮
     private var sketchPadFloorBean: SketchPadFloorBean? = null
-
+    private var sitePoints = arrayListOf<PointF>()
     init {
         setWillNotDraw(false)
 
@@ -153,9 +153,13 @@ class SketchPadContentView @JvmOverloads constructor(
             it.drawLabel(canvas)
         }
         if (drawSite) {
+            var points = arrayListOf<PointF>()
             graphicList.forEach {
-                it.drawSite(canvas)
+                it.points.forEach {pointF->
+                    points.add(PointF(pointF.x+it.offsetX,pointF.y+it.offsetY))
+                }
             }
+            drawSite(points,canvas)
         }
         //高亮显示
         if (drawHighlight) {
@@ -173,6 +177,39 @@ class SketchPadContentView @JvmOverloads constructor(
         canvas?.restore()
     }
 
+    private fun drawSite(points:ArrayList<PointF>,canvas: Canvas?){
+        sitePoints.clear()
+        //求出界址点个数
+        if (points.size>=3){
+            for (index in 0 until points.size){
+                var  point0 =  if (index==0){
+                    points[points.size-1]
+                }else{
+                    points[index - 1]
+                }
+                var  point1 =  if (index==points.size-1){
+                    points[0]
+                }else{
+                    points[index + 1]
+                }
+
+                val degree = excuteDegree(points[index].x.toDouble(), points[index].y.toDouble(), point0.x.toDouble(), point0.y.toDouble(), point1.x.toDouble(), point1.y.toDouble())
+                if (Math.abs(degree)!=0.0&&Math.abs(degree)!=180.0){
+                    sitePoints.add(points[index])
+                }
+            }
+            sitePoints.forEachIndexed { index, pointF ->
+                val textPaint = Paint().apply {
+                    isAntiAlias = true
+                    style = Paint.Style.FILL
+                    strokeWidth = 5f
+                    textSize = 30f
+                    this.color = SketchPadConstant.graphicSiteColor
+                }
+                canvas?.drawText("j$index", pointF.x,pointF.y, textPaint)
+            }
+        }
+    }
     /**
      * 触摸事件
      * 包含普通触摸、双指缩放、单指移动、松手贴边
@@ -502,15 +539,9 @@ class SketchPadContentView @JvmOverloads constructor(
                     )
                 }.run()
             } catch (e: FileNotFoundException) {
+
             }
-            val points = arrayListOf<PointF>()
-            //保存所有点
-            graphicList.forEach {
-                it.points.forEach { point->
-                    points.add(PointF(point.x+it.offsetX,point.y+it.offsetY))
-                }
-            }
-            ZXSharedPrefUtil().putString("graphicList",Gson().toJson(points))
+            ZXSharedPrefUtil().putString("graphicList",Gson().toJson(sitePoints))
             callBack()
         }else{
             ZXToastUtil.showToast("请绘制草图")
@@ -656,6 +687,33 @@ class SketchPadContentView @JvmOverloads constructor(
             contentScale = min(contentScale, 3f)
             invalidate()
             return super.onScale(detector)
+        }
+    }
+    fun excuteDegree(
+        vertexPointX: Double,
+        vertexPointY: Double,
+        point0X: Double,
+        point0Y: Double,
+        point1X: Double,
+        point1Y: Double
+    ): Double {
+        //向量的点乘
+        val vector =
+            (point0X - vertexPointX) * (point1X - vertexPointX) + (point0Y - vertexPointY) * (point1Y - vertexPointY)
+        //向量的模乘
+        var sqrt = Math.sqrt(
+            (Math.abs((point0X - vertexPointX) * (point0X - vertexPointX)) + Math.abs((point0Y - vertexPointY) * (point0Y - vertexPointY))) * (
+                    Math.abs((point1X - vertexPointX) * (point1X - vertexPointX)) + Math.abs((point1Y - vertexPointY) * (point1Y - vertexPointY)))
+        )
+        //反余弦计算弧度
+        var radian = Math.acos(vector / sqrt)
+        //弧度转角度制
+        val cross =
+            (point1X - vertexPointX) * (point0Y - vertexPointY) - (point0X - vertexPointX) * (point1Y - vertexPointY)
+        if (cross < 0) {
+            return -(180 * radian / Math.PI).toDouble()
+        } else {
+            return (180 * radian / Math.PI).toDouble()
         }
     }
 }

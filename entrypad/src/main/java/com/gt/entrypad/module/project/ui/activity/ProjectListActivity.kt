@@ -59,6 +59,7 @@ import kotlin.reflect.typeOf
 class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>(), ProjectListContract.View {
     private var data = arrayListOf<ProjectListBean>()
     private var projectAdapter = ProjectListAdapter(data)
+    private var docName = ""
     companion object {
         private const val ChangeTag = "sketch_list"
         /**
@@ -148,7 +149,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                 }
                             }
                         }
-                        showDialog()
+                        showDialog(data[pos].sketchPath)
                     }
                 }
             }
@@ -211,7 +212,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
      * 下载成功接口回调
      */
     override fun onFileDownloadResult(file: File) {
-
+        ZXFileUtil.openFile(mContext,file)
     }
 
     /**
@@ -219,11 +220,11 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
      */
     override fun uploadResult(uploadResult: HouseTableBean?) {
         uploadResult?.let {
-            mPresenter.downloadFile("房屋勘查表.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
+            mPresenter.downloadFile(docName,"/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
         }
     }
 
-    private fun showDialog(){
+    private fun showDialog(sketchPath:String){
       val arrayList = arrayListOf<String>().apply {
           add("房屋图.docx")
           add("宗地图.docx")
@@ -231,14 +232,15 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
       }
       //信息上传
         ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList, { dialog, which ->
-            uploadInfo(arrayList[which])
+            docName= arrayList[which]
+            uploadInfo(docName,sketchPath)
         }, { dialog, which -> })
     }
 
     /**
      * 上传填写信息
      */
-    private fun uploadInfo(tplName:String){
+    private fun uploadInfo(tplName:String,sketchPath: String){
         getPermission(
             arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -246,15 +248,12 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             )
         ){
             var fileData = arrayListOf<String>()
-            val photoList = intent?.getSerializableExtra("photoData") as ArrayList<PhotoViewViewModel>
-            var infoData = if (intent.hasExtra("infoData")) intent.getSerializableExtra("infoData") as ArrayList<String> else arrayListOf()
-            //获取文件信息
-            photoList.forEach {
-                fileData.add(it.url)
+            var infoData = arrayListOf<String>()
+            for (index in 0..25){
+                infoData.add("测试")
             }
             //获取草图
-            val sketch = mContext.filesDir.path + "/sketch/draw.jpg"
-            if (ZXFileUtil.isFileExists(sketch)) fileData.add(sketch)
+            fileData.add(sketchPath)
             mPresenter.uploadInfo(infoData,fileData,tplName)
         }
     }
