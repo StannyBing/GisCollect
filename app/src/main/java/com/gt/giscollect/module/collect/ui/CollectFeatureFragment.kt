@@ -43,6 +43,7 @@ import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXToastUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_feature.*
@@ -202,36 +203,53 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 AppInfoManager.appInfo?.layerstyle?.forEach {
                     val obj = JSONObject(it)
                     if (obj.has("checkOverlay") && obj.getBoolean("checkOverlay")) {
-//                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
+                        var isFound = false
+                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
 //                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
 //                                    "itemName"
 //                                )
 //                            ) {
+//                                isFound = true
 //                                checkCount++
 //                                excuteInfo(
 //                                    layer,
 //                                    obj.getString("itemName")
 //                                )
-//                            } else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
+//                                return@map
+//                            }
+//                            else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
 //                                    "itemName"
 //                                ))
 ////                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
 ////                                    "itemName"
 ////                                ))
 //                            ) {
-                                checkCount++
-                                GeoPackageTool.getFeatureFromGpkgWithNull(obj.getString("itemName")) { layer2 ->
-                                    if (layer2 == null) {
-                                        checkCount--
-                                    }
-                                    excuteInfo(
-                                        layer2,
-                                        obj.getString("itemName")
-                                    )
-                                }
+//                                checkCount++
+//                                GeoPackageTool.getFeatureFromGpkgsWithNull(obj.getString("itemName")) { layer2 ->
+//                                    if (layer2 == null) {
+//                                        checkCount--
+//                                    }
+//                                    excuteInfo(
+//                                        layer2,
+//                                        obj.getString("itemName")
+//                                    )
+//                                }
+//                                return@map
 //                            }
-//                            return@map
-//                        }
+                        }
+                        //本地地图未加载，直接去gpkg里面找
+                        if (!isFound) {
+                            checkCount++
+                            GeoPackageTool.getFeatureFromGpkgsWithNull(obj.getString("itemName")) { layer2 ->
+                                if (layer2 == null) {
+                                    checkCount--
+                                }
+                                excuteInfo(
+                                    layer2,
+                                    obj.getString("itemName")
+                                )
+                            }
+                        }
                     }
                 }
                 postOverlayStatus()
@@ -248,7 +266,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         featureLayer?.let {
             //获取所有相关的feature
             val queryParameters = QueryParameters()
-            queryParameters.spatialRelationship = QueryParameters.SpatialRelationship.INTERSECTS
+            queryParameters.spatialRelationship =
+                QueryParameters.SpatialRelationship.INTERSECTS
             queryParameters.geometry = checkGemetry
             val listenable = it.featureTable.queryFeaturesAsync(queryParameters)
             listenable.addDoneListener {
@@ -291,6 +310,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     }
                 }
                 checkCount--
+                ZXLogUtil.loge("count--:${checkCount}")
                 postOverlayStatus()
             }
         }
@@ -645,7 +665,10 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     featureLayer.loadAsync()
                     featureLayer.addDoneLoadingListener {
                         featureLayer.name =
-                            gpkgFile?.name?.substring(0, gpkgFile?.name?.lastIndexOf(".") ?: 0)
+                            gpkgFile?.name?.substring(
+                                0,
+                                gpkgFile?.name?.lastIndexOf(".") ?: 0
+                            )
                         MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
                     }
                 }
@@ -834,11 +857,12 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         currentLayer?.featureTable?.addDoneLoadingListener {
 
             //                if (featureLayer.featureTable.totalFeatureCount > 0) {
-            val queryGet = currentLayer?.featureTable?.queryFeaturesAsync(QueryParameters().apply {
-                whereClause = "1=1"
-                this.resultOffset = startNum//从第几条开始
-                this.maxFeatures = featureSize//每次查多少条
-            })
+            val queryGet =
+                currentLayer?.featureTable?.queryFeaturesAsync(QueryParameters().apply {
+                    whereClause = "1=1"
+                    this.resultOffset = startNum//从第几条开始
+                    this.maxFeatures = featureSize//每次查多少条
+                })
             queryGet?.addDoneListener {
                 val list = queryGet.get()
                 featureAdapter.loadMoreComplete()
@@ -860,7 +884,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
             }
             //                }
-            tv_collect_feature_title.text = "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
+            tv_collect_feature_title.text =
+                "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
 
             if (currentLayer!!.featureTable.geometryType == GeometryType.POLYGON) {
                 tv_collect_geometry_size.visibility = View.VISIBLE
@@ -886,7 +911,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         try {
             val extent = layer.fullExtent
             if (extent.xMin == 0.0 || extent.xMax == 0.0 || extent.yMin == 0.0 || extent.yMax == 0.0) {
-                MapTool.mapListener?.getMapView()?.setViewpointCenterAsync(extent.center, 100000.0)
+                MapTool.mapListener?.getMapView()
+                    ?.setViewpointCenterAsync(extent.center, 100000.0)
             } else {
                 MapTool.mapListener?.getMapView()?.setViewpointAsync(Viewpoint(extent), 1f)
             }
@@ -918,7 +944,11 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         return false
     }
 
-    override fun checkMultiNameResult(isMulti: Boolean, beforeName: String?, afterName: String) {
+    override fun checkMultiNameResult(
+        isMulti: Boolean,
+        beforeName: String?,
+        afterName: String
+    ) {
         if (isMulti) {
             showToast("该名称已被占用，请更换")
             return

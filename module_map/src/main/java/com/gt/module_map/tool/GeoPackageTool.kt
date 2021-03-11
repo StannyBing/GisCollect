@@ -13,8 +13,9 @@ import com.zx.zxutils.util.ZXSystemUtil
 import java.io.File
 
 object GeoPackageTool {
-//    var mapPath = "${ZXSystemUtil.getSDCardPath()}GisCollect/LocalMap/"
-    var mapPath = ConstStrings.getLocalMapPath()
+    //    var mapPath = "${ZXSystemUtil.getSDCardPath()}GisCollect/LocalMap/"
+    var mapPath = ConstStrings.getLocalMapPath("gpkg")
+
     fun getTablesFromGpkg(path: String, layerCall: (List<FeatureTable>) -> Unit) {
         val geoPackage = getGpkg(path)
         geoPackage?.loadAsync()
@@ -42,33 +43,64 @@ object GeoPackageTool {
             return
         }
 //        geoPackages.forEach { geoPackage ->
+        doFeatureQuery(geoPackage, name, featureCall)
+//        }
+    }
+
+    fun getFeatureFromGpkgsWithNull(name: String, featureCall: (FeatureLayer?) -> Unit) {
+        val geoPackages =
+            getGpkgs(mapPath)
+        if (geoPackages.isEmpty()) {
+            featureCall(null)
+            return
+        }
+        geoPackages.forEach { geoPackage ->
+            doFeatureQuery(geoPackage, name, featureCall)
+        }
+    }
+
+    private fun doFeatureQuery(
+        geoPackage: GeoPackage,
+        name: String,
+        featureCall: (FeatureLayer?) -> Unit
+    ) {
         geoPackage.loadAsync()
         geoPackage.addDoneLoadingListener {
             if (geoPackage.loadStatus == LoadStatus.LOADED) {
                 val gepTables = geoPackage.geoPackageFeatureTables
-                var hasSameLayer = false
-                gepTables.forEach {
-                    if (it != null) {
-                        val featureLayer = FeatureLayer(it)
-//                        UniqueValueRenderer.fromJson()
-//                        featureLayer.renderer = Renderer.fromJson()
-                        if (name == featureLayer.name) {
-                            hasSameLayer = true
-                            featureLayer.loadAsync()
-                            featureLayer.addDoneLoadingListener {
-                                featureCall(featureLayer)
-                            }
+
+                gepTables.firstOrNull { it.tableName == name }.apply {
+                    if (this == null) {
+                        featureCall(null)
+                    } else {
+                        val layer = FeatureLayer(this)
+                        layer.loadAsync()
+                        layer.addDoneLoadingListener {
+                            featureCall(layer)
                         }
                     }
-//                    if (!hasSameLayer) {
-//                        featureCall(null)
-//                    }
                 }
-            }else{
+//                gepTables.forEach {
+//                    if (it != null) {
+//                        val featureLayer = FeatureLayer(it)
+//                        //                        UniqueValueRenderer.fromJson()
+//                        //                        featureLayer.renderer = Renderer.fromJson()
+//                        if (name == featureLayer.name) {
+//                            hasSameLayer = true
+//                            featureLayer.loadAsync()
+//                            featureLayer.addDoneLoadingListener {
+//                                featureCall(featureLayer)
+//                            }
+//                        }
+//                    }
+//                    //                    if (!hasSameLayer) {
+//                    //                        featureCall(null)
+//                    //                    }
+//                }
+            } else {
                 featureCall(null)
             }
         }
-//        }
     }
 
     val shipList = arrayListOf(
@@ -89,6 +121,14 @@ object GeoPackageTool {
     fun getIdentifyFromGpkg(point: Point, featureCall: (List<Feature>) -> Unit) {
         val geoPackage =
             getGpkg(mapPath)
+        doIdentifyQuery(geoPackage, featureCall, point)
+    }
+
+    private fun doIdentifyQuery(
+        geoPackage: GeoPackage?,
+        featureCall: (List<Feature>) -> Unit,
+        point: Point
+    ) {
         val features = arrayListOf<Feature>()
         geoPackage?.loadAsync()
         geoPackage?.addDoneLoadingListener {
@@ -106,9 +146,9 @@ object GeoPackageTool {
                                         spatialRelationship =
                                             QueryParameters.SpatialRelationship.INTERSECTS
                                     })
-//                                if (listenable.get().toList().isNotEmpty()) {
-//                                    features.add(listenable.get().first())
-//                                }
+                                //                                if (listenable.get().toList().isNotEmpty()) {
+                                //                                    features.add(listenable.get().first())
+                                //                                }
                                 features.addAll(listenable.get())
                             }
                         }
@@ -119,7 +159,14 @@ object GeoPackageTool {
         }
     }
 
-    private fun getGpkg(path: String =mapPath): GeoPackage? {
+    fun getIdentifyFromGpkgs(point: Point, featureCall: (List<Feature>) -> Unit) {
+        val geoPackages = getGpkgs(mapPath)
+        geoPackages.forEach {
+            doIdentifyQuery(it, featureCall, point)
+        }
+    }
+
+    private fun getGpkg(path: String = mapPath): GeoPackage? {
         val file = File(path)
         if (file.exists() && file.isDirectory && file.listFiles().isNotEmpty()) {
             file.listFiles().forEach {

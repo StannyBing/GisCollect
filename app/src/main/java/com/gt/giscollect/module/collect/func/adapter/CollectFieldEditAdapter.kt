@@ -6,20 +6,27 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.annotation.RequiresApi
+import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
+import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.Field
 import com.gt.giscollect.R
+import com.gt.giscollect.module.collect.bean.CollectBean
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
+import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXTimeUtil
 import com.zx.zxutils.views.ZXSpinner
 import java.text.SimpleDateFormat
 import java.util.*
 
 class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
-    ZXQuickAdapter<Pair<Field, Any?>, ZXBaseHolder>(R.layout.item_sketch_edit_field, dataList) {
+    ZXQuickAdapter<Pair<Field, Any?>, ZXBaseHolder>(R.layout.item_collect_edit_field, dataList) {
 
     public var editable: Boolean = true
 
@@ -38,7 +45,6 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
             Field.Type.FLOAT -> "浮点型"
             else -> "字符型"
         }
-        helper.getView<LinearLayout>(R.id.ll_collect_edit_field_value).visibility = View.GONE
         helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.GONE
         helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.GONE
         helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = View.GONE
@@ -115,8 +121,6 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 }
             )
             helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.VISIBLE
-            helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.VISIBLE
-
             helper.getView<TextView>(R.id.tv_collect_edit_field_date).setOnClickListener {
                 val calendar = Calendar.getInstance()
                 DatePickerDialog(
@@ -135,7 +139,7 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 ).show()
             }
         } else {//默认输入
-            helper.getView<LinearLayout>(R.id.ll_collect_edit_field_value).visibility = View.VISIBLE
+            helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.VISIBLE
             helper.getView<EditText>(R.id.et_collect_edit_field_value).isEnabled =
                 item.first.isEditable && editable && !readonlyList.contains(item.first.name) && item.first.name != "uuid" && item.first.name != "UUID"
             helper.setText(
