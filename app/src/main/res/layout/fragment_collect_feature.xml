@@ -236,7 +236,7 @@
             <com.gt.giscollect.module.collect.func.tool.MyRecyclerView
                 android:id="@+id/rv_collect_filed_features"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="600dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

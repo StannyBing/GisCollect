@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.esri.arcgisruntime.data.FeatureTable
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
@@ -17,7 +18,6 @@ import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.*
 import com.gt.base.app.CheckBean
-import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.giscollect.module.collect.mvp.model.CollectListModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
@@ -26,19 +26,25 @@ import com.gt.module_map.tool.MapTool
 import com.gt.base.app.TempIdsBean
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.module.collect.func.adapter.SurveyListAdapter
+import com.gt.giscollect.module.collect.mvp.contract.SurveyListContract
+import com.gt.giscollect.module.collect.mvp.model.SurveyListModel
+import com.gt.giscollect.module.collect.mvp.presenter.SurveyListPresenter
+import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_list.*
+import org.json.JSONArray
 import java.io.File
 
 /**
  * Create By XB
  * 功能：采集列表
  */
-class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(),
-    CollectListContract.View {
+class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
+    SurveyListContract.View {
     companion object {
         /**
          * 启动器
@@ -54,13 +60,10 @@ class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(
         private const val ChangeTag = "survey_list"
     }
 
-    private val totalCheckList = arrayListOf<CollectCheckBean>()
-    private val surveyList = arrayListOf<CollectCheckBean>()
+    private val surveyList = arrayListOf<DataResBean>()
     private val surveyAdapter = SurveyListAdapter(surveyList)
 
     var fragChangeListener: FragChangeListener? = null
-
-    private var editSurveyPosition = 0//当前编辑的采集任务的列表
 
     /**
      * layout配置
@@ -74,6 +77,9 @@ class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(
      */
     override fun initView(savedInstanceState: Bundle?) {
 
+        rg_collect_listtype.visibility = View.GONE
+        btn_collect_create.visibility = View.GONE
+
         rv_collect_layers.apply {
             layoutManager = ZXInScrollRecylerManager(mContext) as RecyclerView.LayoutManager?
             adapter = surveyAdapter
@@ -82,127 +88,98 @@ class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(
         refresh()
 
         ZXRecyclerDeleteHelper(activity, rv_collect_layers)
-            .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
+            .setSwipeOptionViews(R.id.tv_upload, R.id.tv_download)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
-                val layer = surveyList[pos].featureLayer
+                if (MyApplication.isOfflineMode) {
+                    showToast("当前为离线模式，无法进行该操作！")
+                    return@setSwipeable
+                }
                 //滑动菜单点击事件
                 when (id) {
-                    R.id.tv_upload -> {
-                        if (MyApplication.isOfflineMode) {
-                            showToast("当前为离线模式，无法进行该操作！")
-                            return@setSwipeable
-                        }
-                        if (layer == null) {
-                            ZXDialogUtil.showYesNoDialog(
-                                mContext,
-                                "提示",
-                                "是否下载该条采集数据?"
-                            ) { dialog, which ->
-                                downloadCollect(surveyList[pos])
+                    R.id.tv_download -> {
+                        ZXDialogUtil.showYesNoDialog(
+                            mContext,
+                            "提示",
+                            "是否下载该条任务数据?"
+                        ) { dialog, which ->
+                            mPresenter.downloadSurvey(surveyList[pos])
 //                                showToast("正在建设中")
-                            }
-                            return@setSwipeable
                         }
-                        ZXDialogUtil.showYesNoDialog(
-                            mContext,
-                            "提示",
-                            "是否上传该条采集数据？"
-                        ) { dialog, which ->
-                            val file = FileUtils.getFileByName(
-                                ConstStrings.getOperationalLayersPath(),
-                                layer.name
-                            )
-                            if (file?.exists() == true) {
-                                val path = ZipUtils.zip(file.path, false)
-                                if (path != null) {
-                                    var mTempId = surveyList[pos].checkInfo?.templateId ?: ""
-                                    var mCataId = surveyList[pos].checkInfo?.catalogId ?: ""
-                                    if (mTempId.isEmpty() || mCataId.isEmpty()) {
-                                        val templateIds =
-                                            mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-                                        templateIds?.forEach temp@{ temp ->
-                                            if (ConstStrings.bussinessId.contains(temp.templateId)) {
-                                                temp.layerNames.forEach {
-                                                    if (it == layer.name) {
-                                                        mTempId = temp.templateId
-                                                        mCataId = temp.catalogId
-                                                        return@temp
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (mTempId.isEmpty()) {
-                                        mPresenter.uploadCollect(
-                                            path,
-                                            layer.name,
-                                            collectId = surveyList[pos].checkInfo?.collectId ?: ""
-                                        )
-                                    } else {
-                                        mPresenter.uploadCollect(
-                                            path,
-                                            layer.name,
-                                            mTempId,
-                                            mCataId,
-                                            collectId = surveyList[pos].checkInfo?.collectId ?: ""
-                                        )
-                                    }
-                                }
-                            } else {
-                                showToast("文件不存在")
-                            }
-                        }
+                        return@setSwipeable
                     }
-                    R.id.tv_delete -> {
-                        if (layer == null) return@setSwipeable
+                    R.id.tv_upload -> {
                         ZXDialogUtil.showYesNoDialog(
                             mContext,
                             "提示",
-                            "是否删除该图层，这将同时删除该图层的相关采集数据？"
+                            "是否上传该条任务数据？"
                         ) { dialog, which ->
-                            FileUtils.deleteFilesByName(
-                                ConstStrings.getOperationalLayersPath(),
-                                layer.name
+                            val files = FileUtils.getFilesByName(
+                                ConstStrings.getSurveyPath(),
+                                surveyList[pos].materialName
                             )
-                            DeleteLayerFileTool.deleteFileByLayer(
-                                ConstStrings.getOperationalLayersPath() + layer.name + "/file/",
-                                layer
-                            )
-                            MapTool.postLayerChange(
-                                ChangeTag,
-                                layer,
-                                MapTool.ChangeType.OperationalRemove
-                            )
-                            surveyList.removeAt(pos)
-                            surveyAdapter.notifyItemRemoved(pos)
-                            surveyAdapter.notifyItemRangeChanged(pos, 5)
+                            files.firstOrNull { it.isDirectory }?.apply {
+                                val path = ZipUtils.zip(path, false)
+                                if (path != null) {
+//                                    mPresenter.uploadSurvey(
+//                                        path,
+//                                        layer.name,
+//                                        mTempId,
+//                                        mCataId,
+//                                        collectId = surveyList[pos].checkInfo?.collectId ?: ""
+//                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
             .setClickable { position ->
-                if (surveyList[position].featureLayer == null) {
-                    showToast("本机不存在该采集任务")
+                if (!surveyList[position].isDownload) {
+                    showToast("该任务暂未下载，请下载后编辑")
                 } else {
-                    editSurveyPosition = position
-                    fragChangeListener?.onFragGoto(
-                        SurveyMainFragment.Survey_Feature,
-                        surveyList[position].featureLayer to arrayOf(
-                            surveyList[position].isEdit(),
-                            surveyList[position].checkInfo == null
-                        )
+                    val files = FileUtils.getFilesByName(
+                        ConstStrings.getSurveyPath(),
+                        surveyList[position].materialName
                     )
+
+                    files.firstOrNull { it.isFile }?.apply {
+
+                        if (exists()) {
+                            val geoPackage = GeoPackage(path)
+                            geoPackage.loadAsync()
+                            geoPackage.addDoneLoadingListener {
+                                if (geoPackage.loadStatus == LoadStatus.LOADED) {
+                                    val geoTables = geoPackage.geoPackageFeatureTables
+                                    geoTables.forEach { table ->
+                                        val featureLayer = FeatureLayer(table as FeatureTable?)
+                                        featureLayer.loadAsync()
+                                        featureLayer.addDoneLoadingListener {
+
+                                            fragChangeListener?.onFragGoto(
+                                                SurveyMainFragment.Survey_Feature,
+                                                featureLayer to arrayOf(
+                                                    true,
+                                                    false
+                                                )
+                                            )
+
+                                            featureLayer.name =
+                                                name.substring(0, name.lastIndexOf("."))
+
+                                            MapTool.mapListener?.getMap()?.operationalLayers?.add(
+                                                featureLayer
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
         btn_collect_create.visibility = View.GONE
         super.initView(savedInstanceState)
-    }
-
-    private fun downloadCollect(collectCheckBean: CollectCheckBean) {
-        collectCheckBean.checkInfo?.let {
-            mPresenter.downloadCollect(it)
-        }
     }
 
     /**
@@ -212,11 +189,6 @@ class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(
         //刷新
         sr_collect_layers.setOnRefreshListener {
             refresh()
-        }
-
-        //切换
-        rg_collect_listtype.setOnCheckedChangeListener { group, checkedId ->
-            setCheckList()
         }
 
         MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
@@ -230,81 +202,27 @@ class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(
      * 刷新列表
      */
     fun refresh() {
-        mPresenter.getCheckList(
+        mPresenter.getSurveyDataList(
             hashMapOf(
                 "currPage" to 0,
                 "pageSize" to 999,
                 "filters" to arrayListOf(
-                    hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
-                    hashMapOf("col" to "template_id", "op" to "=", "val" to ConstStrings.bussinessId)
+                    hashMapOf(
+                        "col" to "rn_code",
+                        "op" to "like",
+                        "val" to UserManager.user?.rnCode
+                    ),
+                    hashMapOf("col" to "data_type", "op" to "like", "val" to "task")
                 )
             ).toJson()
         )
-    }
-
-    /**
-     * 审核反馈
-     */
-    override fun onCheckListResult(checkList: List<CheckBean>) {
-        ConstStrings.checkList.clear()
-        ConstStrings.checkList.addAll(checkList)
-        totalCheckList.clear()
-
-        val tempCheck = arrayListOf<CheckBean>().apply {
-            addAll(checkList)
-        }
-        //先添加本地的所有图层
-        MapTool.mapListener?.getMap()?.operationalLayers?.forEach layer@{ layer ->
-            if (layer is FeatureLayer) {
-                var bean: CheckBean? = null
-                //将所有能与线上对应的layer设置checkBean
-                checkList.forEach check@{ check ->
-                    if (check.getFileName().replace(".gpkg", "") == layer.name) {
-                        bean = check
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            tempCheck.removeIf {
-                                it.collectId == check.collectId
-                            }
-                        } else {
-                            tempCheck.remove(check)
-                        }
-                        return@check
-                    }
-                }
-                totalCheckList.add(CollectCheckBean(bean, layer))
-            }
-        }
-        //将本地没有保存的checkBean添加进
-        tempCheck.forEach check@{ check ->
-            totalCheckList.add(CollectCheckBean(check, null))
-        }
-
-        setCheckList()
-
-        sr_collect_layers.isRefreshing = false
-    }
-
-    private fun setCheckList() {
-        surveyList.clear()
-        surveyList.addAll(if (rb_collect_listlocal.isChecked) {
-            totalCheckList.filter {
-                it.checkInfo == null
-            }
-        } else if (rb_collect_listnet.isChecked) {
-            totalCheckList.filter {
-                it.checkInfo != null
-            }
-        } else {
-            totalCheckList
-        })
-        surveyAdapter.notifyDataSetChanged()
     }
 
     override fun onDownloadProgress(progress: Int) {
         ZXDialogUtil.showLoadingDialog(mContext, "下载中...", if (progress >= 100) 99 else progress)
     }
 
-    override fun onCollectDownload(file: File) {
+    override fun onSurveyDownload(file: File) {
         if (file.exists()) {
             val geoPackage = GeoPackage(file.path)
             geoPackage.loadAsync()
@@ -331,8 +249,27 @@ class SurveyListFragment : BaseFragment<CollectListPresenter, CollectListModel>(
     /**
      * 上传成功
      */
-    override fun onCollectUpload(name: String) {
+    override fun onSurveyUpload(name: String) {
         refresh()
         showToast("上传成功")
+    }
+
+    override fun onSurveyListResult(tempalteList: NormalList<DataResBean>) {
+        this.surveyList.clear()
+        this.surveyList.addAll(tempalteList.rows.apply {
+            forEach {
+                try {
+                    val fileObj = JSONArray(it.fileJson).getJSONObject(0)
+                    val fileExt = fileObj.getString("fileExt")
+//                    val fileName = it.materialName + "." + fileExt
+                    it.isDownload =
+                        ZXFileUtil.isFileExists(ConstStrings.getSurveyPath() + it.materialName)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        })
+        surveyAdapter.notifyDataSetChanged()
+        sr_collect_layers.isRefreshing = false
     }
 }

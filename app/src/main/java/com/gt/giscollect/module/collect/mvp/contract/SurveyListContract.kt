@@ -14,18 +14,16 @@ import java.io.File
  * Create By XB
  * 功能：
  */
-interface CollectListContract {
+interface SurveyListContract {
     //对于经常使用的关于UI的方法可以定义到IView中,如显示隐藏进度条,和显示文字消息
     interface View : IView {
-        fun onCollectUpload(name: String)
+        fun onSurveyUpload(name: String)
 
-        fun onCheckListResult(checkList: List<CheckBean>){}
-
-        fun onSurveyListResult(tempalteList: NormalList<DataResBean>){}
+        fun onSurveyListResult(datas: NormalList<DataResBean>){}
 
         fun onDownloadProgress(progress: Int)
 
-        fun onCollectDownload(file: File)
+        fun onSurveyDownload(file: File)
     }
 
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
@@ -34,14 +32,12 @@ interface CollectListContract {
 
         fun updateInfoData(body: RequestBody): Observable<Any>
 
-        fun checkListData(body: RequestBody): Observable<NormalList<CheckBean>>
-
-        fun dataListData(requestBody: RequestBody): Observable<NormalList<DataResBean>>
+        fun surveyListData(requestBody: RequestBody): Observable<NormalList<DataResBean>>
     }
 
     //方法
     abstract class Presenter : BasePresenter<View, Model>() {
-        abstract fun uploadCollect(
+        abstract fun uploadSurvey(
             file: String,
             name: String,
             templateId: String = "5e96bc86-2b8a-47e1-abae-fd3168f9ee44",
@@ -49,9 +45,7 @@ interface CollectListContract {
             collectId: String
         )
 
-        abstract fun getCheckList(body: RequestBody)
-
-        abstract fun downloadCollect(bean: CheckBean)
+        abstract fun downloadSurvey(bean: DataResBean)
 
         abstract fun getSurveyDataList(requestBody: RequestBody)
     }

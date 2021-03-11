@@ -8,6 +8,7 @@ import com.gt.giscollect.base.NormalList
 import com.gt.base.app.CheckBean
 
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
+import com.gt.giscollect.module.collect.mvp.contract.SurveyListContract
 import com.gt.giscollect.module.system.bean.DataResBean
 import okhttp3.RequestBody
 import rx.Observable
@@ -16,9 +17,9 @@ import rx.Observable
  * Create By XB
  * 功能：
  */
-class CollectListModel : BaseModel(), CollectListContract.Model {
+class SurveyListModel : BaseModel(), SurveyListContract.Model {
 
-    override fun dataListData(requestBody: RequestBody): Observable<NormalList<DataResBean>> {
+    override fun surveyListData(requestBody: RequestBody): Observable<NormalList<DataResBean>> {
         return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
             .getDataResList(requestBody)
             .compose(RxHelper.handleResult())
@@ -38,13 +39,5 @@ class CollectListModel : BaseModel(), CollectListContract.Model {
             .compose(RxHelper.handleResult())
             .compose(RxSchedulers.io_main())
     }
-
-    override fun checkListData(body: RequestBody): Observable<NormalList<CheckBean>> {
-        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
-            .getCheckList(body)
-            .compose(RxHelper.handleResult())
-            .compose(RxSchedulers.io_main())
-    }
-
 
 }

@@ -13,6 +13,7 @@ import com.gt.giscollect.base.NormalList
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.base.manager.UserManager
+import com.gt.giscollect.module.collect.mvp.contract.SurveyListContract
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.tencent.bugly.crashreport.CrashReport
 import com.zx.zxutils.listener.ZXUnZipRarListener
@@ -21,6 +22,7 @@ import com.zx.zxutils.util.ZXUnZipRarUtil
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.net.URLEncoder
@@ -30,13 +32,13 @@ import java.net.URLEncoder
  * Create By XB
  * 功能：
  */
-class CollectListPresenter : CollectListContract.Presenter() {
+class SurveyListPresenter : SurveyListContract.Presenter() {
 
     override fun getSurveyDataList(requestBody: RequestBody) {
-        if (MyApplication.isOfflineMode){
+        if (MyApplication.isOfflineMode) {
             return
         }
-        mModel.dataListData(requestBody)
+        mModel.surveyListData(requestBody)
             .compose(RxHelper.bindToLifecycle(mView))
             .subscribe(object : RxSubscriber<NormalList<DataResBean>>(mView) {
                 override fun _onNext(t: NormalList<DataResBean>?) {
@@ -52,45 +54,32 @@ class CollectListPresenter : CollectListContract.Presenter() {
             })
     }
 
-    override fun getCheckList(body: RequestBody) {
-        mModel.checkListData(body)
-            .compose(RxHelper.bindToLifecycle(mView))
-            .subscribe(object : RxSubscriber<NormalList<CheckBean>>(mView) {
-                override fun _onNext(t: NormalList<CheckBean>?) {
-                    if (t != null) {
-                        mView.onCheckListResult(t.rows)
-                    }
-                }
-
-                override fun _onError(code: Int, message: String?) {
-                    mView.handleError(code, message)
-                }
-
-            })
-    }
-
-    override fun downloadCollect(bean: CheckBean) {
+    override fun downloadSurvey(dataBean: DataResBean) {
+        var filePath = ""
         var fileName = ""
         var countLength = 0L
-        var filePath = ""
         try {
-            val fileObj = JSONObject(bean.fileJson)
-            fileName = bean.getFileName()
-            filePath = fileObj.getString("gpkgPath")
+            val fileObj = JSONArray(dataBean.fileJson).getJSONObject(0)
+//            fileName = fileObj.getString("fileName")
+            fileName = dataBean.materialName + "." + fileObj.getString("fileExt")
+            filePath = fileObj.getString("fileUri")
             countLength = fileObj.getLong("fileSize")
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        val saveFile = fileName.replace(".gpkg", ".zip")
-        val downInfo = DownInfo(
-            "file/downloadCollectFile?fileName=${fileName}&fileUri=${URLEncoder.encode(filePath)}"
-        )
+        val downInfo =
+            DownInfo("file/downloadFile?fileUri=${filePath}@@${dataBean.catalogId}&fileName=${fileName}")
         downInfo.countLength = countLength
         downInfo.baseUrl = ApiConfigModule.BASE_IP
-        if (ZXFileUtil.isFileExists(ConstStrings.getCachePath() + saveFile)) {
-            ZXFileUtil.deleteFiles(ConstStrings.getCachePath() + saveFile)
+        val localPath = ConstStrings.getSurveyPath() + dataBean.materialName + "/" + fileName
+        if (!File(localPath).parentFile.exists()) {
+            File(localPath).parentFile.mkdirs()
         }
-        downInfo.savePath = ConstStrings.getCachePath() + saveFile
+        if (ZXFileUtil.isFileExists(localPath)) {
+            ZXFileUtil.deleteFiles(localPath)
+        }
+
+        downInfo.savePath = localPath
         downInfo.listener = object : DownloadOnNextListener<Any>() {
             override fun onNext(o: Any) {
 
@@ -101,12 +90,11 @@ class CollectListPresenter : CollectListContract.Presenter() {
             }
 
             override fun onComplete(file: File) {
-                dezipFile(fileName.replace(".gpkg", ""), file)
+                mView.onSurveyDownload(file)
                 mView.dismissLoading()
             }
 
             override fun onError(message: String?) {
-                CrashReport.postCatchedException(Throwable(message))
                 mView.showToast(message)
                 mView.dismissLoading()
             }
@@ -115,9 +103,8 @@ class CollectListPresenter : CollectListContract.Presenter() {
                 mView.onDownloadProgress(progress)
             }
         }
-        if (ZXFileUtil.isFileExists(ConstStrings.getCachePath() + saveFile)) {
-            dezipFile(fileName.replace(".gpkg", ""), File(ConstStrings.getCachePath() + saveFile))
-
+        if (ZXFileUtil.isFileExists(localPath)) {
+            mView.onSurveyDownload(File(localPath))
         } else {
             HttpDownManager.getInstance().startDown(downInfo) { chain ->
                 val original = chain.request()
@@ -140,7 +127,7 @@ class CollectListPresenter : CollectListContract.Presenter() {
                         val parentFile = File(outputPath)
                         parentFile.listFiles().forEach { child ->
                             if (child.isFile && child.name.endsWith(".gpkg")) {
-                                mView.onCollectDownload(child)
+                                mView.onSurveyDownload(child)
 
 
 //                                MapTool.mapListener?.getMap()?.let {
@@ -214,7 +201,7 @@ class CollectListPresenter : CollectListContract.Presenter() {
         }
     }
 
-    override fun uploadCollect(
+    override fun uploadSurvey(
         file: String,
         name: String,
         templateId: String,
@@ -278,7 +265,7 @@ class CollectListPresenter : CollectListContract.Presenter() {
 //            }
             .subscribe(object : RxSubscriber<String>(mView) {
                 override fun _onNext(t: String?) {
-                    mView.onCollectUpload(name)
+                    mView.onSurveyUpload(name)
                     mView.dismissLoading()
                     mView.showToast("上传成功")
                 }

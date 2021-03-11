@@ -8,11 +8,13 @@ import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
+import com.gt.base.app.ConstStrings
 import com.zx.zxutils.util.ZXSystemUtil
 import java.io.File
 
 object GeoPackageTool {
-    var mapPath = "${ZXSystemUtil.getSDCardPath()}GisCollect/LocalMap/"
+//    var mapPath = "${ZXSystemUtil.getSDCardPath()}GisCollect/LocalMap/"
+    var mapPath = ConstStrings.getLocalMapPath()
     fun getTablesFromGpkg(path: String, layerCall: (List<FeatureTable>) -> Unit) {
         val geoPackage = getGpkg(path)
         geoPackage?.loadAsync()

@@ -43,6 +43,7 @@ import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXToastUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_feature.*
 import org.json.JSONObject
@@ -201,23 +202,23 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 AppInfoManager.appInfo?.layerstyle?.forEach {
                     val obj = JSONObject(it)
                     if (obj.has("checkOverlay") && obj.getBoolean("checkOverlay")) {
-                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
-                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
-                                    "itemName"
-                                )
-                            ) {
-                                checkCount++
-                                excuteInfo(
-                                    layer,
-                                    obj.getString("itemName")
-                                )
-                            } else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
-                                    "itemName"
-                                ))
-//                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
+//                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
+//                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
+//                                    "itemName"
+//                                )
+//                            ) {
+//                                checkCount++
+//                                excuteInfo(
+//                                    layer,
+//                                    obj.getString("itemName")
+//                                )
+//                            } else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
 //                                    "itemName"
 //                                ))
-                            ) {
+////                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
+////                                    "itemName"
+////                                ))
+//                            ) {
                                 checkCount++
                                 GeoPackageTool.getFeatureFromGpkgWithNull(obj.getString("itemName")) { layer2 ->
                                     if (layer2 == null) {
@@ -228,9 +229,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                         obj.getString("itemName")
                                     )
                                 }
-                            }
-                            return@map
-                        }
+//                            }
+//                            return@map
+//                        }
                     }
                 }
                 postOverlayStatus()
