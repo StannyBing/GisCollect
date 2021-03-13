@@ -203,9 +203,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 AppInfoManager.appInfo?.layerstyle?.forEach {
                     val obj = JSONObject(it)
                     if (obj.has("checkOverlay") && obj.getBoolean("checkOverlay")) {
-                        var isFound = false
-                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
-//                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
+//                        var isFound = false
+//                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
+                        //                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
 //                                    "itemName"
 //                                )
 //                            ) {
@@ -236,20 +236,36 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                                }
 //                                return@map
 //                            }
-                        }
+//                    }
                         //本地地图未加载，直接去gpkg里面找
-                        if (!isFound) {
-                            checkCount++
-                            GeoPackageTool.getFeatureFromGpkgsWithNull(obj.getString("itemName")) { layer2 ->
-                                if (layer2 == null) {
+//                        if (!isFound) {
+                        checkCount++
+                        GeoPackageTool.getFeatureFromGpkgsWithNull(
+                            obj.getString("itemName"),
+                            listCall = { list ->
+                                if (list.isEmpty()) {
                                     checkCount--
+                                    postOverlayStatus()
+                                } else {
+                                    checkCount += (list.size - 1)
+                                    list.forEach {
+                                        excuteInfo(
+                                            it,
+                                            obj.getString("itemName")
+                                        )
+                                    }
                                 }
-                                excuteInfo(
-                                    layer2,
-                                    obj.getString("itemName")
-                                )
-                            }
-                        }
+//                                if (layer2 != null) {
+//                                    checkCount++
+//                                    excuteInfo(
+//                                        layer2,
+//                                        obj.getString("itemName")
+//                                    )
+//                                } else {
+//                                    postOverlayStatus()
+//                                }
+                            })
+//                        }
                     }
                 }
                 postOverlayStatus()
@@ -310,7 +326,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     }
                 }
                 checkCount--
-                ZXLogUtil.loge("count--:${checkCount}")
                 postOverlayStatus()
             }
         }

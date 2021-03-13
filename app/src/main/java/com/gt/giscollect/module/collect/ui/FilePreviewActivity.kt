@@ -47,7 +47,7 @@ class FilePreviewActivity : BaseActivity<FilePreviewPresenter, FilePreviewModel>
      * layout配置
      */
     override fun getLayoutId(): Int {
-        return R.layout.activity_sketch_file_preview
+        return R.layout.activity_file_preview
     }
 
     /**

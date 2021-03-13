@@ -47,15 +47,30 @@ object GeoPackageTool {
 //        }
     }
 
-    fun getFeatureFromGpkgsWithNull(name: String, featureCall: (FeatureLayer?) -> Unit) {
+
+    fun getFeatureFromGpkgsWithNull(
+        name: String,
+        featureCall: (FeatureLayer?) -> Unit = {},
+        listCall: (List<FeatureLayer>) -> Unit = {}
+    ) {
+        val layerList = arrayListOf<FeatureLayer>()
         val geoPackages =
             getGpkgs(mapPath)
+        var layerSize = geoPackages.size
         if (geoPackages.isEmpty()) {
-            featureCall(null)
+            listCall(arrayListOf())
             return
         }
         geoPackages.forEach { geoPackage ->
-            doFeatureQuery(geoPackage, name, featureCall)
+            doFeatureQuery(geoPackage, name) {
+                layerSize--
+                it?.let {
+                    layerList.add(it)
+                }
+                if (layerSize == 0) {
+                    listCall(layerList)
+                }
+            }
         }
     }
 
