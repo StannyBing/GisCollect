@@ -4,6 +4,7 @@ import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.gt.base.bean.RtkInfoBean
 import com.gt.module_map.tool.PointTool
+import com.woncan.mlatlib.MLatUtil
 import com.zx.zxutils.util.ZXLogUtil
 
 
@@ -198,5 +199,19 @@ object RTKTool {
         result[0] = lon + L * 180 / Math.PI
         result[1] = lat2 * 180 / Math.PI
         return result
+    }
+
+    /**
+     * 通过采集点+斜距计算测量点坐标
+     */
+
+    fun meaUtil(pointList:List<DoubleArray>):DoubleArray? {
+        try {
+            val mLat = MLatUtil.mLat(pointList)
+            return mLat
+        } catch (e: java.lang.Exception) {
+
+        }
+        return null
     }
 }
