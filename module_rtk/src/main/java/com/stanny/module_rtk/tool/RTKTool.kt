@@ -209,7 +209,7 @@ object RTKTool {
         try {
             val mLat = MLatUtil.mLat(pointList)
             return mLat
-        } catch (e: java.lang.Exception) {
+        } catch (e:Exception) {
 
         }
         return null

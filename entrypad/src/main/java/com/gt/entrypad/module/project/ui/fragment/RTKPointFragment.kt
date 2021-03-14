@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
-import com.gt.base.bean.RtkInfoBean
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.entrypad.R
@@ -57,29 +56,17 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     return@setOnClickListener
                 }
             }
-            if (rtkData.size == 3) {
-                val rtkPointBean1 = rtkData[0]
-                val rtkPointBean2 = rtkData[1]
-                val rtkPointBean3 = rtkData[2]
-                val rtkInfoBean = RTKTool.rtkActualLocation(
-                    RtkInfoBean(
-                        rtkPointBean1.sitePoint.x,
-                        rtkPointBean1.sitePoint.y,
-                        rtkPointBean1.distance
-                    ),
-                    RtkInfoBean(
-                        rtkPointBean2.sitePoint.x,
-                        rtkPointBean2.sitePoint.y,
-                        rtkPointBean2.distance
-                    ),
-                    RtkInfoBean(
-                        rtkPointBean3.sitePoint.x,
-                        rtkPointBean3.sitePoint.y,
-                        rtkPointBean3.distance
-                    )
-                )
+            if (rtkData.size == 4) {
+                val rtkList = arrayListOf<DoubleArray>()
                 rtkData.forEach {
-                    it.resultSitePoint = Point(rtkInfoBean.pointX, rtkInfoBean.pointY)
+                    val doubleArray = doubleArrayOf(it.sitePoint.x,it.sitePoint.y,it.sitePoint.z,it.distance)
+                    rtkList.add(doubleArray)
+                }
+                val doubles = RTKTool.meaUtil(rtkList)
+                doubles?.let { double->
+                    rtkData.forEach {
+                        it.resultSitePoint = Point(double[0],double[1])
+                    }
                 }
                 fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point, rtkData)
             }
@@ -93,10 +80,12 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     if (WHandTool.isConnect && WHandTool.isOpen) {
                         val info = WHandTool.getDeviceInfoOneTime()
                         if (info != null) {
+                            //TODO:Rtk生成的x y z坐标 z的值赋给Point的z
                             val location = PointTool.change4326To3857(
                                 Point(
                                     info.longitude,
                                     info.latitude,
+                                    0.0,
                                     SpatialReference.create(4326)
                                 )
                             )
@@ -123,6 +112,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     rtkData.add(RtkPointBean(title = "参考点P0", parentId = it.id))
                     rtkData.add(RtkPointBean(title = "参考点P1", parentId = it.id))
                     rtkData.add(RtkPointBean(title = "参考点P2", parentId = it.id))
+                    rtkData.add(RtkPointBean(title = "参考点P3", parentId = it.id))
                 } else {
                     it.rtkList?.let { pointList ->
                         for (index in pointList.indices) {
