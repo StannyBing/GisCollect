@@ -1,10 +1,9 @@
 package com.gt.giscollect.module.system.func.adapter
 
 import com.gt.giscollect.R
-import com.gt.giscollect.module.system.bean.GuideBean
+import com.gt.base.bean.GuideBean
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXMultiItemQuickAdapter
-import com.zx.zxutils.other.QuickAdapter.ZXSectionMultiItemQuickAdapter
 
 class GuideAdapter(dataList: List<GuideBean>) :
     ZXMultiItemQuickAdapter<GuideBean, ZXBaseHolder>(dataList) {

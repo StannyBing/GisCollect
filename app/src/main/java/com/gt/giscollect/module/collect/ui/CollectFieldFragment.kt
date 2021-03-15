@@ -14,6 +14,7 @@ import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
+import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldEditAdapter
 import com.gt.giscollect.module.collect.func.adapter.CollectFileAdapter
@@ -25,10 +26,7 @@ import com.gt.module_map.tool.FileUtils
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.listener.ZXRecordListener
 import com.zx.zxutils.other.ZXInScrollRecylerManager
-import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXFileUtil
-import com.zx.zxutils.util.ZXRecordUtil
-import com.zx.zxutils.util.ZXTimeUtil
+import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_collect_field.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -231,6 +229,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 return path
             }
         })
+        //导入
+        tv_collect_field_import.setOnClickListener {
+            fragChangeListener?.onFragGoto(CollectMainFragment.Collect_Import)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -279,15 +281,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     /**
      * 保存文件信息
      */
-    private var lastMills = 0L
-
     private fun saveField(name: String) {
-        if (System.currentTimeMillis() - lastMills < 150) {
-            //50毫秒内禁止重复编辑
-            lastMills = System.currentTimeMillis()
-            return
-        }
-        lastMills = System.currentTimeMillis()
         when (name) {
             "camera", "video", "record", "CAMERA", "VIDEO", "RECORD" -> {
                 var fieldValue = ""
@@ -311,12 +305,9 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             else -> {
                 var type: Field.Type? = null
                 var fieldValue: Any? = null
-                fieldList.forEach {
-                    if (it.first.name == name) {
-                        type = it.first.fieldType
-                        fieldValue = it.second
-                        return@forEach
-                    }
+                fieldList.firstOrNull { it.first.name == name }?.apply {
+                    type = first.fieldType
+                    fieldValue = second
                 }
                 try {
                     if (currentFeature is ArcGISFeature) {
@@ -338,6 +329,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         if (currentFeature?.attributes?.get(name) == fieldValue) {
             return
         }
+        ZXLogUtil.loge("setField:${name}->${fieldValue}")
         val fields =
             currentFeature?.featureTable?.fields?.filter { it.name.toUpperCase() == name.toUpperCase() && it.isEditable }
         if (fields.isNullOrEmpty()) {
@@ -536,5 +528,22 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             }
             fileAdapter.notifyDataSetChanged()
         }
+    }
+
+    /**
+     * 设置属性信息
+     */
+    fun setAttribute(fieldImportBean: FieldImportBean) {
+        fieldImportBean.infos.forEach import@{ import ->
+            fieldList.forEachIndexed field@{ index, field ->
+                if (import.first == field.first.name) {
+                    fieldList[index] = field.first to import.second
+                    saveField(import.first)
+                    fieldAdapter.notifyItemChanged(index)
+                    return@field
+                }
+            }
+        }
+//        fieldAdapter.notifyDataSetChanged()
     }
 }

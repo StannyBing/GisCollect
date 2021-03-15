@@ -4,6 +4,7 @@ import com.frame.zxmvp.basebean.BaseRespose
 import com.gt.giscollect.base.NormalList
 import com.gt.base.manager.UserBean
 import com.gt.base.app.CheckBean
+import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.module.system.bean.TemplateBean
@@ -55,4 +56,7 @@ interface ApiService {
 
     @GET("/template/hasSameCollectName")
     fun checkMultiName(@QueryMap map: Map<String, String>) : Observable<BaseRespose<Boolean>>
+
+    @POST("project/queryProjectWithAlais")
+    fun getFieldList(@Body body: RequestBody): Observable<BaseRespose<NormalList<Any>>>
 }

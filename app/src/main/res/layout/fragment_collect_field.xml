@@ -8,8 +8,8 @@
     android:orientation="vertical">
 
     <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
         android:id="@+id/sv_collect_field"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
@@ -24,7 +24,7 @@
                 <TextView
                     android:id="@+id/tv_collect_field_title"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="40dp"
                     android:background="@color/title_bg"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
@@ -33,14 +33,16 @@
                     android:textSize="@dimen/text_size_normal" />
 
                 <TextView
+                    android:id="@+id/tv_collect_field_import"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:gravity="center_vertical"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="20dp"
+                    android:drawableLeft="@drawable/icon_field_import"
+                    android:text="导入"
                     android:textColor="@color/colorPrimary"
-                    android:visibility="gone"
-                    android:textSize="@dimen/text_size_normal"
-                    android:text="保存属性" />
+                    android:textSize="@dimen/text_size_normal" />
             </RelativeLayout>
 
             <androidx.recyclerview.widget.RecyclerView

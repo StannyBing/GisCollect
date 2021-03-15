@@ -9,7 +9,6 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.frame.zxmvp.http.unzip.ZipUtils
-import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
@@ -20,7 +19,6 @@ import com.gt.giscollect.base.*
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.func.adapter.CollectListAdapter
 import com.gt.module_map.tool.DeleteLayerFileTool
-import com.gt.module_map.tool.GeometrySizeTool
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.giscollect.module.collect.mvp.model.CollectListModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
@@ -31,12 +29,10 @@ import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
-import com.zx.zxutils.util.ZXSystemUtil
+import com.zx.zxutils.util.ZXTimeUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_list.*
-import org.json.JSONObject
 import java.io.File
-import java.text.DecimalFormat
 
 /**
  * Create By XB
@@ -126,7 +122,10 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                         val templateIds =
                                             mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
                                         templateIds?.forEach temp@{ temp ->
-                                            if (ConstStrings.bussinessId.contains(temp.templateId)) {
+                                            if (ConstStrings.mGuideBean.getTemplatesFirst().contains(
+                                                    temp.templateId
+                                                )
+                                            ) {
                                                 temp.layerNames.forEach {
                                                     if (it == layer.name) {
                                                         mTempId = temp.templateId
@@ -173,6 +172,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                 ConstStrings.getOperationalLayersPath() + layer.name + "/file/",
                                 layer
                             )
+
                             MapTool.postLayerChange(
                                 ChangeTag,
                                 layer,
@@ -248,7 +248,11 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                 "pageSize" to 999,
                 "filters" to arrayListOf(
                     hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
-                    hashMapOf("col" to "template_id", "op" to "=", "val" to ConstStrings.bussinessId)
+                    hashMapOf(
+                        "col" to "template_id",
+                        "op" to "=",
+                        "val" to ConstStrings.mGuideBean.getTemplatesFirst()
+                    )
                 )
             ).toJson()
         )

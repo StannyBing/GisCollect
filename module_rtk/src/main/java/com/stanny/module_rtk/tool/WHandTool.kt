@@ -10,6 +10,7 @@ import com.woncan.whand.device.IDevice
 import com.woncan.whand.listener.OnConnectListener
 import com.woncan.whand.scan.ScanCallback
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXToastUtil
 import java.io.Serializable
 
@@ -17,6 +18,7 @@ object WHandTool {
 
     var isConnect = false//是否连接
     var isOpen = true//是否允许接入
+    var isAutoConnect = false//是否自动连接
     private val infoListenerList: ArrayList<WHandDeviceListener> = arrayListOf()
     private val handler = Handler()
     private var deviceList = arrayListOf<BluetoothDevice>()
@@ -25,13 +27,26 @@ object WHandTool {
     private var openLaser = false
     private var newWHandInfo: WHandInfo? = null
 
+    //自动连接IP
+    var autoConnectDeviceAddress = ""
+        set(value) {
+            ZXSharedPrefUtil().putString("autoConnectDeviceAddress", value)
+            field = value
+        }
+        get() {
+            if (field.isEmpty()) {
+                field = ZXSharedPrefUtil().getString("autoConnectDeviceAddress", "")
+            }
+            return field
+        }
+
     interface WHandRegisterListener {
         fun onScanStart(context: Context) {
-            ZXDialogUtil.showLoadingDialog(context, "正在查找设备...")
+            if (!isAutoConnect) ZXDialogUtil.showLoadingDialog(context, "正在查找设备...")
         }
 
         fun onScanError(context: Context, errorCode: Int, info: String) {
-            ZXDialogUtil.showInfoDialog(
+            if (!isAutoConnect) ZXDialogUtil.showInfoDialog(
                 context,
                 "提示",
                 "设备查找失败，请确保设备已启动，并已开启手机蓝牙\n错误信息：${errorCode},${info}"
@@ -42,18 +57,18 @@ object WHandTool {
             context: Context,
             bluetoothDevice: BluetoothDevice
         ) {
-            ZXDialogUtil.showLoadingDialog(context, "正在注册设备...")
+            if (!isAutoConnect) ZXDialogUtil.showLoadingDialog(context, "正在注册设备...")
         }
 
         fun onDeviceStatusChange(context: Context, status: Int) {
-            ZXDialogUtil.dismissLoadingDialog()
+            if (!isAutoConnect) ZXDialogUtil.dismissLoadingDialog()
             isConnect = true
             when (status) {
                 BluetoothProfile.STATE_CONNECTING -> {
 //                    ZXToastUtil.showToast("QX:设备连接中")
                 }
                 BluetoothProfile.STATE_CONNECTED -> {
-                    ZXDialogUtil.dismissDialog()
+                    if (!isAutoConnect) ZXDialogUtil.dismissDialog()
 //                    ZXToastUtil.showToast("设备连接成功")
 //                    ZXToastUtil.showToast("连接已设备")
 //                    isConnect = true
@@ -62,7 +77,7 @@ object WHandTool {
 //                    ZXToastUtil.showToast("QX:设备断开中")
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
-                    ZXDialogUtil.dismissDialog()
+                    if (!isAutoConnect) ZXDialogUtil.dismissDialog()
 //                    ZXToastUtil.showToast("设备已断开")
 //                    isConnect = false
                 }
@@ -103,38 +118,60 @@ object WHandTool {
     fun registerWHand(
         context: Context,
         listener: WHandRegisterListener = object :
-            WHandRegisterListener {}
+            WHandRegisterListener {},
+        isAuto: Boolean = false
     ) {
-        ZXDialogUtil.showYesNoDialog(
-            context,
-            "提示",
-            "连接前，请确保设备GPS指示灯（绿色）正在闪烁，否则易出现无法获取到定位的问题"
-        ) { dialog, which ->
-            listener.onScanStart(context)
-            deviceList.clear()
-            WHandManager.getInstance().startScan(object : ScanCallback {
-                override fun onLeScan(p0: BluetoothDevice, p1: Int, p2: ByteArray) {
-                    var isContains = false
-                    deviceList.forEach {
-                        if (it.address == p0.address) {
-                            isContains = true
-                            return@forEach
-                        }
-                    }
-                    if (!isContains) {
-                        deviceList.add(p0)
-                        showDeviceList(
-                            context,
-                            listener
-                        )
-                    }
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    listener.onScanError(context, errorCode, message)
-                }
-            })
+        isAutoConnect = isAuto
+        if (isAutoConnect) {
+            startScanf(listener, context)
+        } else {
+            ZXDialogUtil.showYesNoDialog(
+                context,
+                "提示",
+                "连接前，请确保本设备GPS及蓝牙已正常开启，否则易出现无法获取到定位的问题"
+            ) { dialog, which ->
+                startScanf(listener, context)
+            }
         }
+    }
+
+    private fun startScanf(
+        listener: WHandRegisterListener,
+        context: Context
+    ) {
+        listener.onScanStart(context)
+        deviceList.clear()
+        WHandManager.getInstance().startScan(object : ScanCallback {
+            override fun onLeScan(p0: BluetoothDevice, p1: Int, p2: ByteArray) {
+                var isContains = false
+                deviceList.forEach {
+                    if (it.address == p0.address) {
+                        isContains = true
+                        return@forEach
+                    }
+                }
+                if (isAutoConnect) {
+                    if (p0.address == autoConnectDeviceAddress) {
+                        getDeviceInfo(
+                            context,
+                            listener,
+                            p0
+                        )
+                        WHandManager.getInstance().stopScan()
+                    }
+                } else if (!isContains) {
+                    deviceList.add(p0)
+                    showDeviceList(
+                        context,
+                        listener
+                    )
+                }
+            }
+
+            override fun onError(errorCode: Int, message: String) {
+                listener.onScanError(context, errorCode, message)
+            }
+        })
     }
 
     fun disConnectDivice() {
@@ -169,6 +206,7 @@ object WHandTool {
         ZXDialogUtil.dismissDialog()
         ZXDialogUtil.showListDialog(context, "设备列表", "取消", nameList) { dialog, which ->
             WHandManager.getInstance().stopScan()
+            autoConnectDeviceAddress = deviceList[which].address
             getDeviceInfo(
                 context,
                 listener,

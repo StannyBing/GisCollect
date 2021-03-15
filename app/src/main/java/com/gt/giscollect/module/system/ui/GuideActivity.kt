@@ -12,11 +12,13 @@ import com.gt.base.app.AppInfoManager
 import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.main.ui.MainActivity
 import com.gt.base.app.AppFuncBean
-import com.gt.giscollect.module.system.bean.GuideBean
+import com.gt.base.bean.GuideBean
 import com.gt.giscollect.module.system.func.adapter.GuideAdapter
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
+import com.stanny.module_rtk.tool.WHandService
+import com.stanny.module_rtk.tool.WHandTool
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.activity_guide.*
 import org.json.JSONObject
@@ -65,6 +67,8 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             adapter = guideAdapter
         }
 
+        startService(Intent(this, WHandService::class.java))
+
         mPresenter.getAppFuncs(hashMapOf("userId" to (UserManager.user?.userId ?: "")))
     }
 
@@ -90,13 +94,13 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             }
         }
 
-        guideAdapter.setChildCall {
+        guideAdapter.setChildCall { it ->
             if (it.itemName.contains("草图")) {
                 ProjectListActivity.startAction(this, false)
             } else {
                 ConstStrings.appfuncList.clear()
                 ConstStrings.appfuncList.addAll(it.appFuncs)
-                ConstStrings.bussinessId = it.templateId ?: ""
+                ConstStrings.mGuideBean = it
                 MainActivity.startAction(this, false)
             }
 //            when {
@@ -149,7 +153,8 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
                                     it.label,
                                     type = GuideBean.GUIDE_ITEM,
                                     appFuncs = it.children,
-                                    templateId = it.obj.templateId
+                                    templateId = it.obj.templateId,
+                                    param = it.obj.param
                                 )
                             )
                         }

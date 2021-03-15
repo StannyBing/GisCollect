@@ -8,6 +8,7 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.gt.giscollect.R
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
+import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectMainContract
 import com.gt.giscollect.module.collect.mvp.model.CollectMainModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectMainPresenter
@@ -38,6 +39,7 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
         const val Collect_Create = "图层新增"
         const val Collect_Feature = "要素编辑"
         const val Collect_Field = "属性编辑"
+        const val Collect_Import = "属性导入"
     }
 
     private lateinit var collectListFragment: CollectListFragment
@@ -45,6 +47,7 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
     private lateinit var collectFieldFragment: CollectFieldFragment
     private var collectFeatureFragment: CollectFeatureFragment? = null
     private lateinit var collectCheckFragment: CollectCheckFragment
+    private lateinit var collectFieldImportFragment: CollectFieldImportFragment
 
     private var currentFragType = Collect_List
 
@@ -65,12 +68,14 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
         collectFieldFragment = CollectFieldFragment.newInstance()
         collectFeatureFragment = CollectFeatureFragment.newInstance()
         collectCheckFragment = CollectCheckFragment.newInstance()
+        collectFieldImportFragment = CollectFieldImportFragment.newInstance()
 
         collectListFragment.fragChangeListener = this
         collectCreateFragment.fragChangeListener = this
         collectFieldFragment.fragChangeListener = this
         collectCheckFragment.fragChangeListener = this
         collectFeatureFragment?.fragChangeListener = this
+        collectFieldImportFragment.fragChangeListener = this
 
         ZXFragmentUtil.addFragments(childFragmentManager, arrayListOf<Fragment>().apply {
             add(collectListFragment)
@@ -78,6 +83,7 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
             add(collectCreateFragment)
             add(collectFeatureFragment!!)
             add(collectFieldFragment)
+            add(collectFieldImportFragment)
         }, R.id.fm_collect_main, 0)
 
         tv_collect_title_name.text = "采集"
@@ -113,6 +119,12 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
             Collect_Field -> {
                 onFragGoto(Collect_Feature)
                 collectFeatureFragment?.reInit()
+            }
+            Collect_Import -> {
+                onFragGoto(Collect_Field)
+                any?.let {
+                    collectFieldFragment.setAttribute(any as FieldImportBean)
+                }
             }
         }
     }
@@ -164,6 +176,10 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
                         collectFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
                     }
                 }
+            }
+            Collect_Import -> {
+                ZXFragmentUtil.hideAllShowFragment(collectFieldImportFragment)
+                collectFieldImportFragment.reInit()
             }
         }
     }

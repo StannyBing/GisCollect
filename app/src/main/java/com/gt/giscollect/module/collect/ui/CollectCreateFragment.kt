@@ -212,7 +212,7 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
                         mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
                     val nowTemplateId = templateIds.firstOrNull {
                         it.name.contains(sp_create_layer_model.selectedKey)
-                    }?.templateId ?: ConstStrings.bussinessId
+                    }?.templateId ?: ConstStrings.mGuideBean.getTemplatesFirst()
                     mPresenter.checkMultiName(hashMapOf("templateId" to nowTemplateId, "layerName" to et_create_layer_name.text.toString()))
 //                    createLayer()
 
@@ -489,7 +489,7 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
                 if (it.isFile && it.name.endsWith(".gpkg")) {
                     //只添加当前用户对应的采集模板
                     templateIds?.forEach temp@{ temp ->
-                        if (it.path.contains(temp.name) && temp.templateId == ConstStrings.bussinessId) {
+                        if (it.path.contains(temp.name) && temp.templateId == ConstStrings.mGuideBean.getTemplatesFirst()) {
                             templateList.add(
                                 KeyValueEntity(
                                     it.name.substring(

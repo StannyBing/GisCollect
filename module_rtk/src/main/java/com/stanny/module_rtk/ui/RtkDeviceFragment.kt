@@ -97,6 +97,7 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
                 "提示",
                 "是否断开当前设备连接？"
             ) { dialog, which ->
+                WHandTool.autoConnectDeviceAddress = ""
                 WHandTool.disConnectDivice()
                 reInitWhandInfo()
             }

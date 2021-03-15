@@ -8,7 +8,6 @@ import android.widget.AdapterView
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.*
-import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.Viewpoint
@@ -43,8 +42,6 @@ import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
-import com.zx.zxutils.util.ZXLogUtil
-import com.zx.zxutils.util.ZXToastUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_feature.*
 import org.json.JSONObject
@@ -200,49 +197,19 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         checkCount = 0
         geometry?.let {
             try {
-                AppInfoManager.appInfo?.layerstyle?.forEach {
-                    val obj = JSONObject(it)
-                    if (obj.has("checkOverlay") && obj.getBoolean("checkOverlay")) {
-//                        var isFound = false
-//                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
-                        //                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
-//                                    "itemName"
-//                                )
-//                            ) {
-//                                isFound = true
-//                                checkCount++
-//                                excuteInfo(
-//                                    layer,
-//                                    obj.getString("itemName")
-//                                )
-//                                return@map
-//                            }
-//                            else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
-//                                    "itemName"
-//                                ))
-////                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
-////                                    "itemName"
-////                                ))
-//                            ) {
-//                                checkCount++
-//                                GeoPackageTool.getFeatureFromGpkgsWithNull(obj.getString("itemName")) { layer2 ->
-//                                    if (layer2 == null) {
-//                                        checkCount--
-//                                    }
-//                                    excuteInfo(
-//                                        layer2,
-//                                        obj.getString("itemName")
-//                                    )
-//                                }
-//                                return@map
-//                            }
-//                    }
-                        //本地地图未加载，直接去gpkg里面找
-//                        if (!isFound) {
-                        checkCount++
+                AppInfoManager.appInfo?.layerstyle?.filter {
+                    JSONObject(it).optBoolean("checkOverlay", false)
+                }.apply {
+                    checkCount += (this?.size ?: 0)
+                    if (checkCount == 0) {
+                        postOverlayStatus()
+                    }
+                    this?.forEach {
+                        val obj = JSONObject(it)
                         GeoPackageTool.getFeatureFromGpkgsWithNull(
                             obj.getString("itemName"),
                             listCall = { list ->
+
                                 if (list.isEmpty()) {
                                     checkCount--
                                     postOverlayStatus()
@@ -255,20 +222,80 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                         )
                                     }
                                 }
-//                                if (layer2 != null) {
-//                                    checkCount++
-//                                    excuteInfo(
-//                                        layer2,
-//                                        obj.getString("itemName")
-//                                    )
-//                                } else {
-//                                    postOverlayStatus()
-//                                }
                             })
-//                        }
                     }
                 }
-                postOverlayStatus()
+//                AppInfoManager.appInfo?.layerstyle?.forEach {
+//                    val obj = JSONObject(it)
+//                    if (obj.has("checkOverlay") && obj.getBoolean("checkOverlay")) {
+////                        var isFound = false
+////                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.forEach map@{ layer ->
+//                        //                            if (layer is FeatureLayer && layer.featureTable.tableName == obj.getString(
+////                                    "itemName"
+////                                )
+////                            ) {
+////                                isFound = true
+////                                checkCount++
+////                                excuteInfo(
+////                                    layer,
+////                                    obj.getString("itemName")
+////                                )
+////                                return@map
+////                            }
+////                            else if ((layer is ArcGISVectorTiledLayer && (layer as ArcGISVectorTiledLayer).name == obj.getString(
+////                                    "itemName"
+////                                ))
+//////                                || (layer is ArcGISTiledLayer && (layer as ArcGISTiledLayer).name == obj.getString(
+//////                                    "itemName"
+//////                                ))
+////                            ) {
+////                                checkCount++
+////                                GeoPackageTool.getFeatureFromGpkgsWithNull(obj.getString("itemName")) { layer2 ->
+////                                    if (layer2 == null) {
+////                                        checkCount--
+////                                    }
+////                                    excuteInfo(
+////                                        layer2,
+////                                        obj.getString("itemName")
+////                                    )
+////                                }
+////                                return@map
+////                            }
+////                    }
+//                        //本地地图未加载，直接去gpkg里面找
+////                        if (!isFound) {
+////                        checkCount++
+//                        GeoPackageTool.getFeatureFromGpkgsWithNull(
+//                            obj.getString("itemName"),
+//                            listCall = { list ->
+//
+//
+//                                if (list.isEmpty()) {
+//                                    checkCount--
+//                                    postOverlayStatus()
+//                                } else {
+//                                    checkCount += (list.size - 1)
+//                                    list.forEach {
+//                                        excuteInfo(
+//                                            it,
+//                                            obj.getString("itemName")
+//                                        )
+//                                    }
+//                                }
+////                                if (layer2 != null) {
+////                                    checkCount++
+////                                    excuteInfo(
+////                                        layer2,
+////                                        obj.getString("itemName")
+////                                    )
+////                                } else {
+////                                    postOverlayStatus()
+////                                }
+//                            })
+////                        }
+//                    }
+//                }
+//                postOverlayStatus()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -479,7 +506,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     showToast("该名称已被占用，请更换")
                     return@setOnClickListener
                 }
-                var nowTemplateId = ConstStrings.bussinessId
+                var nowTemplateId = ConstStrings.mGuideBean.getTemplatesFirst()
                 val templateIds =
                     mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
                 templateIds.forEach OUT@{ temp ->

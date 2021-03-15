@@ -52,7 +52,7 @@ object GeoPackageTool {
         name: String,
         featureCall: (FeatureLayer?) -> Unit = {},
         listCall: (List<FeatureLayer>) -> Unit = {}
-    ) {
+    ){
         val layerList = arrayListOf<FeatureLayer>()
         val geoPackages =
             getGpkgs(mapPath)

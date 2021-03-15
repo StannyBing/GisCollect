@@ -63,7 +63,7 @@ class TemplateDownloadFragment : BaseFragment<TemplateDownloadPresenter, Templat
         mPresenter.getTemplateList(
             hashMapOf(
                 "currPage" to 0, "total" to 0, "pageSize" to 999, "filters" to arrayListOf(
-                    hashMapOf("col" to "template_id", "op" to "=", "val" to ConstStrings.bussinessId)
+                    hashMapOf("col" to "template_id", "op" to "=", "val" to ConstStrings.mGuideBean.getTemplatesFirst())
                 )
             ).toJson()
         )

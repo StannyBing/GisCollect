@@ -14,8 +14,9 @@ import com.zx.zxutils.util.ZXToastUtil
 
 object HighLightLayerTool {
 
+    private val highLightLayer = GraphicsOverlay()
 
-    fun showHighLight(feature: Feature,highLightLayer:GraphicsOverlay = GraphicsOverlay()) {
+    fun showHighLight(feature: Feature) {
         clearHighLight()
         if (feature.geometry == null) return
         MapTool.mapListener?.getMapView()?.setViewpointGeometryAsync(feature.geometry, 80.0)
@@ -47,11 +48,7 @@ object HighLightLayerTool {
             if (MapTool.mapListener?.getMapView()?.graphicsOverlays != null
                 && MapTool.mapListener?.getMapView()?.graphicsOverlays?.contains(highLightLayer) == false
             ) {
-
-                MapTool.mapListener?.getMapView()?.graphicsOverlays?.apply {
-                    clear()
-                    add(highLightLayer)
-                }
+                MapTool.mapListener?.getMapView()?.graphicsOverlays?.add(highLightLayer)
             }
         } catch (e: Exception) {
 
@@ -59,7 +56,7 @@ object HighLightLayerTool {
     }
 
     fun clearHighLight() {
-
+        highLightLayer.graphics.clear()
     }
 
 }

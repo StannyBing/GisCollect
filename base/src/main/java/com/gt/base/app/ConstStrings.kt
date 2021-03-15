@@ -1,6 +1,6 @@
 package com.gt.base.app
 
-import android.util.Log
+import com.gt.base.bean.GuideBean
 import com.gt.base.manager.UserManager
 import com.zx.zxutils.util.ZXSharedPrefUtil
 
@@ -24,7 +24,8 @@ object ConstStrings {
     val COLLECT_UPDATE_LIST = "updateList"
     val arcgisKey = "5SKIXc21JlankElJ"
     var LOCAL_PATH: String? = null
-    var bussinessId: String = ""//当前选中的id
+    var mTemplatesId: String = ""//当前选中的id
+    var mGuideBean: GuideBean = GuideBean()//当前列表进入信息
     var sktchId: String = ""//当前选中的id
     val checkList = arrayListOf<CheckBean>()
     val appfuncList = arrayListOf<AppFuncBean>()
@@ -108,7 +109,7 @@ object ConstStrings {
     }
 
     fun getOperationalLayersPath(): String {
-        return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + bussinessId + "/"
+        return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
     }
 
 
