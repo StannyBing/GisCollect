@@ -42,6 +42,7 @@ import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
+import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_feature.*
 import org.json.JSONObject
@@ -209,7 +210,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                         GeoPackageTool.getFeatureFromGpkgsWithNull(
                             obj.getString("itemName"),
                             listCall = { list ->
-
                                 if (list.isEmpty()) {
                                     checkCount--
                                     postOverlayStatus()
@@ -312,12 +312,14 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             queryParameters.spatialRelationship =
                 QueryParameters.SpatialRelationship.INTERSECTS
             queryParameters.geometry = checkGemetry
+            ZXLogUtil.loge("overlay：${it.name} start")
             val listenable = it.featureTable.queryFeaturesAsync(queryParameters)
             listenable.addDoneListener {
                 val features = arrayListOf<Feature>()
                 features.addAll(listenable.get())
                 var overlayBean = KeyValueEntity(style, 0.0)
                 if (features.size > 0) {
+                    ZXLogUtil.loge("overlay：${it.name} size:${features.size}")
                     overlayList.find {
                         it.key == style
                     }.apply {
