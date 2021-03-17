@@ -3,6 +3,7 @@ package com.gt.giscollect.module.collect.mvp.contract
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IView
 import com.frame.zxmvp.base.IModel
+import rx.Observable
 
 /**
  * Create By XB

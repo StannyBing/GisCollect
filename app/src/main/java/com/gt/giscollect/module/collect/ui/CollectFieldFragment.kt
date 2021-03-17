@@ -5,9 +5,17 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.AdapterView
 import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
+import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
@@ -24,13 +32,16 @@ import com.gt.giscollect.module.collect.mvp.model.CollectFieldModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectFieldPresenter
 import com.gt.module_map.tool.FileUtils
 import com.gt.giscollect.tool.SimpleDecoration
+import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.listener.ZXRecordListener
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_collect_field.*
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
+import java.io.Serializable
 
 
 /**
@@ -68,6 +79,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 
     private var filePath = ""
 
+    private var moduleType=1 //1 采集 2调查
+
     /**
      * layout配置
      */
@@ -92,7 +105,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         }
 
         recordUtil = ZXRecordUtil(requireActivity())
-
+        spSurveyType.showUnderineColor(false)
+            .setItemHeightDp(40)
+            .showSelectedTextColor(true, ContextCompat.getColor(mContext, R.color.colorPrimary))
+            .setDefaultItem("请选择调查类型")
+            .build()
         super.initView(savedInstanceState)
     }
 
@@ -232,6 +249,38 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         //导入
         tv_collect_field_import.setOnClickListener {
             fragChangeListener?.onFragGoto(CollectMainFragment.Collect_Import)
+        }
+
+
+        //模板选择监听
+        spSurveyType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                try {
+                    val selectValueList = Gson().fromJson<ArrayList<String>>( spSurveyType.selectedValue.toString(), object : TypeToken<ArrayList<String>>() {}.type)
+                    currentFeature?.let {
+                        if (it is ArcGISFeature) {
+                            showLoading("正在加载在线属性信息")
+                            it.loadAsync()
+                            it.addDoneLoadingListener {
+                                loadFeature(it,selectValueList)
+                                dismissLoading()
+                            }
+                        } else {
+                            loadFeature(it,selectValueList)
+                        }
+                    }
+                }catch (e:java.lang.Exception){
+
+                }
+            }
         }
     }
 
@@ -391,27 +440,50 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         }
     }
 
-    fun excuteField(featureLayer: Feature, editable: Boolean) {
+    /**
+     * moduleType 1 为采集 2为调查
+     */
+    fun excuteField(featureLayer: Feature, editable: Boolean,moduleType:Int=1) {
         fieldList.clear()
         fileList.clear()
         fieldAdapter.notifyDataSetChanged()
         fileAdapter.notifyDataSetChanged()
-        if (featureLayer is ArcGISFeature) {
-            showLoading("正在加载在线属性信息")
-            featureLayer.loadAsync()
-            featureLayer.addDoneLoadingListener {
-                loadFeature(featureLayer, editable)
-                dismissLoading()
-            }
-        } else {
-            loadFeature(featureLayer, editable)
-        }
-    }
-
-    private fun loadFeature(featureLayer: Feature, editable: Boolean) {
         currentFeature = featureLayer
         fieldAdapter.editable = editable
         fileAdapter.editable = editable
+        if (moduleType==2){
+            spSurveyType.visibility=View.VISIBLE
+            mSharedPrefUtil.getString("fieldShow")?.let {
+               if (it.isNotEmpty()){
+                   var moduleTypeData = arrayListOf<KeyValueEntity>()
+                   moduleTypeData.add(KeyValueEntity("请选择调查类型","0"))
+                   val jsonToLinkedHashMap = jsonToLinkedHashMap(JSONObject(it))
+                   jsonToLinkedHashMap.entries.forEach {
+                       if (it.key=="房屋调查"){
+                           jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
+                               moduleTypeData.add(KeyValueEntity(it.key,it.value))
+                           }
+                       }
+                   }
+                   spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
+               }
+            }
+        }else{
+            spSurveyType.visibility = View.GONE
+            if (featureLayer is ArcGISFeature) {
+                showLoading("正在加载在线属性信息")
+                featureLayer.loadAsync()
+                featureLayer.addDoneLoadingListener {
+                    loadFeature(featureLayer)
+                    dismissLoading()
+                }
+            } else {
+                loadFeature(featureLayer)
+            }
+        }
+    }
+
+    private fun loadFeature(featureLayer: Feature,isShowList: ArrayList<String> = arrayListOf()) {
         fieldAdapter.readonlyList.clear()
         filePath =
             ConstStrings.getOperationalLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"
@@ -421,13 +493,28 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         fieldAdapter.notifyDataSetChanged()
         val filedTemp = arrayListOf<Pair<Field, Any?>>()
         currentFeature?.featureTable?.fields?.forEach {
-            if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
-                filedTemp.add(it to currentFeature!!.attributes[it.name])
-            } else {
-                if (currentFeature!!.attributes[it.name] == null) {
-                    fieldList.add(it to "")
+            if (!isShowList.isNullOrEmpty()){
+                //筛选出显示的数据
+                if (isShowList.contains(it.name)){
+                    if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
+                        filedTemp.add(it to currentFeature!!.attributes[it.name])
+                    } else {
+                        if (currentFeature!!.attributes[it.name] == null) {
+                            fieldList.add(it to "")
+                        } else {
+                            fieldList.add(it to currentFeature!!.attributes[it.name])
+                        }
+                    }
+                }
+            }else{
+                if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
+                    filedTemp.add(it to currentFeature!!.attributes[it.name])
                 } else {
-                    fieldList.add(it to currentFeature!!.attributes[it.name])
+                    if (currentFeature!!.attributes[it.name] == null) {
+                        fieldList.add(it to "")
+                    } else {
+                        fieldList.add(it to currentFeature!!.attributes[it.name])
+                    }
                 }
             }
         }
@@ -545,5 +632,30 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             }
         }
 //        fieldAdapter.notifyDataSetChanged()
+    }
+
+
+
+    /**
+     * json转map
+     *
+     * @param jsonObject
+     * @return
+     */
+    private fun jsonToLinkedHashMap(jsonObject: JSONObject): LinkedHashMap<String, String> {
+        val result = LinkedHashMap<String, String>()
+        val iterator = jsonObject.keys()
+        var key: String
+        var value = ""
+        while (iterator.hasNext()) {
+            key = iterator.next()
+            try {
+                value = jsonObject.getString(key)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+            result[key.toLowerCase()] = value
+        }
+        return result
     }
 }

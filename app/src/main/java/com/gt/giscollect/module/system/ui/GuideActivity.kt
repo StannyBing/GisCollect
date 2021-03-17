@@ -70,6 +70,7 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         startService(Intent(this, WHandService::class.java))
 
         mPresenter.getAppFuncs(hashMapOf("userId" to (UserManager.user?.userId ?: "")))
+        mPresenter.doSurveyType()
     }
 
     private fun getBussinessId(name: String): String {
@@ -270,5 +271,12 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             super.onBackPressed()
         }
     }
-
+    /**
+     * 调查类型接口回调
+     */
+    override fun surveyTypeResult(typeResult: String?) {
+      typeResult?.let {
+          mSharedPrefUtil.putString("fieldShow",it)
+      }
+    }
 }

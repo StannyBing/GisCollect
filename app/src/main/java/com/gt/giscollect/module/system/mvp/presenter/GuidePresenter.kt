@@ -35,6 +35,18 @@ class GuidePresenter : GuideContract.Presenter() {
                 }
             })
     }
+    override fun doSurveyType(){
+        mModel.doSurveyType()
+            .compose(RxHelper.bindToLifecycle(mView))
+            .subscribe(object : RxSubscriber<String>(mView) {
+                override fun _onNext(t: String?) {
+                    mView.surveyTypeResult(t)
+                }
 
+                override fun _onError(code: Int, message: String?) {
+                    mView.handleError(code, message)
+                }
+            })
+    }
 
 }

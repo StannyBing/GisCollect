@@ -16,7 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
+            <com.zx.zxutils.views.ZXSpinner
+                android:id="@+id/spSurveyType"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"/>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

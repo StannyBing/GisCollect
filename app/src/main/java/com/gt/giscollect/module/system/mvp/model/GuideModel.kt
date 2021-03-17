@@ -21,4 +21,10 @@ class GuideModel : BaseModel(), GuideContract.Model {
     }
 
 
+    override fun doSurveyType(): Observable<String> {
+        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
+            .getSurveyType()
+            .compose(RxHelper.handleResult())
+            .compose(RxSchedulers.io_main())
+    }
 }

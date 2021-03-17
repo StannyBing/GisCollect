@@ -59,4 +59,7 @@ interface ApiService {
 
     @POST("project/queryProjectWithAlais")
     fun getFieldList(@Body body: RequestBody): Observable<BaseRespose<NormalList<Any>>>
+    @GET("/env/appCollectConfig")
+    fun getSurveyType(): Observable<BaseRespose<String>>
+
 }

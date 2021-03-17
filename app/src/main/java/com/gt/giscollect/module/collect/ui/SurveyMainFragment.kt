@@ -134,9 +134,9 @@ class SurveyMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>(
                 ZXFragmentUtil.hideAllShowFragment(surveyFieldFragment)
                 any?.let {
                     if (it is Feature) {
-                        surveyFieldFragment.excuteField(it, true)
+                        surveyFieldFragment.excuteField(it, true,2)
                     } else if (it is Pair<*, *>) {
-                        surveyFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
+                        surveyFieldFragment.excuteField(it.first as Feature, it.second as Boolean,2)
                     }
                 }
             }
