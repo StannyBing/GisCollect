@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import com.esri.arcgisruntime.data.*
 import com.gt.camera.module.CameraVedioActivity
@@ -410,6 +411,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 
     private fun loadFeature(featureLayer: Feature, editable: Boolean) {
         currentFeature = featureLayer
+        tv_collect_field_import.visibility = if(editable) View.VISIBLE else View.GONE
         fieldAdapter.editable = editable
         fileAdapter.editable = editable
         fieldAdapter.readonlyList.clear()
