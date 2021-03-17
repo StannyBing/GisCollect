@@ -451,6 +451,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         currentFeature = featureLayer
         fieldAdapter.editable = editable
         fileAdapter.editable = editable
+        tv_collect_field_import.visibility = if(editable) View.VISIBLE else View.GONE
         if (moduleType==2){
             spSurveyType.visibility=View.VISIBLE
             mSharedPrefUtil.getString("fieldShow")?.let {
@@ -482,8 +483,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             }
         }
     }
-
     private fun loadFeature(featureLayer: Feature,isShowList: ArrayList<String> = arrayListOf()) {
+
         fieldAdapter.readonlyList.clear()
         filePath =
             ConstStrings.getOperationalLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"

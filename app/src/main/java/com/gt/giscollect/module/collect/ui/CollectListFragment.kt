@@ -270,7 +270,13 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
             addAll(checkList)
         }
         //先添加本地的所有图层
-        MapTool.mapListener?.getMap()?.operationalLayers?.forEach layer@{ layer ->
+        MapTool.mapListener?.getMap()?.operationalLayers?.filter {
+            //只添加采集
+            FileUtils.getFilesByName(
+                ConstStrings.getOperationalLayersPath(),
+                it.name
+            ).isNotEmpty()
+        }?.forEach layer@{ layer ->
             if (layer is FeatureLayer) {
                 var bean: CheckBean? = null
                 //将所有能与线上对应的layer设置checkBean

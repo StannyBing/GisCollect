@@ -52,7 +52,7 @@ object GeoPackageTool {
         name: String,
         featureCall: (FeatureLayer?) -> Unit = {},
         listCall: (List<FeatureLayer>) -> Unit = {}
-    ){
+    ) {
         val layerList = arrayListOf<FeatureLayer>()
         val geoPackages =
             getGpkgs(mapPath)
@@ -65,7 +65,14 @@ object GeoPackageTool {
             doFeatureQuery(geoPackage, name) {
                 layerSize--
                 it?.let {
-                    layerList.add(it)
+                    layerList.firstOrNull {
+                        it.name == name
+                    }.apply {
+                        if (this == null) {
+                            //防止多个图层都有同个图层
+                            layerList.add(it)
+                        }
+                    }
                 }
                 if (layerSize == 0) {
                     listCall(layerList)
