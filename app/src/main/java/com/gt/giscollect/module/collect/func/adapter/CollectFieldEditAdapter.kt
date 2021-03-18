@@ -63,7 +63,8 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 "RECORD"
             )
         ) {//文件选择
-            helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = if (editable) View.VISIBLE else View.GONE
+            helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility =
+                if (editable) View.VISIBLE else View.GONE
             helper.setText(
                 R.id.btn_collect_edit_filed_file, when (item.first.name) {
                     "camera", "CAMERA" -> "添加照片"
@@ -75,7 +76,10 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
             helper.addOnClickListener(R.id.btn_collect_edit_filed_file)
         } else if (spinnerMap.containsKey(item.first.name)) {//下拉列表
             helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value).visibility = View.VISIBLE
-            helper.setEnabled(R.id.sp_collect_edit_field_value, editable && !readonlyList.contains(item.first.name))
+            helper.setEnabled(
+                R.id.sp_collect_edit_field_value,
+                editable && !readonlyList.contains(item.first.name)
+            )
             helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value)
                 .setData(arrayListOf<KeyValueEntity>().apply {
                     spinnerMap[item.first.name]?.forEach {
@@ -113,7 +117,10 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                     }
                 }
         } else if (item.first.fieldType == Field.Type.DATE) {//日期选择
-            helper.setEnabled(R.id.tv_collect_edit_field_date, editable && !readonlyList.contains(item.first.name))
+            helper.setEnabled(
+                R.id.tv_collect_edit_field_date,
+                editable && !readonlyList.contains(item.first.name)
+            )
             helper.setText(
                 R.id.tv_collect_edit_field_date,
                 if (!editable) "不可选" else if (item.second == null || item.second !is GregorianCalendar) "点击选择时间" else {
@@ -147,7 +154,13 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 item.first.isEditable && editable && !readonlyList.contains(item.first.name) && item.first.name != "uuid" && item.first.name != "UUID"
             helper.setText(
                 R.id.et_collect_edit_field_value, if (item.second == null) "" else {
-                    item.second.toString()
+                    if (item.first.fieldType == Field.Type.DOUBLE && (item.second == "" || item.second == null)) {
+                        "0.0"
+                    } else if (item.first.fieldType == Field.Type.INTEGER && (item.second == "" || item.second == null)) {
+                        "0"
+                    } else {
+                        item.second.toString()
+                    }
                 }
             )
             if (if (item.second == null) "" else {

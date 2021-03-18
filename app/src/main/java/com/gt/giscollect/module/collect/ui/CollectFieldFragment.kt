@@ -75,7 +75,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 
     private var filePath = ""
 
-    private var moduleType=1 //1 采集 2调查
+    private var moduleType = 1 //1 采集 2调查
 
     /**
      * layout配置
@@ -260,20 +260,23 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 id: Long
             ) {
                 try {
-                    val selectValueList = Gson().fromJson<ArrayList<String>>( spSurveyType.selectedValue.toString(), object : TypeToken<ArrayList<String>>() {}.type)
+                    val selectValueList = Gson().fromJson<ArrayList<String>>(
+                        spSurveyType.selectedValue.toString(),
+                        object : TypeToken<ArrayList<String>>() {}.type
+                    )
                     currentFeature?.let {
                         if (it is ArcGISFeature) {
                             showLoading("正在加载在线属性信息")
                             it.loadAsync()
                             it.addDoneLoadingListener {
-                                loadFeature(it,selectValueList)
+                                loadFeature(it, selectValueList)
                                 dismissLoading()
                             }
                         } else {
-                            loadFeature(it,selectValueList)
+                            loadFeature(it, selectValueList)
                         }
                     }
-                }catch (e:java.lang.Exception){
+                } catch (e: java.lang.Exception) {
 
                 }
             }
@@ -362,6 +365,9 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         }
                     } else {
                         applyEdit(name, fieldValue, type)
+                        //TODO 保留两个，别删，后面再看怎么改
+                        applyEdit(name, fieldValue, type)
+                        applyEdit(name, fieldValue, type)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -374,7 +380,6 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         if (currentFeature?.attributes?.get(name) == fieldValue) {
             return
         }
-        ZXLogUtil.loge("setField:${name}->${fieldValue}")
         val fields =
             currentFeature?.featureTable?.fields?.filter { it.name.toUpperCase() == name.toUpperCase() && it.isEditable }
         if (fields.isNullOrEmpty()) {
@@ -405,8 +410,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         } else if (currentFeature?.attributes?.containsKey(name) == true) {
             currentFeature?.attributes?.set(
                 name, when (type) {
-                    Field.Type.INTEGER -> fieldValue.toString().toInt()
-                    Field.Type.DOUBLE -> fieldValue.toString().toDouble()
+                    Field.Type.INTEGER -> if (fieldValue == null || fieldValue == "") 0 else fieldValue.toString().toInt()
+                    Field.Type.DOUBLE -> if (fieldValue == null || fieldValue == "") 0.0 else fieldValue.toString().toDouble()
                     Field.Type.DATE -> fieldValue
                     else -> fieldValue
                 }
@@ -414,8 +419,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         } else {
             currentFeature?.attributes?.put(
                 name, when (type) {
-                    Field.Type.INTEGER -> fieldValue.toString().toInt()
-                    Field.Type.DOUBLE -> fieldValue.toString().toDouble()
+                    Field.Type.INTEGER -> if (fieldValue == null || fieldValue == "") 0 else fieldValue.toString().toInt()
+                    Field.Type.DOUBLE -> if (fieldValue == null || fieldValue == "") 0.0 else fieldValue.toString().toDouble()
                     Field.Type.DATE -> fieldValue
                     else -> fieldValue
                 }
@@ -431,15 +436,15 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 if (currentFeature?.featureTable is ServiceFeatureTable) {
                     (currentFeature?.featureTable as ServiceFeatureTable).applyEditsAsync()
                 }
-                currentFeature?.refresh()
             }
+//            currentFeature?.refresh()
         }
     }
 
     /**
      * moduleType 1 为采集 2为调查
      */
-    fun excuteField(featureLayer: Feature, editable: Boolean,moduleType:Int=1) {
+    fun excuteField(featureLayer: Feature, editable: Boolean, moduleType: Int = 1) {
         fieldList.clear()
         fileList.clear()
         fieldAdapter.notifyDataSetChanged()
@@ -447,9 +452,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         currentFeature = featureLayer
         fieldAdapter.editable = editable
         fileAdapter.editable = editable
-        tv_collect_field_import.visibility = if(editable) View.VISIBLE else View.GONE
-        if (moduleType==2){
-            spSurveyType.visibility=View.VISIBLE
+        tv_collect_field_import.visibility =
+            if (!editable || moduleType != 1) View.GONE else View.VISIBLE
+        if (moduleType == 2) {
+            spSurveyType.visibility = View.VISIBLE
             mSharedPrefUtil.getString("fieldShow")?.let {
                if (it.isNotEmpty()){
                    var moduleTypeData = arrayListOf<KeyValueEntity>()
@@ -467,7 +473,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                    spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
                }
             }
-        }else{
+        } else {
             spSurveyType.visibility = View.GONE
             if (featureLayer is ArcGISFeature) {
                 showLoading("正在加载在线属性信息")
@@ -480,9 +486,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 loadFeature(featureLayer)
             }
         }
-    }
-    private fun loadFeature(featureLayer: Feature,isShowList: ArrayList<String> = arrayListOf()) {
 
+    }
+
+    private fun loadFeature(featureLayer: Feature, isShowList: ArrayList<String> = arrayListOf()) {
         fieldAdapter.readonlyList.clear()
         filePath =
             ConstStrings.getOperationalLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"
@@ -492,10 +499,18 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         fieldAdapter.notifyDataSetChanged()
         val filedTemp = arrayListOf<Pair<Field, Any?>>()
         currentFeature?.featureTable?.fields?.forEach {
-            if (!isShowList.isNullOrEmpty()){
+            if (!isShowList.isNullOrEmpty()) {
                 //筛选出显示的数据
-                if (isShowList.contains(it.name)){
-                    if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
+                if (isShowList.contains(it.name)) {
+                    if (it.name in arrayOf(
+                            "camera",
+                            "video",
+                            "record",
+                            "CAMERA",
+                            "VIDEO",
+                            "RECORD"
+                        )
+                    ) {
                         filedTemp.add(it to currentFeature!!.attributes[it.name])
                     } else {
                         if (currentFeature!!.attributes[it.name] == null) {
@@ -505,7 +520,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         }
                     }
                 }
-            }else{
+            } else {
                 if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
                     filedTemp.add(it to currentFeature!!.attributes[it.name])
                 } else {
@@ -632,8 +647,5 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         }
 //        fieldAdapter.notifyDataSetChanged()
     }
-
-
-
 
 }

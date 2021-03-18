@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.data.GeoPackage
+import com.esri.arcgisruntime.data.GeoPackageFeatureTable
 import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
@@ -29,10 +30,14 @@ import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXTimeUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_list.*
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * Create By XB
@@ -164,6 +169,18 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             "提示",
                             "是否删除该图层，这将同时删除该图层的相关采集数据？"
                         ) { dialog, which ->
+
+                            collectList.removeAt(pos)
+                            collectAdapter.notifyItemRemoved(pos)
+                            collectAdapter.notifyItemRangeChanged(pos, 5)
+
+                            MapTool.postLayerChange(
+                                ChangeTag,
+                                layer,
+                                MapTool.ChangeType.OperationalRemove
+                            )
+                            MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)
+
                             FileUtils.deleteFilesByName(
                                 ConstStrings.getOperationalLayersPath(),
                                 layer.name
@@ -173,14 +190,6 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                 layer
                             )
 
-                            MapTool.postLayerChange(
-                                ChangeTag,
-                                layer,
-                                MapTool.ChangeType.OperationalRemove
-                            )
-                            collectList.removeAt(pos)
-                            collectAdapter.notifyItemRemoved(pos)
-                            collectAdapter.notifyItemRangeChanged(pos, 5)
                         }
                     }
                 }
@@ -200,6 +209,75 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                 }
             }
         super.initView(savedInstanceState)
+    }
+
+
+    private fun renameLayer(currentLayer: FeatureLayer, beforeName: String?, afterName: String) {
+        val files = FileUtils.getFilesByName(
+            ConstStrings.getOperationalLayersPath(),
+            currentLayer.name
+        )
+        files.forEach {
+
+            ZXFileUtil.rename(
+                it, if (it.isFile) {
+                    afterName + ".gpkg"
+                } else {
+                    afterName
+                }
+            )
+        }
+        val filesAfter = FileUtils.getFilesByName(
+            ConstStrings.getOperationalLayersPath(),
+            afterName
+        )
+        var gpkgFile = filesAfter.first {
+            it.isFile
+        }
+
+        //添加模板id
+        val templateIds =
+            mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+        templateIds.forEach outFor@{ temp ->
+            var hasTemp = false
+            temp.layerNames.forEach inFor@{
+                if (it == beforeName) {
+                    hasTemp = true
+                    return@inFor
+                }
+            }
+            if (hasTemp) {
+                temp.layerNames.remove(beforeName)
+                temp.layerNames.add(afterName)
+            }
+        }
+        mSharedPrefUtil.putList(ConstStrings.TemplateIdList, templateIds)
+
+        val geoPackage = GeoPackage(gpkgFile?.path)
+        geoPackage.loadAsync()
+        geoPackage.addDoneLoadingListener {
+            if (geoPackage.loadStatus == LoadStatus.LOADED) {
+                val geoTables = geoPackage.geoPackageFeatureTables
+                geoTables.forEach { table ->
+                    val featureLayer = FeatureLayer(table)
+                    featureLayer.loadAsync()
+                    featureLayer.addDoneLoadingListener {
+                        featureLayer.name =
+                            gpkgFile?.name?.substring(
+                                0,
+                                gpkgFile?.name?.lastIndexOf(".") ?: 0
+                            )
+                        MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
+                    }
+                }
+            }
+        }
+
+
+        currentLayer?.name = afterName
+        MapTool.mapListener?.getMap()?.operationalLayers?.remove(currentLayer)
+        showToast("修改成功！")
+        fragChangeListener?.onFragBack(CollectMainFragment.Collect_Feature)
     }
 
     private fun downloadCollect(collectCheckBean: CollectCheckBean) {
