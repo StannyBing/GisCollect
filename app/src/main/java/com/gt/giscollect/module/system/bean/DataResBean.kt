@@ -6,6 +6,7 @@ data class DataResBean(
     val appUrl: String = "",
     val materialId: String = "",
     val catalogId: String = "",
+    var templateid:String="",
     val created: Long = 0L,
     val el: String = "",
     val fileExt: String = "",

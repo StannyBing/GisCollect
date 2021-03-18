@@ -45,7 +45,10 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
             Field.Type.FLOAT -> "浮点型"
             else -> "字符型"
         }
-        helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.GONE
+        helper.getView<EditText>(R.id.et_collect_edit_field_value).apply {
+            visibility = View.GONE
+            hint="请输入${item.first.name}"
+        }
         helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.GONE
         helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = View.GONE
         helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value).visibility = View.GONE

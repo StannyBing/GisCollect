@@ -43,6 +43,7 @@ class SketchFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
             else -> "字符型"
         }
         helper.getView<LinearLayout>(R.id.ll_collect_edit_field_value).visibility = View.GONE
+        helper.getView<EditText>(R.id.et_collect_edit_field_value).hint="请输入${item.first.name}"
         helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = if (item.first.fieldType==Field.Type.DATE) View.VISIBLE else View.GONE
         helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = View.GONE
         helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value).visibility = View.GONE
