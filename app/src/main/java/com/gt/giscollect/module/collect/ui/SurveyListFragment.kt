@@ -1,6 +1,5 @@
 package com.gt.giscollect.module.collect.ui
 
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -17,14 +16,9 @@ import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.base.*
-import com.gt.base.app.CheckBean
-import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
-import com.gt.giscollect.module.collect.mvp.model.CollectListModel
-import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.MapTool
-import com.gt.base.app.TempIdsBean
-import com.gt.giscollect.module.collect.bean.CollectCheckBean
+import com.gt.base.tool.MyUtil
 import com.gt.giscollect.module.collect.func.adapter.SurveyListAdapter
 import com.gt.giscollect.module.collect.mvp.contract.SurveyListContract
 import com.gt.giscollect.module.collect.mvp.model.SurveyListModel
@@ -37,7 +31,9 @@ import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_list.*
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
+import java.util.*
 
 /**
  * Create By XB
@@ -120,13 +116,13 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
                             files.firstOrNull { it.isDirectory }?.apply {
                                 val path = ZipUtils.zip(path, false)
                                 if (path != null) {
-//                                    mPresenter.uploadSurvey(
-//                                        path,
-//                                        layer.name,
-//                                        mTempId,
-//                                        mCataId,
-//                                        collectId = surveyList[pos].checkInfo?.collectId ?: ""
-//                                    )
+                                    mPresenter.uploadSurvey(
+                                        path,
+                                        surveyList[pos].materialName,
+                                        surveyList[pos].templateid,
+                                        surveyList[pos].catalogId,
+                                        collectId = UUID.randomUUID().toString()
+                                    )
                                 }
                             }
                         }
@@ -255,9 +251,12 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
     }
 
     override fun onSurveyListResult(tempalteList: NormalList<DataResBean>) {
+        //获取templateid
         this.surveyList.clear()
-        this.surveyList.addAll(tempalteList.rows.apply {
+        tempalteList.rows.apply {
             forEach {
+                it.templateid=getTemplateId()
+                surveyList.add(it)
                 try {
                     val fileObj = JSONArray(it.fileJson).getJSONObject(0)
                     val fileExt = fileObj.getString("fileExt")
@@ -268,8 +267,28 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
                     e.printStackTrace()
                 }
             }
-        })
+        }
         surveyAdapter.notifyDataSetChanged()
         sr_collect_layers.isRefreshing = false
+    }
+
+    private fun getTemplateId():String{
+        var templateId=""
+        mSharedPrefUtil.getString("fieldShow")?.let {
+            if (it.isNotEmpty()){
+                val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
+               jsonToLinkedHashMap.entries.forEach {
+                    if (it.key=="房屋调查"){
+                        MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach temp@{
+                            if (it.key=="templateid"){
+                                templateId = it.value
+                                return@temp
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return templateId
     }
 }

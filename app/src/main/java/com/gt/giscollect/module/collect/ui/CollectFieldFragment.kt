@@ -19,6 +19,7 @@ import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
+import com.gt.base.tool.MyUtil
 import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldEditAdapter
@@ -35,7 +36,6 @@ import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_collect_field.*
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 
@@ -471,19 +471,21 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         if (moduleType == 2) {
             spSurveyType.visibility = View.VISIBLE
             mSharedPrefUtil.getString("fieldShow")?.let {
-                if (it.isNotEmpty()) {
-                    var moduleTypeData = arrayListOf<KeyValueEntity>()
-                    moduleTypeData.add(KeyValueEntity("请选择调查类型", "0"))
-                    val jsonToLinkedHashMap = jsonToLinkedHashMap(JSONObject(it))
-                    jsonToLinkedHashMap.entries.forEach {
-                        if (it.key == "房屋调查") {
-                            jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
-                                moduleTypeData.add(KeyValueEntity(it.key, it.value))
-                            }
-                        }
-                    }
-                    spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
-                }
+               if (it.isNotEmpty()){
+                   var moduleTypeData = arrayListOf<KeyValueEntity>()
+                   moduleTypeData.add(KeyValueEntity("请选择调查类型","0"))
+                   val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
+                   jsonToLinkedHashMap.entries.forEach {
+                       if (it.key=="房屋调查"){
+                           MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
+                               if (it.key!="templateid"){
+                                   moduleTypeData.add(KeyValueEntity(it.key,it.value))
+                               }
+                           }
+                       }
+                   }
+                   spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
+               }
             }
         } else {
             spSurveyType.visibility = View.GONE
@@ -659,27 +661,4 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 //        fieldAdapter.notifyDataSetChanged()
     }
 
-
-    /**
-     * json转map
-     *
-     * @param jsonObject
-     * @return
-     */
-    private fun jsonToLinkedHashMap(jsonObject: JSONObject): LinkedHashMap<String, String> {
-        val result = LinkedHashMap<String, String>()
-        val iterator = jsonObject.keys()
-        var key: String
-        var value = ""
-        while (iterator.hasNext()) {
-            key = iterator.next()
-            try {
-                value = jsonObject.getString(key)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-            result[key.toLowerCase()] = value
-        }
-        return result
-    }
 }
