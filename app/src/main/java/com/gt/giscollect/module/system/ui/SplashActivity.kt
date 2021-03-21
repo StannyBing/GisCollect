@@ -16,6 +16,7 @@ import com.gt.giscollect.module.system.mvp.contract.SplashContract
 import com.gt.giscollect.module.system.mvp.model.SplashModel
 import com.gt.giscollect.module.system.mvp.presenter.SplashPresenter
 import com.gt.base.manager.UserManager
+import com.gt.giscollect.module.main.ui.MainActivity
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXUniqueIdUtil
 import com.zx.zxutils.views.ZXStatusBarCompat

@@ -31,6 +31,7 @@
         android:layout_marginLeft="5dp"
         android:textColor="@color/black"
         android:layout_marginTop="25dp"
+        android:visibility="gone"
         android:layout_toRightOf="@id/rv_func_list"
         android:textSize="@dimen/text_smaller_size" />
 

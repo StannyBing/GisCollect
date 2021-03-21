@@ -101,7 +101,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 //                )
 //                return@getPermission
 //            }
-            if (WHandTool.isOpen && WHandTool.isConnect) {
+            if (WHandTool.isOpen) {
                 val info = WHandTool.getDeviceInfoOneTime()
                 if (info != null) {
                     map_view.setViewpointCenterAsync(

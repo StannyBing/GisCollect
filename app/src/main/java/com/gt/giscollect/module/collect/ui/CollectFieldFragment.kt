@@ -240,6 +240,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         tv_collect_field_import.setOnClickListener {
             fragChangeListener?.onFragGoto(CollectMainFragment.Collect_Import)
         }
+        //文字编辑
+        fieldAdapter.addTextChangedCall { position, value ->
+            fieldList[position] = fieldList[position].first to value
+        }
         //保存
         btn_collect_field_save.setOnClickListener {
             saveIndex = 0
@@ -392,6 +396,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         val fields =
             currentFeature?.featureTable?.fields?.filter { it.name.toUpperCase() == name.toUpperCase() && it.isEditable }
         if (fields.isNullOrEmpty()) {
+            postSave()
             return
         }
         if (fieldValue is File && currentFeature is ArcGISFeature) {//在线文件
@@ -435,7 +440,6 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     else -> fieldValue
                 }
             )
-            ZXLogUtil.loge("保存：${name}->${fieldValue}")
         }
 
         applyFeatureUpdateInfo()
@@ -471,21 +475,21 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         if (moduleType == 2) {
             spSurveyType.visibility = View.VISIBLE
             mSharedPrefUtil.getString("fieldShow")?.let {
-               if (it.isNotEmpty()){
-                   var moduleTypeData = arrayListOf<KeyValueEntity>()
-                   moduleTypeData.add(KeyValueEntity("请选择调查类型","0"))
-                   val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
-                   jsonToLinkedHashMap.entries.forEach {
-                       if (it.key=="房屋调查"){
-                           MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
-                               if (it.key!="templateid"){
-                                   moduleTypeData.add(KeyValueEntity(it.key,it.value))
-                               }
-                           }
-                       }
-                   }
-                   spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
-               }
+                if (it.isNotEmpty()) {
+                    var moduleTypeData = arrayListOf<KeyValueEntity>()
+                    moduleTypeData.add(KeyValueEntity("请选择调查类型", "0"))
+                    val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
+                    jsonToLinkedHashMap.entries.forEach {
+                        if (it.key == "房屋调查") {
+                            MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
+                                if (it.key != "templateid") {
+                                    moduleTypeData.add(KeyValueEntity(it.key, it.value))
+                                }
+                            }
+                        }
+                    }
+                    spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
+                }
             }
         } else {
             spSurveyType.visibility = View.GONE
