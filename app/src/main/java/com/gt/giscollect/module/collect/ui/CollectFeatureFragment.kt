@@ -8,14 +8,14 @@ import android.widget.AdapterView
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.*
+import com.esri.arcgisruntime.internal.jni.CoreSymbolLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.SketchCreationMode
 import com.esri.arcgisruntime.mapping.view.SketchEditor
 import com.esri.arcgisruntime.mapping.view.SketchStyle
-import com.esri.arcgisruntime.symbology.SimpleFillSymbol
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
+import com.esri.arcgisruntime.symbology.*
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
@@ -835,7 +835,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         featureLayer: FeatureLayer,
         isEdit: Boolean,
         canRename: Boolean,
-        clickEdit: Boolean = false
+        clickEdit: Boolean = false,
+        moduleType:Int=1 //1采集 2 调查
     ) {
         startNum = 0
         isInEdit = false
@@ -846,6 +847,20 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         tv_collect_rename.visibility = View.GONE
 
         et_collect_rename.setText(featureLayer.name)
+        if(moduleType==2)featureLayer.renderer= UniqueValueRenderer().apply {
+            fieldNames.add("OBJECTID")
+            defaultSymbol = SimpleFillSymbol(SimpleFillSymbol.Style.SOLID,  mContext.resources.getColor(R.color.Chart_33), SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f))
+            uniqueValues.clear()
+            uniqueValues.add(UniqueValueRenderer.UniqueValue("1","2",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
+                arrayListOf<String>().apply {
+                    add("1")
+                }))
+            uniqueValues.add(UniqueValueRenderer.UniqueValue("1","2",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
+                arrayListOf<String>().apply {
+                    add("2")
+                }))
+        }
+
         currentLayer = featureLayer
         currentLayer?.clearSelection()
         try {
@@ -920,7 +935,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                } else {
                 featureList.addAll(list)
 //                }
-
                 if (startNum > 0) {
                     featureAdapter.notifyItemInserted(startNum)
                 }
@@ -951,6 +965,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         featureAdapter.notifyDataSetChanged()
     }
 
+    fun remove(){
+        MapTool.mapListener?.getMapView()?.map?.operationalLayers?.remove(currentLayer)
+    }
     private fun moveToLayer(layer: FeatureLayer) {
         try {
             val extent = layer.fullExtent

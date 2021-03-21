@@ -169,27 +169,35 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             "提示",
                             "是否删除该图层，这将同时删除该图层的相关采集数据？"
                         ) { dialog, which ->
-
+                           var name = collectList[pos].featureLayer?.name
                             collectList.removeAt(pos)
                             collectAdapter.notifyItemRemoved(pos)
                             collectAdapter.notifyItemRangeChanged(pos, 5)
 
-                            MapTool.postLayerChange(
-                                ChangeTag,
-                                layer,
-                                MapTool.ChangeType.OperationalRemove
-                            )
-                            MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)
+                           /*
+                            MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)*/
 
-                            FileUtils.deleteFilesByName(
-                                ConstStrings.getOperationalLayersPath(),
-                                layer.name
+                            val list = mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+                            list.forEach list@{
+                                var tempLayersName = it.layerNames.filter {
+                                    it!=name
+                                }
+                                it.layerNames.clear()
+                                it.layerNames.addAll(tempLayersName)
+                            }
+                            mSharedPrefUtil.putList(
+                                ConstStrings.TemplateIdList,
+                                list
                             )
+                            MapTool.mapListener?.getMap()?.operationalLayers?.remove(layer)
                             DeleteLayerFileTool.deleteFileByLayer(
                                 ConstStrings.getOperationalLayersPath() + layer.name + "/file/",
                                 layer
                             )
-
+                            FileUtils.deleteFilesByName(
+                                ConstStrings.getOperationalLayersPath(),
+                                layer.name
+                            )
                         }
                     }
                 }
@@ -343,7 +351,6 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         ConstStrings.checkList.clear()
         ConstStrings.checkList.addAll(checkList)
         totalCheckList.clear()
-
         val tempCheck = arrayListOf<CheckBean>().apply {
             addAll(checkList)
         }

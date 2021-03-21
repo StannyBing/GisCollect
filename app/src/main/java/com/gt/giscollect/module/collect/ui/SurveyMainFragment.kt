@@ -91,6 +91,7 @@ class SurveyMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>(
 
             }
             Survey_Feature -> {
+                surveyFeatureFragment?.remove()
                 MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
                 onFragGoto(Survey_List)
             }
@@ -115,13 +116,13 @@ class SurveyMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>(
                 ZXFragmentUtil.hideAllShowFragment(surveyFeatureFragment!!)
                 any?.let {
                     if (it is FeatureLayer) {
-                        surveyFeatureFragment?.excuteLayer(it, true, true, true)
+                        surveyFeatureFragment?.excuteLayer(it, true, true, true,2)
                     } else if (it is Pair<*, *>) {
                         surveyFeatureFragment?.excuteLayer(
                             it.first as FeatureLayer,
                             (it.second as Array<Boolean>)[0],
                             (it.second as Array<Boolean>)[1],
-                            clickEdit = true
+                            clickEdit = true,moduleType = 2
                         )
                     } else {
 

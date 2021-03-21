@@ -221,7 +221,7 @@ class SurveyListPresenter : SurveyListContract.Presenter() {
 //        builder.addFormDataPart("catalogId", "catalogId")
         builder.addFormDataPart("layerName", name)
         builder.addFormDataPart("userId", UserManager.user?.userId)
-        if (collectId.isNotEmpty()) builder.addFormDataPart("collectId", collectId)
+      //  if (collectId.isNotEmpty()) builder.addFormDataPart("collectId", collectId)
         builder.addFormDataPart(
             "file",
             file,
