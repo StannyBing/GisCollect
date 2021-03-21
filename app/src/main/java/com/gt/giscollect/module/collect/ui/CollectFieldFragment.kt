@@ -291,6 +291,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             fragChangeListener?.onFragBack(CollectMainFragment.Collect_Field)
         } else {
             showLoading("正在保存中...")
+            //默认加入一个值
             if (saveIndex < fieldList.size) {
                 saveFieldByName(fieldList[saveIndex++].first.name)
             } else {
@@ -361,7 +362,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 if (currentFeature is ArcGISFeature && uploadTempFile != null) {
                     applyEdit(name, uploadTempFile, Field.Type.TEXT)
                 } else {
-                    applyEdit(name, fieldValue, Field.Type.TEXT)
+                    applyEdit(name, if (name=="filled") "true" else fieldValue, Field.Type.TEXT)
                 }
             }
             else -> {
@@ -375,10 +376,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     if (currentFeature is ArcGISFeature) {
                         (currentFeature as ArcGISFeature).loadAsync()
                         (currentFeature as ArcGISFeature).addDoneLoadingListener {
-                            applyEdit(name, fieldValue, type)
+                            applyEdit(name, if (name=="filled") "true" else fieldValue, type)
                         }
                     } else {
-                        applyEdit(name, fieldValue, type)
+                        applyEdit(name,  if (name=="filled") "true" else fieldValue, type)
                     }
                 } catch (e: Exception) {
                     postSave()
@@ -437,7 +438,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     Field.Type.INTEGER -> if (fieldValue == null || fieldValue == "") 0 else fieldValue.toString().toInt()
                     Field.Type.DOUBLE -> if (fieldValue == null || fieldValue == "") 0.0 else fieldValue.toString().toDouble()
                     Field.Type.DATE -> fieldValue
-                    else -> if (name=="isEdit") "true" else fieldValue
+                    else -> fieldValue
                 }
             )
         }
@@ -519,7 +520,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         currentFeature?.featureTable?.fields?.forEach {
             if (!isShowList.isNullOrEmpty()) {
                 //筛选出显示的数据
-                if (isShowList.contains(it.name)) {
+                if (isShowList.contains(it.name)||it.name=="filled") {
                     if (it.name in arrayOf(
                             "camera",
                             "video",

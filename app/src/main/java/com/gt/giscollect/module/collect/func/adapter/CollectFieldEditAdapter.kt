@@ -7,6 +7,7 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -40,6 +41,15 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
     @RequiresApi(Build.VERSION_CODES.N)
     override fun convert(helper: ZXBaseHolder, item: Pair<Field, Any?>) {
         helper.setText(R.id.tv_collect_edit_field_name, item.first.name)
+        val layoutParams = helper.itemView.layoutParams
+        if (item.first.name=="filled"){
+            layoutParams.width = 0
+            layoutParams.height =0
+        }else{
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            layoutParams.height =ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+        helper.itemView.layoutParams = layoutParams
         when (item.first.fieldType) {
             Field.Type.TEXT -> "字符型"
             Field.Type.INTEGER -> "整型"

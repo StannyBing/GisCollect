@@ -845,7 +845,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 
         et_collect_rename.setText(featureLayer.name)
         if(moduleType==2)featureLayer.renderer= UniqueValueRenderer().apply {
-            fieldNames.add("isEdit")
+            fieldNames.add("filled")
             defaultSymbol = SimpleFillSymbol(SimpleFillSymbol.Style.SOLID,  mContext.resources.getColor(R.color.Chart_33), SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f))
             uniqueValues.clear()
             uniqueValues.add(UniqueValueRenderer.UniqueValue("是否编辑","true",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
