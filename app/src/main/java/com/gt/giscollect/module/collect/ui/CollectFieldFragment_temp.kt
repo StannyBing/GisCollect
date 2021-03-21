@@ -12,6 +12,8 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.*
 import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.giscollect.R
@@ -19,7 +21,6 @@ import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
-import com.gt.base.tool.MyUtil
 import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFieldEditAdapter
@@ -36,22 +37,24 @@ import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.fragment_collect_field.*
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
+import java.io.Serializable
 
 
 /**
  * Create By XB
  * 功能：采集-属性编辑
  */
-class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldModel>(),
+class CollectFieldFragment_temp : BaseFragment<CollectFieldPresenter, CollectFieldModel>(),
     CollectFieldContract.View {
     companion object {
         /**
          * 启动器
          */
-        fun newInstance(): CollectFieldFragment {
-            val fragment = CollectFieldFragment()
+        fun newInstance(): CollectFieldFragment_temp {
+            val fragment = CollectFieldFragment_temp()
             val bundle = Bundle()
 
             fragment.arguments = bundle
@@ -74,8 +77,6 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     private var recordUtil: ZXRecordUtil? = null
 
     private var filePath = ""
-
-    private var saveIndex = 0
 
     private var moduleType = 1 //1 采集 2调查
 
@@ -176,6 +177,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 }
             }
         }
+        //文字编辑
+//        fieldAdapter.addTextChangedCall { position, value ->
+//            fieldList[position] = fieldList[position].first to value
+//            saveField(fieldList[position].first.name)
+//        }
         //文件删除事件
         fileAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.iv_collect_file_delete) {
@@ -188,9 +194,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                             applyFeatureUpdateInfo()
                         }
                 } else {
+                    val type = fileList[position].type
                     fileList.removeAt(position)
                     fileAdapter.notifyItemRemoved(position)
                     fileAdapter.notifyItemRangeChanged(position, 5)
+                    saveField(type)
                 }
             }
         }
@@ -224,6 +232,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         fileList.add(fileBean)
                     }
                     fileAdapter.notifyDataSetChanged()
+                    saveField("record")
                     handler.postDelayed({
                         ZXDialogUtil.dismissDialog()
                     }, 100)
@@ -240,14 +249,9 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         tv_collect_field_import.setOnClickListener {
             fragChangeListener?.onFragGoto(CollectMainFragment.Collect_Import)
         }
-        //文字编辑
-        fieldAdapter.addTextChangedCall { position, value ->
-            fieldList[position] = fieldList[position].first to value
-        }
         //保存
         btn_collect_field_save.setOnClickListener {
-            saveIndex = 0
-            postSave()
+
         }
         //模板选择监听
         spSurveyType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -284,21 +288,6 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         }
     }
 
-    private fun postSave() {
-        if (saveIndex == fieldList.size + fileList.size) {
-            dismissLoading()
-            showToast("保存成功")
-            fragChangeListener?.onFragBack(CollectMainFragment.Collect_Field)
-        } else {
-            showLoading("正在保存中...")
-            if (saveIndex < fieldList.size) {
-                saveFieldByName(fieldList[saveIndex++].first.name)
-            } else {
-                saveFieldByName(fileList[saveIndex++ - fieldList.size].type)
-            }
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0x001) {
@@ -316,6 +305,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     fileList.add(fileBean)
                 }
                 fileAdapter.notifyDataSetChanged()
+                saveField("camera")
             }
         } else if (requestCode == 0x002) {
             if (data != null) {
@@ -336,14 +326,15 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     fileList.add(fileBean)
                 }
                 fileAdapter.notifyDataSetChanged()
+                saveField("video")
             }
         }
     }
 
     /**
-     * 保存字段信息
+     * 保存文件信息
      */
-    private fun saveFieldByName(name: String) {
+    private fun saveField(name: String) {
         when (name) {
             "camera", "video", "record", "CAMERA", "VIDEO", "RECORD" -> {
                 var fieldValue = ""
@@ -379,9 +370,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         }
                     } else {
                         applyEdit(name, fieldValue, type)
+                        //TODO 保留两个，别删，后面再看怎么改
+                        applyEdit(name, fieldValue, type)
+                        applyEdit(name, fieldValue, type)
                     }
                 } catch (e: Exception) {
-                    postSave()
                     e.printStackTrace()
                 }
             }
@@ -390,13 +383,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 
     private fun applyEdit(name: String, fieldValue: Any?, type: Field.Type?) {
         if (currentFeature?.attributes?.get(name) == fieldValue) {
-            postSave()
             return
         }
         val fields =
             currentFeature?.featureTable?.fields?.filter { it.name.toUpperCase() == name.toUpperCase() && it.isEditable }
         if (fields.isNullOrEmpty()) {
-            postSave()
             return
         }
         if (fieldValue is File && currentFeature is ArcGISFeature) {//在线文件
@@ -417,10 +408,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 contentType,
                 fieldValue.name
             ).addDoneListener {
+                dismissLoading()
                 applyFeatureUpdateInfo()
                 loadServiceFeatureFiles()
             }
-            return
         } else if (currentFeature?.attributes?.containsKey(name) == true) {
             currentFeature?.attributes?.set(
                 name, when (type) {
@@ -430,7 +421,6 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     else -> fieldValue
                 }
             )
-            ZXLogUtil.loge("保存：${name}->${fieldValue}")
         } else {
             currentFeature?.attributes?.put(
                 name, when (type) {
@@ -448,14 +438,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     private fun applyFeatureUpdateInfo() {
         if (currentFeature?.featureTable?.canUpdate(currentFeature) == true) {
             currentFeature?.featureTable?.updateFeatureAsync(currentFeature)?.addDoneListener {
-                postSave()
                 if (currentFeature?.featureTable is ServiceFeatureTable) {
                     (currentFeature?.featureTable as ServiceFeatureTable).applyEditsAsync()
                 }
             }
 //            currentFeature?.refresh()
-        } else {
-            postSave()
         }
     }
 
@@ -478,13 +465,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 if (it.isNotEmpty()) {
                     var moduleTypeData = arrayListOf<KeyValueEntity>()
                     moduleTypeData.add(KeyValueEntity("请选择调查类型", "0"))
-                    val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
+                    val jsonToLinkedHashMap = jsonToLinkedHashMap(JSONObject(it))
                     jsonToLinkedHashMap.entries.forEach {
                         if (it.key == "房屋调查") {
-                            MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
-                                if (it.key != "templateid") {
-                                    moduleTypeData.add(KeyValueEntity(it.key, it.value))
-                                }
+                            jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach {
+                                moduleTypeData.add(KeyValueEntity(it.key, it.value))
                             }
                         }
                     }
@@ -657,6 +642,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             fieldList.forEachIndexed field@{ index, field ->
                 if (import.first == field.first.name) {
                     fieldList[index] = field.first to import.second
+                    saveField(import.first)
                     fieldAdapter.notifyItemChanged(index)
                     return@field
                 }
@@ -665,4 +651,27 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 //        fieldAdapter.notifyDataSetChanged()
     }
 
+
+    /**
+     * json转map
+     *
+     * @param jsonObject
+     * @return
+     */
+    private fun jsonToLinkedHashMap(jsonObject: JSONObject): LinkedHashMap<String, String> {
+        val result = LinkedHashMap<String, String>()
+        val iterator = jsonObject.keys()
+        var key: String
+        var value = ""
+        while (iterator.hasNext()) {
+            key = iterator.next()
+            try {
+                value = jsonObject.getString(key)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+            result[key.toLowerCase()] = value
+        }
+        return result
+    }
 }

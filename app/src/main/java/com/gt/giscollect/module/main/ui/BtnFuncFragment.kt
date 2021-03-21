@@ -25,6 +25,7 @@ import com.gt.giscollect.tool.SimpleDecoration
 import com.woncan.whand.WHandInfo
 import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.fragment_btn_func.*
+import rx.functions.Action1
 
 
 /**
@@ -168,14 +169,18 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         }
         rv_func_list.setOnClickListener(null)
 
+        mRxManager.on("WHand", Action1<Boolean> {
+            tv_rtk_info?.visibility = if (it) View.VISIBLE else View.GONE
+        })
+
         WHandTool.addDeviceInfoListener(object : WHandTool.WHandDeviceListener {
             override fun onDeviceInfoCallBack(info: WHandInfo?) {
                 try {
-                    if (!WHandTool.isOpen || !WHandTool.isConnect) {
-                        handler.post { tv_rtk_info?.visibility = View.GONE }
-                        return
+                    if (info == null){
+                        tv_rtk_info?.visibility = View.GONE
+                    }else{
+                        tv_rtk_info?.visibility = View.VISIBLE
                     }
-                    handler.post { tv_rtk_info?.visibility = View.VISIBLE }
                     if (info?.longitude != null && info.longitude != 0.0) {
                         val method =
                             Class.forName("com.esri.arcgisruntime.location.LocationDataSource")
@@ -199,6 +204,7 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                         }
                     }
                 } catch (e: Exception) {
+                    tv_rtk_info?.visibility = View.GONE
                     e.printStackTrace()
                 }
 

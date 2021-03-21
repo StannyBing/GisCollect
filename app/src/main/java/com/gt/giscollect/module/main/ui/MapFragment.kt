@@ -1,6 +1,7 @@
 package com.gt.map
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
@@ -503,20 +504,18 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 //                )
 //                return@getPermission
 //            }
-            if (WHandTool.isOpen && WHandTool.isConnect) {
-                val info = WHandTool.getDeviceInfoOneTime()
-                if (info != null) {
-                    map_view.setViewpointCenterAsync(
-                        PointTool.change4326To3857(
-                            Point(
-                                info.longitude,
-                                info.latitude,
-                                SpatialReference.create(4326)
-                            )
+            val info = WHandTool.getDeviceInfoOneTime()
+            if (info != null) {
+                map_view.setViewpointCenterAsync(
+                    PointTool.change4326To3857(
+                        Point(
+                            info.longitude,
+                            info.latitude,
+                            SpatialReference.create(4326)
                         )
                     )
-                    return@getPermission
-                }
+                )
+                return@getPermission
             }
             if (locationDisplay == null) {
                 locationDisplay = map_view.locationDisplay

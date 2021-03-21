@@ -587,21 +587,17 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             ) {
-                val location = if (WHandTool.isConnect && WHandTool.isOpen) {
-                    val info = WHandTool.getDeviceInfoOneTime()
-                    if (info == null) {
-                        null
-                    } else {
-                        PointTool.change4326To3857(
-                            Point(
-                                info.longitude,
-                                info.latitude,
-                                SpatialReference.create(4326)
-                            )
-                        )
-                    }
-                } else {
+                val info = WHandTool.getDeviceInfoOneTime()
+                val location = if (info == null) {
                     MapTool.mapListener?.getMapView()?.locationDisplay?.mapLocation
+                } else {
+                    PointTool.change4326To3857(
+                        Point(
+                            info.longitude,
+                            info.latitude,
+                            SpatialReference.create(4326)
+                        )
+                    )
                 }
                 if (sketchEditor.isVisible && location != null) {
                     sketchEditor.insertVertexAfterSelectedVertex(location)

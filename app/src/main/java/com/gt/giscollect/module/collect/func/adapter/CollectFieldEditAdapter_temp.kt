@@ -25,10 +25,10 @@ import com.zx.zxutils.views.ZXSpinner
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
+class CollectFieldEditAdapter_temp(dataList: List<Pair<Field, Any?>>) :
     ZXQuickAdapter<Pair<Field, Any?>, ZXBaseHolder>(R.layout.item_collect_edit_field, dataList) {
 
-    var editable: Boolean = true
+    public var editable: Boolean = true
 
     private var call: (Int, Any) -> Unit = { _, _ -> }
 
@@ -45,10 +45,7 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
             Field.Type.FLOAT -> "浮点型"
             else -> "字符型"
         }
-        helper.getView<EditText>(R.id.et_collect_edit_field_value).apply {
-            visibility = View.GONE
-            hint="请输入${item.first.name}"
-        }
+        helper.getView<EditText>(R.id.et_collect_edit_field_value).visibility = View.GONE
         helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.GONE
         helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = View.GONE
         helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value).visibility = View.GONE
@@ -170,7 +167,6 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 helper.getView<TextView>(R.id.tv_collect_edit_field_link).visibility = View.VISIBLE
                 helper.addOnClickListener(R.id.tv_collect_edit_field_link)
             }
-
             helper.getView<EditText>(R.id.et_collect_edit_field_value)
                 .addTextChangedListener(object : TextWatcher {
                     override fun afterTextChanged(s: Editable?) {
@@ -196,7 +192,6 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                         )
                     }
                 })
-
             helper.getView<EditText>(R.id.et_collect_edit_field_value).inputType =
                 when (item.first.fieldType) {
                     Field.Type.INTEGER -> InputType.TYPE_CLASS_NUMBER
@@ -209,4 +204,5 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
     fun addTextChangedCall(call: (Int, Any) -> Unit) {
         this.call = call
     }
+
 }

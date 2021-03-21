@@ -4,27 +4,30 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Handler
+import com.frame.zxmvp.baserx.RxManager
 import com.woncan.whand.WHandInfo
 import com.woncan.whand.WHandManager
 import com.woncan.whand.device.IDevice
 import com.woncan.whand.listener.OnConnectListener
 import com.woncan.whand.scan.ScanCallback
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXToastUtil
 import java.io.Serializable
 
 object WHandTool {
 
-    var isConnect = false//是否连接
     var isOpen = true//是否允许接入
     var isAutoConnect = false//是否自动连接
+    var mStatus = BluetoothProfile.STATE_DISCONNECTED//状态
     private val infoListenerList: ArrayList<WHandDeviceListener> = arrayListOf()
     private val handler = Handler()
     private var deviceList = arrayListOf<BluetoothDevice>()
 
     private var iDivice: IDevice? = null
     private var openLaser = false
+    private var registerListener: WHandRegisterListener? = null
     private var newWHandInfo: WHandInfo? = null
 
     //自动连接IP
@@ -61,24 +64,20 @@ object WHandTool {
         }
 
         fun onDeviceStatusChange(context: Context, status: Int) {
-            if (!isAutoConnect) ZXDialogUtil.dismissLoadingDialog()
-            isConnect = true
+            mStatus = status
+            ZXDialogUtil.dismissLoadingDialog()
             when (status) {
-                BluetoothProfile.STATE_CONNECTING -> {
-//                    ZXToastUtil.showToast("QX:设备连接中")
-                }
                 BluetoothProfile.STATE_CONNECTED -> {
                     if (!isAutoConnect) ZXDialogUtil.dismissDialog()
 //                    ZXToastUtil.showToast("设备连接成功")
-//                    ZXToastUtil.showToast("连接已设备")
+                    ZXToastUtil.showToast("连接已设备")
+                    RxManager().post("WHand", true)
 //                    isConnect = true
-                }
-                BluetoothProfile.STATE_DISCONNECTING -> {
-//                    ZXToastUtil.showToast("QX:设备断开中")
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     if (!isAutoConnect) ZXDialogUtil.dismissDialog()
-//                    ZXToastUtil.showToast("设备已断开")
+                    RxManager().post("WHand", false)
+                    ZXToastUtil.showToast("设备已断开")
 //                    isConnect = false
                 }
             }
@@ -115,12 +114,20 @@ object WHandTool {
     /**
      * 设备注册
      */
+    var connectMills = 0L
+
     fun registerWHand(
         context: Context,
         listener: WHandRegisterListener = object :
             WHandRegisterListener {},
         isAuto: Boolean = false
     ) {
+        if (!isAuto) {
+            connectMills = System.currentTimeMillis()
+        } else {
+            if (System.currentTimeMillis() - connectMills < 1000) return
+        }
+        registerListener = listener
         isAutoConnect = isAuto
         if (isAutoConnect) {
             startScanf(listener, context)
@@ -141,6 +148,7 @@ object WHandTool {
     ) {
         listener.onScanStart(context)
         deviceList.clear()
+        WHandManager.getInstance().stopScan()
         WHandManager.getInstance().startScan(object : ScanCallback {
             override fun onLeScan(p0: BluetoothDevice, p1: Int, p2: ByteArray) {
                 var isContains = false
@@ -174,8 +182,9 @@ object WHandTool {
         })
     }
 
-    fun disConnectDivice() {
-        isConnect = false
+    fun disConnectDivice(context: Context) {
+        autoConnectDeviceAddress = ""
+        registerListener?.onDeviceStatusChange(context, BluetoothProfile.STATE_DISCONNECTED)
         WHandManager.getInstance().device?.setOnConnectListener(null)
         WHandManager.getInstance().device?.setOnConnectionStateChangeListener(null)
         try {
@@ -187,6 +196,7 @@ object WHandTool {
         }
         WHandManager.getInstance().device?.disconnect()
         iDivice = null
+        newWHandInfo = null
     }
 
     fun addDeviceInfoListener(listener: WHandDeviceListener) {
@@ -235,15 +245,12 @@ object WHandTool {
         iDivice?.setOnConnectionStateChangeListener { status, newState ->
             handler.post {
                 iDivice?.showLaser(openLaser)
-                listener.onDeviceStatusChange(context, status)
+                listener.onDeviceStatusChange(context, newState)
             }
         }
         iDivice?.setOnConnectListener(object : OnConnectListener {
             override fun onDeviceChanged(p0: WHandInfo?) {
                 handler.post {
-                    if (iDivice != null) {
-                        isConnect = true
-                    }
                     newWHandInfo = p0
                     try {
                         infoListenerList.forEach {

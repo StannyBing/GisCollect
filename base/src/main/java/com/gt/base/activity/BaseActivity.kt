@@ -12,6 +12,9 @@ import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.RxBaseActivity
 import com.zx.zxutils.util.*
 import com.zx.zxutils.views.ZXStatusBarCompat
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -44,6 +47,7 @@ abstract class BaseActivity<T : BasePresenter<*, *>, E : BaseModel> : RxBaseActi
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             window.attributes = lp
         }
+
     }
 
     /**

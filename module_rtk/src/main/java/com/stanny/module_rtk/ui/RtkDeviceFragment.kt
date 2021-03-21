@@ -1,5 +1,6 @@
 package com.stanny.module_rtk.ui
 
+import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -12,6 +13,7 @@ import com.stanny.module_rtk.mvp.presenter.RtkDevicePresenter
 import com.stanny.module_rtk.tool.WHandTool
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.fragment_rtk_device.*
+import rx.functions.Action1
 
 /**
  * Create By admin On 2017/7/11
@@ -45,6 +47,12 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
      * 初始化
      */
     override fun initView(savedInstanceState: Bundle?) {
+        val whandAccount = mSharedPrefUtil.getObject<WHandTool.WHandAccount>("whandAccount")
+        et_rtk_ip.setText(whandAccount?.ip ?: "183.230.183.10")
+        et_rtk_port.setText((whandAccount?.port ?: "2102").toString())
+        et_rtk_account.setText(whandAccount?.account ?: "")
+        et_rtk_password.setText(whandAccount?.password ?: "")
+        et_rtk_point.setText(whandAccount?.mountpoint ?: "RTKRTCM32")
         super.initView(savedInstanceState)
     }
 
@@ -61,14 +69,6 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
                 mSharedPrefUtil.putObject("whandAccount", whandAccount)
                 return whandAccount
             }
-
-            override fun onDeviceStatusChange(context: Context, status: Int) {
-                super.onDeviceStatusChange(context, status)
-                if (WHandTool.isConnect) {
-                    reInitWhandInfo()
-                }
-            }
-
         })
     }
 
@@ -77,6 +77,8 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
      */
     override fun onViewListener() {
         btn_rtk_connect.setOnClickListener {
+            WHandTool.autoConnectDeviceAddress = ""
+            WHandTool.isAutoConnect = false
             if (et_rtk_ip.text.isEmpty()) {
                 showToast("请输入IP地址")
             } else if (et_rtk_port.text.isEmpty()) {
@@ -97,29 +99,24 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
                 "提示",
                 "是否断开当前设备连接？"
             ) { dialog, which ->
-                WHandTool.autoConnectDeviceAddress = ""
-                WHandTool.disConnectDivice()
-                reInitWhandInfo()
+                WHandTool.disConnectDivice(mContext)
             }
         }
-        sw_rtk_open.setOnCheckedChangeListener { buttonView, isChecked ->
-            WHandTool.isOpen = isChecked
-            reInitWhandInfo()
-        }
+//        sw_rtk_open.setOnCheckedChangeListener { buttonView, isChecked ->
+//            WHandTool.disConnectDivice(mContext)
+//        }
         sw_rtk_openLaser.setOnCheckedChangeListener { buttonView, isChecked ->
             WHandTool.openLaser(isChecked)
         }
+        mRxManager.on("WHand", Action1<Boolean> {
+            reInitWhandInfo(it)
+        })
     }
 
-    fun reInitWhandInfo() {
-        val whandAccount = mSharedPrefUtil.getObject<WHandTool.WHandAccount>("whandAccount")
-        et_rtk_ip.setText(whandAccount?.ip ?: "183.230.183.10")
-        et_rtk_port.setText((whandAccount?.port ?: "2102").toString())
-        et_rtk_account.setText(whandAccount?.account ?: "")
-        et_rtk_password.setText(whandAccount?.password ?: "")
-        et_rtk_point.setText(whandAccount?.mountpoint ?: "RTKRTCM32")
-
-        if (WHandTool.isConnect) {
+    fun reInitWhandInfo(
+        isConnect: Boolean = WHandTool.mStatus == BluetoothProfile.STATE_CONNECTED
+    ) {
+        if (isConnect) {
             btn_rtk_connect.visibility = View.GONE
             btn_rtk_cancel.visibility = View.VISIBLE
         } else {
@@ -127,7 +124,7 @@ class RtkDeviceFragment : BaseFragment<RtkDevicePresenter, RtkDeviceModel>(),
             btn_rtk_connect.visibility = View.VISIBLE
         }
 
-        sw_rtk_open.isChecked = WHandTool.isOpen
+//        sw_rtk_open.isChecked = WHandTool.isOpen
         if (WHandTool.isOpen) {
             sv_rtk_info.visibility = View.VISIBLE
             ll_rtk_btn.visibility = View.VISIBLE

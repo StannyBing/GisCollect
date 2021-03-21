@@ -77,7 +77,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
         rtkAdapter.setOnItemChildClickListener { adapter, view, position ->
             when (view.id) {
                 R.id.rtkTv -> {
-                    if (WHandTool.isConnect && WHandTool.isOpen) {
+                    if (WHandTool.isOpen) {
                         val info = WHandTool.getDeviceInfoOneTime()
                         if (info != null) {
                             //TODO:Rtk生成的x y z坐标 z的值赋给Point的z
