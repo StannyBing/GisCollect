@@ -437,7 +437,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     Field.Type.INTEGER -> if (fieldValue == null || fieldValue == "") 0 else fieldValue.toString().toInt()
                     Field.Type.DOUBLE -> if (fieldValue == null || fieldValue == "") 0.0 else fieldValue.toString().toDouble()
                     Field.Type.DATE -> fieldValue
-                    else -> fieldValue
+                    else -> if (name=="isEdit") "true" else fieldValue
                 }
             )
         }

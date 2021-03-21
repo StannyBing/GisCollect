@@ -3,6 +3,7 @@ package com.gt.giscollect.module.collect.ui
 import android.Manifest
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.core.content.ContextCompat
@@ -844,17 +845,14 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 
         et_collect_rename.setText(featureLayer.name)
         if(moduleType==2)featureLayer.renderer= UniqueValueRenderer().apply {
-            fieldNames.add("OBJECTID")
+            fieldNames.add("isEdit")
             defaultSymbol = SimpleFillSymbol(SimpleFillSymbol.Style.SOLID,  mContext.resources.getColor(R.color.Chart_33), SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f))
             uniqueValues.clear()
-            uniqueValues.add(UniqueValueRenderer.UniqueValue("1","2",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
+            uniqueValues.add(UniqueValueRenderer.UniqueValue("是否编辑","true",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
                 arrayListOf<String>().apply {
-                    add("1")
+                    add("true")
                 }))
-            uniqueValues.add(UniqueValueRenderer.UniqueValue("1","2",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
-                arrayListOf<String>().apply {
-                    add("2")
-                }))
+
         }
 
         currentLayer = featureLayer
@@ -910,7 +908,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     private fun getFeatureList() {
         currentLayer?.featureTable?.loadAsync()
         currentLayer?.featureTable?.addDoneLoadingListener {
-
             //                if (featureLayer.featureTable.totalFeatureCount > 0) {
             val queryGet =
                 currentLayer?.featureTable?.queryFeaturesAsync(QueryParameters().apply {

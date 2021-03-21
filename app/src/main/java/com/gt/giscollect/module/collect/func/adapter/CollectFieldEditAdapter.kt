@@ -5,6 +5,7 @@ import android.os.Build
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
@@ -154,11 +155,11 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
                 item.first.isEditable && editable && !readonlyList.contains(item.first.name) && item.first.name != "uuid" && item.first.name != "UUID"
             helper.setText(
                 R.id.et_collect_edit_field_value, if (item.second == null) "" else {
-                    if (item.first.fieldType == Field.Type.DOUBLE && (item.second == "" || item.second == null)) {
+                    if ((item.first.fieldType == Field.Type.FLOAT||item.first.fieldType == Field.Type.DOUBLE) && (item.second == "" || item.second == null)) {
                         "0.0"
                     } else if (item.first.fieldType == Field.Type.INTEGER && (item.second == "" || item.second == null)) {
                         "0"
-                    } else {
+                    } else{
                         item.second.toString()
                     }
                 }

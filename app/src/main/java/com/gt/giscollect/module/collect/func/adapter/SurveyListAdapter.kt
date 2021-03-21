@@ -22,8 +22,10 @@ class SurveyListAdapter(dataList: List<DataResBean>) :
                 "未下载"
             }
         )
-        helper.setGone(R.id.tv_download, !bean.isDownload)
-        helper.setGone(R.id.tv_upload, bean.isDownload)
+      //  helper.setVisible(R.id.tv_download, !bean.isDownload)
+        helper.setVisible(R.id.tv_upload, bean.isDownload)
+        helper.setText(R.id.tv_download,if (bean.isDownload) "删除" else "下载")
+        helper.setBackgroundColor(R.id.tv_download,if (bean.isDownload) mContext.resources.getColor(R.color.red) else mContext.resources.getColor(R.color.grassgreen))
     }
 
 }

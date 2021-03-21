@@ -93,13 +93,26 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
                 //滑动菜单点击事件
                 when (id) {
                     R.id.tv_download -> {
-                        ZXDialogUtil.showYesNoDialog(
-                            mContext,
-                            "提示",
-                            "是否下载该条任务数据?"
-                        ) { dialog, which ->
-                            mPresenter.downloadSurvey(surveyList[pos])
+                        if (surveyList[pos].isDownload){
+                            ZXDialogUtil.showYesNoDialog(
+                                mContext,
+                                "提示",
+                                "是否删除该条任务数据?"
+                            ) { dialog, which ->
+                                FileUtils.deleteFilesByName(   ConstStrings.getSurveyPath(),
+                                    surveyList[pos].materialName)
+                                surveyList[pos].isDownload = false
+                                surveyAdapter.notifyDataSetChanged()
+                                }
+                        }else{
+                            ZXDialogUtil.showYesNoDialog(
+                                mContext,
+                                "提示",
+                                "是否下载该条任务数据?"
+                            ) { dialog, which ->
+                                mPresenter.downloadSurvey(surveyList[pos])
 //                                showToast("正在建设中")
+                            }
                         }
                         return@setSwipeable
                     }
