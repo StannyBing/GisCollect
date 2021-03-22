@@ -18,6 +18,7 @@ interface MapListener {
 
     interface OnSingleTapCall {
         fun onSingleTap(x: Float, y: Float)
+        fun onLongPress(x:Float,y:Float)
     }
 
 }

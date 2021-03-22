@@ -38,6 +38,7 @@ import kotlinx.android.synthetic.main.fragment_collect_field.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.Serializable
 
 
 /**
@@ -50,10 +51,12 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         /**
          * 启动器
          */
-        fun newInstance(): CollectFieldFragment {
+        fun newInstance(vararg params:Serializable): CollectFieldFragment {
             val fragment = CollectFieldFragment()
             val bundle = Bundle()
-
+            params.forEachIndexed { index, serializable ->
+                bundle.putSerializable("p$index",serializable)
+            }
             fragment.arguments = bundle
             return fragment
         }
@@ -77,7 +80,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 
     private var saveIndex = 0
 
-    private var moduleType = 1 //1 采集 2调查
+    private var moduleType = 2 //1 采集 2调查
 
     /**
      * layout配置
@@ -109,6 +112,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             .setDefaultItem("请选择调查类型")
             .build()
         super.initView(savedInstanceState)
+        if (arguments?.containsKey("p0")==true)moduleType=arguments?.getSerializable("p0") as Int
+        btn_collect_field_delete.visibility = if (moduleType==1) View.VISIBLE else View.GONE
     }
 
     /**
@@ -280,6 +285,16 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 } catch (e: java.lang.Exception) {
 
                 }
+            }
+        }
+        //删除feature
+        btn_collect_field_delete.setOnClickListener {
+            ZXDialogUtil.showYesNoDialog(
+                mContext,
+                "提示",
+                "是否删除该要素，这将同时删除该要素的相关采集数据？"
+            ) { dialog, which ->
+                fragChangeListener?.onFragBack(CollectMainFragment.Collect_Field,"")
             }
         }
     }

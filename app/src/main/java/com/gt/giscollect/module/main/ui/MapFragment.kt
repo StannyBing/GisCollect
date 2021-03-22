@@ -72,7 +72,6 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
     private lateinit var imageLayer: WebTiledLayer//影像
     private lateinit var imageLabelLayer: WebTiledLayer//影像-标注
     private lateinit var googleMap: ImageTiledLayer//谷歌地图
-
     /**
      * layout配置
      */
@@ -477,6 +476,12 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 ////                val queryResult = vectorLayer.getfea
 
                     return true
+                }
+
+                override fun onLongPress(e: MotionEvent?) {
+                    singleTapList.forEach {
+                        it.onLongPress(0.0f,0.0f)
+                    }
                 }
             }
     }

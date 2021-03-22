@@ -1,6 +1,7 @@
 package com.gt.giscollect.module.main.ui
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -25,11 +26,13 @@ import com.gt.giscollect.module.query.ui.IdentifyFragment
 import com.gt.giscollect.module.query.ui.MeasureFragment
 import com.gt.giscollect.module.query.ui.SearchFragment
 import com.gt.giscollect.module.query.ui.StatisticsFragment
+import com.gt.giscollect.module.survey.ui.SurveyFragment
 import com.gt.giscollect.module.system.ui.SettingMainFragment
 import com.gt.map.MapFragment
 import com.gt.module_map.view.measure.MeasureView
 import com.zx.zxutils.http.ZXHttpListener
 import com.zx.zxutils.http.ZXHttpTool
+import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFragmentUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.activity_main.*
@@ -43,7 +46,7 @@ import rx.functions.Action1
  * Create By XB
  * 功能：主页
  */
-class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View, MapListener {
+class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View, MapListener,MapListener.OnSingleTapCall {
 
     companion object {
         /**
@@ -66,7 +69,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
     private var statisticsFragment: StatisticsFragment? = null
     private var settingFragment: SettingMainFragment? = null
     private var measureFragment: MeasureFragment? = null
-
+    private var surveyFragment:SurveyFragment?=null
     /**
      * layout配置
      */
@@ -83,6 +86,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
             supportFragmentManager,
             com.gt.map.MapFragment.newInstance().apply {
                 mapFragment = this
+                mapFragment.addSingleTap(this@MainActivity)
             },
             R.id.fm_map
         )
@@ -167,6 +171,8 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         statisticsFragment?.let { ZXFragmentUtil.hideFragment(it) }
         settingFragment?.let { ZXFragmentUtil.hideFragment(it) }
         measureFragment?.let { ZXFragmentUtil.hideFragment(it) }
+        surveyFragment?.let {
+            ZXFragmentUtil.hideFragment(it) }
         when (it) {
             BtnFuncFragment.Companion.DataType.Layer -> {
                 if (layerFragment == null) {
@@ -267,6 +273,13 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
                 }
                 showFragment = measureFragment
             }
+            //踏勘
+            BtnFuncFragment.Companion.DataType.SurveyFunction->{
+                ZXFragmentUtil.addFragment(supportFragmentManager,SurveyFragment.newInstance().apply {
+                    surveyFragment = this
+                },R.id.fm_data)
+               showFragment = surveyFragment
+            }
         }
         iv_data_show.performClick()
         if (showFragment != null) {
@@ -304,15 +317,19 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         return btnFuncFragment.measure_view
     }
 
-//    var backMills = 0L
-//    override fun onBackPressed() {
-//        if (backMills == 0L || System.currentTimeMillis() - backMills > 2000) {
-//            showToast("再次点击，退出应用")
-//            backMills = System.currentTimeMillis()
-//        } else {
-//            MyApplication.instance.finishAll()
-////            super.onBackPressed()
-//        }
-//    }
+    override fun onLongPress(x: Float, y: Float) {
+        var data = arrayListOf<String>().apply {
+            add("点")
+            add("线")
+            add("面")
+        }
+       ZXDialogUtil.showListDialog(mContext,"请选择测量模式","",data,DialogInterface.OnClickListener { dialog, which ->
+           excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
+           surveyFragment?.setSurveyModule(data[which])
+       },true)
+    }
 
+    override fun onSingleTap(x: Float, y: Float) {
+
+    }
 }

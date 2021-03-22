@@ -89,6 +89,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 
     private val featureList = arrayListOf<Feature>()
     private val featureAdapter = CollectFeatureAdapter(featureList)
+    private var clickPosition = 0
 
     /**
      * layout配置
@@ -451,23 +452,12 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                             "提示",
                             "是否删除该要素，这将同时删除该要素的相关采集数据？"
                         ) { dialog, which ->
-                            isInEdit = false
-                            DeleteLayerFileTool.deleteFileByFeature(
-                                ConstStrings.getOperationalLayersPath() + featureList[pos].featureTable.featureLayer.name + "/file/",
-                                featureList[pos]
-                            )
-                            currentLayer?.featureTable?.deleteFeatureAsync(featureList[pos])
-                                ?.addDoneListener {
-                                    applyLayerUpdateInfo()
-                                }
-                            featureList.removeAt(pos)
-//                            featureAdapter.notifyDataSetChanged()
-                            featureAdapter.notifyItemRemoved(pos)
-                            featureAdapter.notifyItemRangeChanged(pos, 5)
+                            deleteFeature(pos)
                         }
                     }
                 }
             }.setClickable {
+                clickPosition = it
                 isInEdit = false
                 //                MapTool.mapListener?.getMap()?.operationalLayers?.forEach {
 //                    if (it is FeatureLayer) {
@@ -654,6 +644,31 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             }
         }
     }
+
+    /**
+     * 删除要素
+     */
+     fun deleteFeature(pos:Int=clickPosition){
+        isInEdit = false
+        DeleteLayerFileTool.deleteFileByFeature(
+            ConstStrings.getOperationalLayersPath() + featureList[pos].featureTable.featureLayer.name + "/file/",
+            featureList[pos]
+        )
+        currentLayer?.featureTable?.deleteFeatureAsync(featureList[pos])
+            ?.addDoneListener {
+                applyLayerUpdateInfo()
+                tv_collect_feature_title.text =
+                    "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
+
+            }
+        featureList.removeAt(pos)
+//                            featureAdapter.notifyDataSetChanged()
+        featureAdapter.notifyItemRemoved(pos)
+        featureAdapter.notifyItemRangeChanged(pos, 5)
+
+        showToast("删除成功")
+    }
+
 
     private fun renameLayer(beforeName: String?, afterName: String) {
         val files = FileUtils.getFilesByName(

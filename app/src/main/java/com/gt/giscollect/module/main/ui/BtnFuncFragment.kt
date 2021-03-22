@@ -54,6 +54,7 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
             Statistics,
             Setting,
             Measure,
+            SurveyFunction
         }
     }
 

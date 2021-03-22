@@ -65,7 +65,7 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
 
         collectListFragment = CollectListFragment.newInstance()
         collectCreateFragment = CollectCreateFragment.newInstance()
-        collectFieldFragment = CollectFieldFragment.newInstance()
+        collectFieldFragment = CollectFieldFragment.newInstance(1)
         collectFeatureFragment = CollectFeatureFragment.newInstance()
         collectCheckFragment = CollectCheckFragment.newInstance()
         collectFieldImportFragment = CollectFieldImportFragment.newInstance()
@@ -117,7 +117,7 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
                 onFragGoto(Collect_List)
             }
             Collect_Field -> {
-                onFragGoto(Collect_Feature)
+                onFragGoto(Collect_Feature,any)
                 collectFeatureFragment?.reInit()
             }
             Collect_Import -> {
@@ -161,7 +161,8 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
                             (it.second as Array<Boolean>)[1]
                         )
                     } else {
-
+                        //删除回调
+                        collectFeatureFragment?.deleteFeature()
                     }
                 }
             }
