@@ -112,7 +112,9 @@ object ConstStrings {
         return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
     }
 
-
+    fun getSurveyLayersPath(): String {
+        return "$INI_PATH$APPNAME/SurveyLayers/" + UserManager.user?.userId + "/"
+    }
     fun getSketchLayersPath(): String {
         return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/" + sktchId + "/"
     }

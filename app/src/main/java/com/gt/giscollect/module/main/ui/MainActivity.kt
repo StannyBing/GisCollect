@@ -84,7 +84,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         //地图
         ZXFragmentUtil.addFragment(
             supportFragmentManager,
-            com.gt.map.MapFragment.newInstance().apply {
+            MapFragment.newInstance().apply {
                 mapFragment = this
                 mapFragment.addSingleTap(this@MainActivity)
             },
@@ -331,5 +331,10 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
 
     override fun onSingleTap(x: Float, y: Float) {
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        surveyFragment?.onActivityResult(requestCode, resultCode, data)
     }
 }
