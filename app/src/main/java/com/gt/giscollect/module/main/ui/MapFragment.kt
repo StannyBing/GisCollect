@@ -4,6 +4,7 @@ import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.data.*
@@ -386,7 +387,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
             file.listFiles().forEach {
                 addOpreationalLayer(it.path)
             }
-        } else if (file.exists() && file.isFile && file.name.endsWith(".shp")) {
+        } /*else if (file.exists() && file.isFile && file.name.endsWith(".shp")) {
             val shapefileFeatureTable = ShapefileFeatureTable(file.path)
             shapefileFeatureTable.loadAsync() //异步方式读取文件
             shapefileFeatureTable.addDoneLoadingListener {
@@ -414,7 +415,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
                 }
                 map.operationalLayers.add(mainShapefileLayer)
             }
-        } else if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
+        }*/ else if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
             val geoPackage = GeoPackage(file.path)
             geoPackage.loadAsync()
             geoPackage.addDoneLoadingListener {

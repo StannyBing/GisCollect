@@ -1,5 +1,6 @@
 package com.gt.giscollect.module.collect.ui
 
+import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import androidx.recyclerview.widget.RecyclerView
@@ -289,9 +290,11 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     }
 
     private fun downloadCollect(collectCheckBean: CollectCheckBean) {
-        collectCheckBean.checkInfo?.let {
-            mPresenter.downloadCollect(it)
-        }
+       getPermission(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+           collectCheckBean.checkInfo?.let {
+               mPresenter.downloadCollect(it)
+           }
+       }
     }
 
     /**
