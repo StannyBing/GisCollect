@@ -98,7 +98,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            })
        }
         toolBarTitleTv.text = getString(R.string.registrationList)
-       getPermission(arrayOf()){
+       getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)){
             downloadModule()
        }
         rvProject.apply {
@@ -184,7 +184,8 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             ConstStrings.sktchId = projectId
                 var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
                 var toPath = mContext.filesDir.path+"/$projectId/sketch/draw.jpg"
-                toPath = if (ZXFileUtil.isFileExists(toPath)){
+                toPath = if (!ZXFileUtil.isFileExists(toPath)){
+                    ZXFileUtil.createNewFile(toPath)
                      ZXFileUtil.copyFile(filePath, toPath)?.path?:""
                 } else toPath
                 if (!projectId.isNullOrEmpty()){   val file = File(ConstStrings.getSketchLayersPath())

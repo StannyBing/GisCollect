@@ -5,6 +5,9 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
+import com.zx.zxutils.util.ZXFileUtil;
+import com.zx.zxutils.util.ZXToastUtil;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -23,22 +26,22 @@ public class CopyAssetsToSd {
     public static void copy(Context myContext, String ASSETS_NAME, String savePath, String saveName) {
         String filename = savePath + "/" + saveName;
         File dir = new File(savePath);
-        // 如果目录不中存在，创建这个目录
-        if (!dir.exists())
-            dir.mkdir();
-        try { if (!(new File(filename)).exists()) {
-                 InputStream is = myContext.getResources().getAssets().open(ASSETS_NAME);
-                FileOutputStream fos = new FileOutputStream(filename);
-                byte[] buffer = new byte[7168];
-                 int count = 0;
-                while ((count = is.read(buffer)) > 0) {
-                    fos.write(buffer, 0, count);
-                    }
-                fos.close();
-                is.close();
-                 }
-             } catch (Exception e) {
-             e.printStackTrace();
-             }
-         }
+        File file = ZXFileUtil.createNewFile(filename);
+        InputStream is = null;
+        FileOutputStream fos = null;
+        try {
+            is = myContext.getResources().getAssets().open(ASSETS_NAME);
+            fos = new FileOutputStream(filename);
+            byte[] buffer = new byte[1024];
+            int count = 0;
+            while ((count = is.read(buffer)) > 0) {
+                fos.write(buffer, 0, count);
+            }
+            fos.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
