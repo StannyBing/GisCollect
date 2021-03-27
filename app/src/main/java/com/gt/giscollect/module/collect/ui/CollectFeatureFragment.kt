@@ -37,6 +37,7 @@ import com.gt.giscollect.tool.SimpleDecoration
 import com.gt.base.manager.UserManager
 import com.gt.module_map.tool.GeometrySizeTool
 import com.gt.base.app.TempIdsBean
+import com.gt.base.tool.MyUtil
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
 import com.gt.module_map.tool.PointTool
 import com.zx.zxutils.entity.KeyValueEntity
@@ -173,6 +174,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     private var checkGemetry: Geometry? = null
     private var checkCount = 0
 
+    private var checkOverlayItem = arrayListOf<KeyValueEntity>()
     private fun checkOverlay(geometry: Geometry?) {
         showLoading("正在检测图层压盖。。。")
 
@@ -209,6 +211,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     }
                     this?.forEach {
                         val obj = JSONObject(it)
+
                         GeoPackageTool.getFeatureFromGpkgsWithNull(
                             obj.getString("itemName"),
                             listCall = { list ->
@@ -217,11 +220,17 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                     postOverlayStatus()
                                 } else {
                                     checkCount += (list.size - 1)
+                                    if (obj.has("checkOverlayItem")){
+                                        checkOverlayItem.clear()
+                                            MyUtil.jsonToLinkedHashMap(obj.getJSONObject("checkOverlayItem")).forEach {
+                                                checkOverlayItem.add(KeyValueEntity(it.key,it.value))
+                                            }
+                                    }
                                     list.forEach {
                                         excuteInfo(
                                             it,
                                             obj.getString("itemName")
-                                        )
+                                                    ,obj.getString("checkOverlayField"))
                                     }
                                 }
                             })
@@ -306,7 +315,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 
     private fun excuteInfo(
         featureLayer: FeatureLayer?,
-        style: String
+        style: String,checkOverlayField:String?
     ) {
         featureLayer?.let {
             //获取所有相关的feature
@@ -319,42 +328,14 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             listenable.addDoneListener {
                 val features = arrayListOf<Feature>()
                 features.addAll(listenable.get())
-                var overlayBean = KeyValueEntity(style, 0.0)
-                if (features.size > 0) {
-                    ZXLogUtil.loge("overlay：${it.name} size:${features.size}")
-                    overlayList.find {
-                        it.key == style
-                    }.apply {
-                        if (this != null) {
-                            overlayBean = this
-                        } else {
-                            overlayList.add(overlayBean)
-                        }
+                if (!checkOverlayField.isNullOrEmpty()){
+                    val groupBy = features.groupBy {
+                        it.attributes[checkOverlayField]
+                    }.entries.forEach {
+                        geometrySize(it.value,it.key.toString())
                     }
-                }
-                features.forEach {
-                    //获取裁剪的 feature
-                    if (it.geometry != null && sketchEditor.geometry != null) {
-                        val cutGeometry =
-                            GeometryEngine.intersection(it.geometry, sketchEditor.geometry)
-                        if (cutGeometry != null && cutGeometry.geometryType == checkGemetry!!.geometryType) {
-                            //被裁减部分
-                            when (cutGeometry.geometryType) {
-                                GeometryType.POLYLINE -> {
-                                    overlayBean.value =
-                                        (overlayBean.value as Double) + GeometrySizeTool.getLength(
-                                            cutGeometry
-                                        ).toDouble()
-                                }
-                                GeometryType.POLYGON -> {
-                                    overlayBean.value =
-                                        (overlayBean.value as Double) + GeometrySizeTool.getArea(
-                                            cutGeometry
-                                        ).toDouble()
-                                }
-                            }
-                        }
-                    }
+                }else{
+                    geometrySize(features,style)
                 }
                 checkCount--
                 postOverlayStatus()
@@ -362,6 +343,47 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         }
 //        postOverlayStatus()
     }
+
+
+    private fun geometrySize(feature: List<Feature>,name: String){
+        var overlayBean = KeyValueEntity(name, 0.0)
+        if (feature.isNotEmpty()) {
+            overlayList.find {
+                it.key == name
+            }.apply {
+                if (this != null) {
+                    overlayBean = this
+                } else {
+                    overlayList.add(overlayBean)
+                }
+            }
+        }
+        feature.forEach {
+            if (it.geometry != null && sketchEditor.geometry != null) {
+                val cutGeometry =
+                    GeometryEngine.intersection(it.geometry, sketchEditor.geometry)
+                if (cutGeometry != null && cutGeometry.geometryType == checkGemetry!!.geometryType) {
+                    //被裁减部分
+                    when (cutGeometry.geometryType) {
+                        GeometryType.POLYLINE -> {
+                            overlayBean.value =
+                                (overlayBean.value as Double) + GeometrySizeTool.getLength(
+                                    cutGeometry
+                                ).toDouble()
+                        }
+                        GeometryType.POLYGON -> {
+                            overlayBean.value =
+                                (overlayBean.value as Double) + GeometrySizeTool.getArea(
+                                    cutGeometry
+                                ).toDouble()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 
     /**
      * 通知压盖状态
@@ -374,23 +396,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //            tv_collect_geometry_size.setTextColor(ContextCompat.getColor(mContext, R.color.red))
             overlayList.forEachIndexed { index, it ->
                 overlayInfoBuilder.append("${it.key}(${(it.value as Double).let {
-                    when (checkGemetry!!.geometryType) {
-                        GeometryType.POLYLINE -> {
-                            if (it > 1000.0) {
-                                "${DecimalFormat("#0.00").format(it / 1000.0)}公里"
-                            } else {
-                                "${DecimalFormat("#0.00").format(this)}米"
-                            }
-                        }
-                        GeometryType.POLYGON -> {
-                            if (it > 1000000.0) {
-                                "${DecimalFormat("#0.00").format(it / 1000000.0)}平方公里"
-                            } else {
-                                "${DecimalFormat("#0.00").format(it)}平方米"
-                            }
-                        }
-                        else -> ""
-                    }
+                  deciFormat(it)
                 }})")
                 if (index < overlayList.size - 1) {
                     overlayInfoBuilder.append("，")
@@ -411,7 +417,26 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             }
         }
     }
+private  fun deciFormat(it:Double):String{
+    return when (checkGemetry!!.geometryType) {
+    GeometryType.POLYLINE -> {
+        if (it > 1000.0) {
+            "${DecimalFormat("#0.00").format(it / 1000.0)}公里"
+        } else {
+            "${DecimalFormat("#0.00").format(this)}米"
+        }
+    }
+    GeometryType.POLYGON -> {
+        if (it > 1000000.0) {
+            "${DecimalFormat("#0.00").format(it / 1000000.0)}平方公里"
+        } else {
+            "${DecimalFormat("#0.00").format(it)}平方米"
+        }
+    }
+    else -> ""
+}
 
+}
     /**
      * View事件设置
      */
@@ -821,6 +846,28 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             if (feature?.attributes?.containsKey("备注") == true) {
                 feature.attributes?.put("备注", "压盖：$remark")
             }
+
+            if (!checkOverlayItem.isNullOrEmpty()&&!overlayList.isNullOrEmpty()){
+                checkOverlayItem.forEach {
+                    if (feature?.attributes?.containsKey(it.value)==true){
+                        var tempValue = overlayList.find { overlay->
+                            overlay.key==it.key
+                        }?.value
+                        when( feature?.featureTable?.fields?.find {field->
+                            field.name==it.value
+                        }?.fieldType){
+                          Field.Type.FLOAT,Field.Type.DOUBLE->{
+                              feature.attributes?.put(it.value.toString(),tempValue)
+                          }
+                          Field.Type.TEXT->{
+                              feature.attributes?.put(it.value.toString(),deciFormat(tempValue as Double))
+                          }
+                        }
+                    }
+                }
+            }
+
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
