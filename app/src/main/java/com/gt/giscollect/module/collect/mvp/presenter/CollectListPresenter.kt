@@ -54,6 +54,7 @@ class CollectListPresenter : CollectListContract.Presenter() {
 
     override fun getCheckList(body: RequestBody) {
         mModel.checkListData(body)
+            .onBackpressureDrop()
             .compose(RxHelper.bindToLifecycle(mView))
             .subscribe(object : RxSubscriber<NormalList<CheckBean>>(mView) {
                 override fun _onNext(t: NormalList<CheckBean>?) {

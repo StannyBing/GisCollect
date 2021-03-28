@@ -2,6 +2,7 @@ package com.gt.giscollect.module.collect.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.data.FeatureTable
 import com.esri.arcgisruntime.data.GeoPackage
@@ -77,7 +78,7 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
         btn_collect_create.visibility = View.GONE
 
         rv_collect_layers.apply {
-            layoutManager = ZXInScrollRecylerManager(mContext) as RecyclerView.LayoutManager?
+            layoutManager = LinearLayoutManager(mContext) as RecyclerView.LayoutManager?
             adapter = surveyAdapter
             addItemDecoration(SimpleDecoration(mContext))
         }

@@ -64,6 +64,7 @@
     </androidx.core.widget.NestedScrollView>
 
    <LinearLayout
+       android:id="@+id/ll_field_btnbar"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:orientation="horizontal">

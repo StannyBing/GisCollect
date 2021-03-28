@@ -220,17 +220,24 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                     postOverlayStatus()
                                 } else {
                                     checkCount += (list.size - 1)
-                                    if (obj.has("checkOverlayItem")){
+                                    if (obj.has("checkOverlayItem")) {
                                         checkOverlayItem.clear()
-                                            MyUtil.jsonToLinkedHashMap(obj.getJSONObject("checkOverlayItem")).forEach {
-                                                checkOverlayItem.add(KeyValueEntity(it.key,it.value))
+                                        MyUtil.jsonToLinkedHashMap(obj.getJSONObject("checkOverlayItem"))
+                                            .forEach {
+                                                checkOverlayItem.add(
+                                                    KeyValueEntity(
+                                                        it.key,
+                                                        it.value
+                                                    )
+                                                )
                                             }
                                     }
                                     list.forEach {
                                         excuteInfo(
                                             it,
                                             obj.getString("itemName")
-                                                    ,obj.getString("checkOverlayField"))
+                                            , obj.getString("checkOverlayField")
+                                        )
                                     }
                                 }
                             })
@@ -315,7 +322,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 
     private fun excuteInfo(
         featureLayer: FeatureLayer?,
-        style: String,checkOverlayField:String?
+        style: String, checkOverlayField: String?
     ) {
         featureLayer?.let {
             //获取所有相关的feature
@@ -328,14 +335,14 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             listenable.addDoneListener {
                 val features = arrayListOf<Feature>()
                 features.addAll(listenable.get())
-                if (!checkOverlayField.isNullOrEmpty()){
+                if (!checkOverlayField.isNullOrEmpty()) {
                     val groupBy = features.groupBy {
                         it.attributes[checkOverlayField]
                     }.entries.forEach {
-                        geometrySize(it.value,it.key.toString())
+                        geometrySize(it.value, it.key.toString())
                     }
-                }else{
-                    geometrySize(features,style)
+                } else {
+                    geometrySize(features, style)
                 }
                 checkCount--
                 postOverlayStatus()
@@ -345,7 +352,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     }
 
 
-    private fun geometrySize(feature: List<Feature>,name: String){
+    private fun geometrySize(feature: List<Feature>, name: String) {
         var overlayBean = KeyValueEntity(name, 0.0)
         if (feature.isNotEmpty()) {
             overlayList.find {
@@ -384,7 +391,6 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     }
 
 
-
     /**
      * 通知压盖状态
      */
@@ -396,7 +402,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //            tv_collect_geometry_size.setTextColor(ContextCompat.getColor(mContext, R.color.red))
             overlayList.forEachIndexed { index, it ->
                 overlayInfoBuilder.append("${it.key}(${(it.value as Double).let {
-                  deciFormat(it)
+                    deciFormat(it)
                 }})")
                 if (index < overlayList.size - 1) {
                     overlayInfoBuilder.append("，")
@@ -417,26 +423,28 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             }
         }
     }
-private  fun deciFormat(it:Double):String{
-    return when (checkGemetry!!.geometryType) {
-    GeometryType.POLYLINE -> {
-        if (it > 1000.0) {
-            "${DecimalFormat("#0.00").format(it / 1000.0)}公里"
-        } else {
-            "${DecimalFormat("#0.00").format(this)}米"
-        }
-    }
-    GeometryType.POLYGON -> {
-        if (it > 1000000.0) {
-            "${DecimalFormat("#0.00").format(it / 1000000.0)}平方公里"
-        } else {
-            "${DecimalFormat("#0.00").format(it)}平方米"
-        }
-    }
-    else -> ""
-}
 
-}
+    private fun deciFormat(it: Double): String {
+        return when (checkGemetry!!.geometryType) {
+            GeometryType.POLYLINE -> {
+                if (it > 1000.0) {
+                    "${DecimalFormat("#0.00").format(it / 1000.0)}公里"
+                } else {
+                    "${DecimalFormat("#0.00").format(this)}米"
+                }
+            }
+            GeometryType.POLYGON -> {
+                if (it > 1000000.0) {
+                    "${DecimalFormat("#0.00").format(it / 1000000.0)}平方公里"
+                } else {
+                    "${DecimalFormat("#0.00").format(it)}平方米"
+                }
+            }
+            else -> ""
+        }
+
+    }
+
     /**
      * View事件设置
      */
@@ -673,7 +681,7 @@ private  fun deciFormat(it:Double):String{
     /**
      * 删除要素
      */
-     fun deleteFeature(pos:Int=clickPosition){
+    fun deleteFeature(pos: Int = clickPosition) {
         isInEdit = false
         DeleteLayerFileTool.deleteFileByFeature(
             ConstStrings.getOperationalLayersPath() + featureList[pos].featureTable.featureLayer.name + "/file/",
@@ -847,21 +855,29 @@ private  fun deciFormat(it:Double):String{
                 feature.attributes?.put("备注", "压盖：$remark")
             }
 
-            if (!checkOverlayItem.isNullOrEmpty()&&!overlayList.isNullOrEmpty()){
+            if (!checkOverlayItem.isNullOrEmpty() && !overlayList.isNullOrEmpty()) {
                 checkOverlayItem.forEach {
-                    if (feature?.attributes?.containsKey(it.value)==true){
-                        var tempValue = overlayList.find { overlay->
-                            overlay.key==it.key
+                    if (feature?.attributes?.containsKey(it.value) == true) {
+                        var tempValue = overlayList.find { overlay ->
+                            overlay.key == it.key
                         }?.value
-                        when( feature?.featureTable?.fields?.find {field->
-                            field.name==it.value
-                        }?.fieldType){
-                          Field.Type.FLOAT,Field.Type.DOUBLE->{
-                              feature.attributes?.put(it.value.toString(),tempValue)
-                          }
-                          Field.Type.TEXT->{
-                              feature.attributes?.put(it.value.toString(),deciFormat(tempValue as Double))
-                          }
+                        when (feature?.featureTable?.fields?.find { field ->
+                            field.name == it.value
+                        }?.fieldType) {
+                            Field.Type.FLOAT, Field.Type.DOUBLE -> {
+                                feature.attributes?.put(
+                                    it.value.toString(),
+                                    if (tempValue == null) 0.0 else DecimalFormat("#0.00").format(
+                                        tempValue
+                                    ).toDouble()
+                                )
+                            }
+                            Field.Type.TEXT -> {
+                                feature.attributes?.put(
+                                    it.value.toString(),
+                                    if (tempValue == null) 0.0 else deciFormat(tempValue as Double)
+                                )
+                            }
                         }
                     }
                 }
@@ -895,7 +911,7 @@ private  fun deciFormat(it:Double):String{
         isEdit: Boolean,
         canRename: Boolean,
         clickEdit: Boolean = false,
-        moduleType:Int=1 //1采集 2 调查
+        moduleType: Int = 1 //1采集 2 调查
     ) {
         startNum = 0
         isInEdit = false
@@ -906,14 +922,26 @@ private  fun deciFormat(it:Double):String{
         tv_collect_rename.visibility = View.GONE
 
         et_collect_rename.setText(featureLayer.name)
-        if(moduleType==2)featureLayer.renderer= UniqueValueRenderer().apply {
+        if (moduleType == 2) featureLayer.renderer = UniqueValueRenderer().apply {
             fieldNames.add("filled")
-            defaultSymbol = SimpleFillSymbol(SimpleFillSymbol.Style.SOLID,  mContext.resources.getColor(R.color.Chart_33), SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f))
+            defaultSymbol = SimpleFillSymbol(
+                SimpleFillSymbol.Style.SOLID,
+                mContext.resources.getColor(R.color.Chart_33),
+                SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f)
+            )
             uniqueValues.clear()
-            uniqueValues.add(UniqueValueRenderer.UniqueValue("是否编辑","true",SimpleFillSymbol(SimpleFillSymbol.Style.SOLID, mContext.resources.getColor(R.color.Chart_22), null),
-                arrayListOf<String>().apply {
-                    add("true")
-                }))
+            uniqueValues.add(
+                UniqueValueRenderer.UniqueValue("是否编辑",
+                    "true",
+                    SimpleFillSymbol(
+                        SimpleFillSymbol.Style.SOLID,
+                        mContext.resources.getColor(R.color.Chart_22),
+                        null
+                    ),
+                    arrayListOf<String>().apply {
+                        add("true")
+                    })
+            )
 
         }
 
@@ -1020,9 +1048,10 @@ private  fun deciFormat(it:Double):String{
         featureAdapter.notifyDataSetChanged()
     }
 
-    fun remove(){
+    fun remove() {
         MapTool.mapListener?.getMapView()?.map?.operationalLayers?.remove(currentLayer)
     }
+
     private fun moveToLayer(layer: FeatureLayer) {
         try {
             val extent = layer.fullExtent

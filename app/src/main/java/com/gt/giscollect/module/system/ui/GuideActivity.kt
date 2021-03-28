@@ -13,6 +13,7 @@ import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.main.ui.MainActivity
 import com.gt.base.app.AppFuncBean
 import com.gt.base.bean.GuideBean
+import com.gt.giscollect.module.scene.ui.SceneMapActivity
 import com.gt.giscollect.module.system.func.adapter.GuideAdapter
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
@@ -98,7 +99,11 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         guideAdapter.setChildCall { it ->
             if (it.itemName.contains("草图")) {
                 ProjectListActivity.startAction(this, false)
-            } else {
+            }
+//            else if(it.itemName.contains("农房")){
+//                SceneMapActivity.startAction(this, false)
+//            }
+            else {
                 ConstStrings.appfuncList.clear()
                 ConstStrings.appfuncList.addAll(it.appFuncs)
                 ConstStrings.mGuideBean = it

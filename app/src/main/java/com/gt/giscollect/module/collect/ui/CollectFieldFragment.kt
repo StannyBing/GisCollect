@@ -51,11 +51,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         /**
          * 启动器
          */
-        fun newInstance(vararg params:Serializable): CollectFieldFragment {
+        fun newInstance(vararg params: Serializable): CollectFieldFragment {
             val fragment = CollectFieldFragment()
             val bundle = Bundle()
             params.forEachIndexed { index, serializable ->
-                bundle.putSerializable("p$index",serializable)
+                bundle.putSerializable("p$index", serializable)
             }
             fragment.arguments = bundle
             return fragment
@@ -112,8 +112,9 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             .setDefaultItem("请选择调查类型")
             .build()
         super.initView(savedInstanceState)
-        if (arguments?.containsKey("p0")==true)moduleType=arguments?.getSerializable("p0") as Int
-        btn_collect_field_delete.visibility = if (moduleType==1) View.VISIBLE else View.GONE
+        if (arguments?.containsKey("p0") == true) moduleType =
+            arguments?.getSerializable("p0") as Int
+        btn_collect_field_delete.visibility = if (moduleType == 1) View.VISIBLE else View.GONE
     }
 
     /**
@@ -294,7 +295,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 "提示",
                 "是否删除该要素，这将同时删除该要素的相关采集数据？"
             ) { dialog, which ->
-                fragChangeListener?.onFragBack(CollectMainFragment.Collect_Field,"")
+                fragChangeListener?.onFragBack(CollectMainFragment.Collect_Field, "")
             }
         }
     }
@@ -377,7 +378,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 if (currentFeature is ArcGISFeature && uploadTempFile != null) {
                     applyEdit(name, uploadTempFile, Field.Type.TEXT)
                 } else {
-                    applyEdit(name, if (name=="filled") "true" else fieldValue, Field.Type.TEXT)
+                    applyEdit(name, if (name == "filled") "true" else fieldValue, Field.Type.TEXT)
                 }
             }
             else -> {
@@ -391,10 +392,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     if (currentFeature is ArcGISFeature) {
                         (currentFeature as ArcGISFeature).loadAsync()
                         (currentFeature as ArcGISFeature).addDoneLoadingListener {
-                            applyEdit(name, if (name=="filled") "true" else fieldValue, type)
+                            applyEdit(name, if (name == "filled") "true" else fieldValue, type)
                         }
                     } else {
-                        applyEdit(name,  if (name=="filled") "true" else fieldValue, type)
+                        applyEdit(name, if (name == "filled") "true" else fieldValue, type)
                     }
                 } catch (e: Exception) {
                     postSave()
@@ -486,6 +487,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         currentFeature = featureLayer
         fieldAdapter.editable = editable
         fileAdapter.editable = editable
+        ll_field_btnbar.visibility = if (!editable) View.GONE else View.VISIBLE
         tv_collect_field_import.visibility =
             if (!editable || moduleType != 1) View.GONE else View.VISIBLE
         if (moduleType == 2) {
@@ -535,7 +537,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         currentFeature?.featureTable?.fields?.forEach {
             if (!isShowList.isNullOrEmpty()) {
                 //筛选出显示的数据
-                if (isShowList.contains(it.name)||it.name=="filled") {
+                if (isShowList.contains(it.name) || it.name == "filled") {
                     if (it.name in arrayOf(
                             "camera",
                             "video",

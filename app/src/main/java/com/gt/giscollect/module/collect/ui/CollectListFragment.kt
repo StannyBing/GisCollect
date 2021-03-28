@@ -3,6 +3,7 @@ package com.gt.giscollect.module.collect.ui
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.data.GeoPackageFeatureTable
@@ -82,7 +83,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun initView(savedInstanceState: Bundle?) {
 
         rv_collect_layers.apply {
-            layoutManager = ZXInScrollRecylerManager(mContext) as RecyclerView.LayoutManager?
+            layoutManager = LinearLayoutManager(mContext) as RecyclerView.LayoutManager?
             adapter = collectAdapter
             addItemDecoration(SimpleDecoration(mContext))
         }
