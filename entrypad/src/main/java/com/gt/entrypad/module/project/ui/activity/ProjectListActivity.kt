@@ -2,22 +2,17 @@ package com.gt.entrypad.module.project.ui.activity
 
 import android.Manifest
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
-import com.esri.arcgisruntime.loadable.LoadStatus
-import com.frame.zxmvp.http.unzip.ZipUtils
 import com.gt.base.activity.BaseActivity
 import com.gt.base.app.ConstStrings
-import com.gt.base.app.TempIdsBean
 import com.gt.entrypad.app.RouterPath
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -32,24 +27,18 @@ import com.gt.entrypad.app.ConstString
 import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
-import com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel
-import com.gt.entrypad.tool.CopyAssetsToSd
+import com.gt.base.tool.CopyAssetsToSd
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.GeoPackageTool
 import com.gt.module_map.tool.MapTool
-import com.zx.bui.ui.buidialog.BUIDialog
-import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.util.*
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
-import com.zx.zxutils.views.SwipeRecylerView.ZXSRListener
 import kotlinx.android.synthetic.main.activity_project_list.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.reflect.typeOf
 
 /**
  * Create By admin On 2017/7/11

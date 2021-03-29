@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.esri.arcgisruntime.data.*
@@ -18,6 +19,7 @@ import com.esri.arcgisruntime.mapping.view.SketchEditor
 import com.gt.base.app.AppInfoManager
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.tool.CopyAssetsToSd
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.giscollect.R
@@ -39,6 +41,7 @@ import kotlinx.android.synthetic.main.fragment_survey.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.util.*
 
 /**
  * 踏勘功能
@@ -57,6 +60,7 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
     private var filePath = ""
 
     private var saveIndex = 0
+    private var layerName="踏勘"
     companion object {
         /**
          * 启动器
@@ -83,8 +87,19 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
             layoutManager = InScrollGridLayoutManager(mContext, 2)
             adapter = fileAdapter
         }
+        downloadModule()
     }
 
+    /**
+     * 模板下载
+     */
+    private fun downloadModule(){
+        if (!ZXFileUtil.isFileExists("${ConstStrings.getSurveyTemplatePath()}通用采集模板.gpkg")){
+            showLoading("模板下载中...")
+            CopyAssetsToSd.copy(mContext,"generalCollect.gpkg", ConstStrings.getSurveyTemplatePath(),"通用采集模板.gpkg")
+            dismissLoading()
+        }
+    }
 
     override fun onViewListener() {
         //field文件添加事件
@@ -235,21 +250,27 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
                     return@setOnClickListener
                 }
                 //TODO:
-                copyGpkgFromTemplate("测试")?.let {
+                copyGpkgFromTemplate(layerName)?.let {
                     it.loadAsync()
                     it.addDoneLoadingListener {
                         if (it.loadStatus == LoadStatus.LOADED) {
                             val featureTables = it.geoPackageFeatureTables
                             if (!featureTables.isNullOrEmpty()){
-                                //取第0个
-                                val layer = FeatureLayer(featureTables.first())
-                                layer.loadAsync()
-                                layer.addDoneLoadingListener {
-                                   currentFeature = layer?.featureTable.createFeature()
-                                   currentFeature?.let {
-                                       it.geometry=sketchEditor.geometry
-                                       excuteField(it)
-                                   }
+                                featureTables.forEachIndexed { index, it ->
+                                    val featureLayer = FeatureLayer(it)
+                                    featureLayer.loadAsync()
+                                    featureLayer.addDoneLoadingListener {
+                                        currentFeature = featureLayer.featureTable.createFeature()
+                                       if (featureLayer.featureTable.geometryType==sketchEditor.geometry.geometryType){
+                                           currentFeature?.let {
+                                               if (it.attributes?.containsKey("UUID") == true&&it.attributes.get("UUID")==null) {
+                                                   it.attributes?.put("UUID", UUID.randomUUID().toString())
+                                               }
+                                               it.geometry=sketchEditor.geometry
+                                               excuteField(it)
+                                           }
+                                       }
+                                    }
                                 }
                             }
                         }
@@ -282,13 +303,13 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         MapTool.mapListener?.getMapView()?.sketchEditor = sketchEditor
         sketchEditor.clearGeometry()
         when(surveyModel){
-           "点"->{
+           "点图层"->{
                sketchEditor.start(SketchCreationMode.POINT)
            }
-           "线"->{
+           "线图层"->{
                sketchEditor.start(SketchCreationMode.POLYLINE)
            }
-           "面"->{
+           "面图层"->{
                sketchEditor.start(SketchCreationMode.POLYGON)
 
            }
@@ -344,7 +365,7 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
      * 从模板分钟复制gpkg
      */
     private fun copyGpkgFromTemplate(name: String): GeoPackage? {
-        val file = File("/data/user/0/com.gt.giscollect/files/GisCollect/CollectTemplate/渝北农房初选址模版.gpkg")
+        val file = File(ConstStrings.getSurveyTemplatePath()+"/通用采集模板.gpkg")
         if (file.exists() && file.isFile) {
             val destFile =
                 File(ConstStrings.getSurveyLayersPath() + name + "/")
@@ -377,45 +398,22 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
             loadFeature(featureLayer)
         }
     }
-    private fun loadFeature(featureLayer: Feature, isShowList: ArrayList<String> = arrayListOf()) {
+    private fun loadFeature(featureLayer: Feature) {
         fieldAdapter.readonlyList.clear()
-        filePath = ConstStrings.getSurveyLayersPath() + "测试" + "/file"
+        filePath = ConstStrings.getSurveyTemplatePath() + layerName + "/file"
         fileAdapter.fileParentPath = filePath
         //处理属性信息
         fieldList.clear()
         fieldAdapter.notifyDataSetChanged()
         val filedTemp = arrayListOf<Pair<Field, Any?>>()
         currentFeature?.featureTable?.fields?.forEach {
-            if (!isShowList.isNullOrEmpty()) {
-                //筛选出显示的数据
-                if (isShowList.contains(it.name)||it.name=="filled") {
-                    if (it.name in arrayOf(
-                            "camera",
-                            "video",
-                            "record",
-                            "CAMERA",
-                            "VIDEO",
-                            "RECORD"
-                        )
-                    ) {
-                        filedTemp.add(it to currentFeature!!.attributes[it.name])
-                    } else {
-                        if (currentFeature!!.attributes[it.name] == null) {
-                            fieldList.add(it to "")
-                        } else {
-                            fieldList.add(it to currentFeature!!.attributes[it.name])
-                        }
-                    }
-                }
+            if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
+                filedTemp.add(it to currentFeature!!.attributes[it.name])
             } else {
-                if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
-                    filedTemp.add(it to currentFeature!!.attributes[it.name])
+                if (currentFeature!!.attributes[it.name] == null) {
+                    fieldList.add(it to "")
                 } else {
-                    if (currentFeature!!.attributes[it.name] == null) {
-                        fieldList.add(it to "")
-                    } else {
-                        fieldList.add(it to currentFeature!!.attributes[it.name])
-                    }
+                    fieldList.add(it to currentFeature!!.attributes[it.name])
                 }
             }
         }

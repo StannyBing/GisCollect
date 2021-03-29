@@ -1,4 +1,4 @@
-package com.gt.entrypad.tool;
+package com.gt.base.tool;
 
 import android.content.Context;
 import android.content.res.AssetManager;

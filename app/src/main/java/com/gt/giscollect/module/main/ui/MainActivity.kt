@@ -319,11 +319,11 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
 
     override fun onLongPress(x: Float, y: Float) {
         var data = arrayListOf<String>().apply {
-            add("点")
-            add("线")
-            add("面")
+            add("点图层")
+            add("线图层")
+            add("面图层")
         }
-       ZXDialogUtil.showListDialog(mContext,"请选择测量模式","",data,DialogInterface.OnClickListener { dialog, which ->
+       ZXDialogUtil.showListDialog(mContext,"请选择图层","",data,DialogInterface.OnClickListener { dialog, which ->
            excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
            surveyFragment?.setSurveyModule(data[which])
        },true)

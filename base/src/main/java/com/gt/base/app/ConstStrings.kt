@@ -123,6 +123,10 @@ object ConstStrings {
         return "$LOCAL_PATH$APPNAME/jungong/" + UserManager.user?.userId
     }
 
+    fun getSurveyTemplatePath(): String {
+        return "$LOCAL_PATH$APPNAME/survey/" + UserManager.user?.userId
+    }
+
     //地图默认中心点
     var Longitude = 106.496001
     var Latitude = 29.62016
