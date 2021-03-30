@@ -69,7 +69,7 @@ object IdentifyTool {
             return
         }
         val point = Point(e.x.toInt(), e.y.toInt())
-        val identifyListenable = MapTool.mapListener?.getMapView()?.identifyLayersAsync(point, 5.0, false)
+        val identifyListenable = MapTool.mapListener?.getMapView()?.identifyLayersAsync(point, 5.0, false,100)
         val features = arrayListOf<Feature>()
         identifyListenable?.addDoneListener {
             //从当前地图的feature里面获取
