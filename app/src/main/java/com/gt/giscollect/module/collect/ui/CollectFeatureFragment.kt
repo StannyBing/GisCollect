@@ -1018,8 +1018,10 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                } else {
                 featureList.addAll(list)
 //                }
-                if (startNum > 0) {
+                if (startNum >0) {
                     featureAdapter.notifyItemInserted(startNum)
+                }else{
+                    featureAdapter.notifyDataSetChanged()
                 }
                 tv_collect_feature_title.text =
                     "要素列表(${currentLayer!!.featureTable.totalFeatureCount})"
