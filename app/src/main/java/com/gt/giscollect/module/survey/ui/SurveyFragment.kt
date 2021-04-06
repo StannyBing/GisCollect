@@ -25,6 +25,7 @@ import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.giscollect.R
 import com.gt.giscollect.module.collect.func.tool.InScrollGridLayoutManager
 import com.gt.giscollect.module.collect.ui.FilePreviewActivity
+import com.gt.giscollect.module.main.ui.MainActivity
 import com.gt.giscollect.module.survey.bean.FileInfoBean
 import com.gt.giscollect.module.survey.func.adapter.SurveyFieldEditAdapter
 import com.gt.giscollect.module.survey.func.adapter.SurveyFileAdapter
@@ -292,6 +293,9 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         //文字编辑
         fieldAdapter.addTextChangedCall { position, value ->
             fieldList[position] = fieldList[position].first to value
+        }
+        btnSearch.setOnClickListener {
+            mRxManager.post("surveySearch","")
         }
     }
 

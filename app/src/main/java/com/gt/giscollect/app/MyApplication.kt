@@ -20,6 +20,7 @@ import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import com.zx.zxutils.util.ZXToastUtil.showToast
+import java.io.File
 import java.util.*
 
 
@@ -70,6 +71,9 @@ open class MyApplication : BaseApplication() {
         ConstStrings.INI_PATH = filesDir.path + "/"
         ZXFileUtil.deleteFiles(ConstStrings.getApkPath())
         ZXFileUtil.deleteFiles(ConstStrings.getOnlinePath())
+        //创建踏勘文件
+        val file = File(ConstStrings.getSurveySearchPath())
+        if (!file.exists())file.mkdirs()
 //        component = appComponent
         MapTool.reset()
 

@@ -126,7 +126,10 @@ object ConstStrings {
     fun getSurveyTemplatePath(): String {
         return "$LOCAL_PATH$APPNAME/survey/" + UserManager.user?.userId
     }
-
+    //踏勘文件搜索
+    fun getSurveySearchPath(): String {
+        return "$LOCAL_PATH$APPNAME/survey/file/"
+    }
     //地图默认中心点
     var Longitude = 106.496001
     var Latitude = 29.62016

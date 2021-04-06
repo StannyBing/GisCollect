@@ -26,6 +26,7 @@ import com.gt.giscollect.module.query.ui.IdentifyFragment
 import com.gt.giscollect.module.query.ui.MeasureFragment
 import com.gt.giscollect.module.query.ui.SearchFragment
 import com.gt.giscollect.module.query.ui.StatisticsFragment
+import com.gt.giscollect.module.survey.ui.FileSearchFragment
 import com.gt.giscollect.module.survey.ui.SurveyFragment
 import com.gt.giscollect.module.system.ui.SettingMainFragment
 import com.gt.map.MapFragment
@@ -70,6 +71,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
     private var settingFragment: SettingMainFragment? = null
     private var measureFragment: MeasureFragment? = null
     private var surveyFragment:SurveyFragment?=null
+    private var fileSearchFragment:FileSearchFragment?=null
     /**
      * layout配置
      */
@@ -159,6 +161,12 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
             }
             iv_data_show.visibility = View.GONE
         }
+        mRxManager.on("surveySearch", Action1<String> {
+            excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveySearch)
+        })
+        mRxManager.on("surveySearchBack", Action1<String> {
+            excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
+        })
     }
 
     private fun excuteFuncCall(it: BtnFuncFragment.Companion.DataType): Fragment? {
@@ -173,6 +181,9 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         measureFragment?.let { ZXFragmentUtil.hideFragment(it) }
         surveyFragment?.let {
             ZXFragmentUtil.hideFragment(it) }
+        fileSearchFragment?.let {
+            ZXFragmentUtil.hideFragment(it)
+        }
         when (it) {
             BtnFuncFragment.Companion.DataType.Layer -> {
                 if (layerFragment == null) {
@@ -279,6 +290,18 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
                     surveyFragment = this
                 },R.id.fm_data)
                showFragment = surveyFragment
+            }
+            BtnFuncFragment.Companion.DataType.SurveySearch -> {
+                if (fileSearchFragment == null) {
+                    ZXFragmentUtil.addFragment(
+                        supportFragmentManager,
+                        FileSearchFragment.newInstance().apply {
+                            fileSearchFragment = this
+                        },
+                        R.id.fm_data
+                    )
+                }
+                showFragment = fileSearchFragment
             }
         }
         iv_data_show.performClick()
