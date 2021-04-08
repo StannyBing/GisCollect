@@ -1,5 +1,6 @@
 package com.gt.base.tool
 
+import android.content.Context
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -25,5 +26,18 @@ object MyUtil{
             result[key.toLowerCase()] = value
         }
         return result
+    }
+    /** 判断手机中是否安装指定包名的软件  */
+    fun isInstallApk(context: Context, name: String): Boolean {
+        val packages = context.packageManager.getInstalledPackages(0)
+        for (i in packages.indices) {
+            val packageInfo = packages[i]
+            return if (packageInfo.packageName == name) {
+                true
+            } else {
+                continue
+            }
+        }
+        return false
     }
 }

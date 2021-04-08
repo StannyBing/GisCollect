@@ -1,62 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:paddingTop="20dp">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="说明：请点击地图进行查要素操作。收起要素结果页或切换功能菜单即可退出查要素状态"
-        android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/text_size_small" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:layout_margin="5dp"
-        android:background="@color/gray_cc" />
-
-    <TextView
-        android:id="@+id/tv_identify_layer_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="图层:未选中图层"
-        android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/text_size_small"
-        android:visibility="gone" />
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tl_search_identify"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/sv_search_identify"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
+        android:orientation="vertical">
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="说明：请点击地图进行查要素操作。收起要素结果页或切换功能菜单即可退出查要素状态"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/text_size_small" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_margin="5dp"
+            android:background="@color/gray_cc" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_search_identify_info"
+        <TextView
+            android:id="@+id/tv_identify_layer_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="图层:未选中图层"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/text_size_small"
+            android:visibility="gone" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tl_search_identify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/sv_search_identify"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_search_identify_file"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
 
-</LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_search_identify_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_search_identify_file"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatAcbNavigation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_navigation"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="24dp"/>
+</RelativeLayout>

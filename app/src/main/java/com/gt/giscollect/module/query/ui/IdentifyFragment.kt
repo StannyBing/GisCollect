@@ -1,15 +1,19 @@
 package com.gt.giscollect.module.query.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.Field
+import com.esri.arcgisruntime.geometry.*
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.google.android.material.tabs.TabLayout
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
+import com.gt.base.tool.MyUtil
 import com.gt.giscollect.module.collect.bean.FileInfoBean
 import com.gt.giscollect.module.collect.func.adapter.CollectFileAdapter
 import com.gt.giscollect.module.collect.func.tool.InScrollGridLayoutManager
@@ -21,8 +25,11 @@ import com.gt.giscollect.module.query.mvp.contract.IdentifyContract
 import com.gt.giscollect.module.query.mvp.model.IdentifyModel
 import com.gt.giscollect.module.query.mvp.presenter.IdentifyPresenter
 import com.gt.giscollect.tool.SimpleDecoration
+import com.gt.module_map.tool.PointTool
 import com.zx.zxutils.other.ZXInScrollRecylerManager
+import com.zx.zxutils.util.ZXDeviceUtil
 import com.zx.zxutils.util.ZXRecordUtil
+import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.fragment_identify.*
 
 /**
@@ -57,7 +64,7 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
     private val identifyFeatures = arrayListOf<Feature>()
 
     private val highLightLayer = GraphicsOverlay()
-
+    private var point:Point?=null
     /**
      * layout配置
      */
@@ -118,6 +125,8 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
                 clearAllFeatureSelect()
 //                    tv_identify_layer_name.text = "图层:${feature.featureTable.tableName}"
                 addHighLightFeature(feature)
+                point =  PointTool.change4326To3857(EnvelopeBuilder.create(feature.geometry).extent.center,4326)
+
                 fileAdapter.fileParentPath = ConstStrings.getOperationalLayersPath() + feature.featureTable.displayName + "/file"
                 identifyList.clear()
                 fileList.clear()
@@ -152,6 +161,25 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
                 }
             }
         })
+        floatAcbNavigation.setOnClickListener {
+           point?.let {
+               if (MyUtil.isInstallApk(mContext, "com.autonavi.minimap")) {
+                   val intents = Intent()
+                   intents.data =
+                       Uri.parse("androidamap://navi?sourceApplication=清河CIM&lat=" + it.y + "&lon=" + it.x + "&dev=0&style=2")
+                   mContext.startActivity(intents) // 启动调用
+                   return@setOnClickListener
+               }
+               if (MyUtil.isInstallApk(mContext,"com.baidu.BaiduMap")){
+                   val intents = Intent()
+                   intents.data =
+                       Uri.parse("baidumap://map/direction?destination=latlng:"+it.y+","+it.x+"&mode=driving")
+                   mContext.startActivity(intents) // 启动调用
+                   return@setOnClickListener
+               }
+               ZXToastUtil.showToast("本设备尚未安装高德或百度导航，请安装并下载离线导航包")
+           }
+        }
     }
 
     /**
