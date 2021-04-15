@@ -134,11 +134,11 @@ class CollectFieldImportFragment :
                             "op" to "like",
                             "val" to ConstStrings.mGuideBean.getBusinessesFirst()
                         ),
-                        hashMapOf(
-                            "col" to "user_id",
-                            "op" to "=",
-                            "val" to UserManager.user?.userId
-                        ),
+//                        hashMapOf(
+//                            "col" to "user_id",
+//                            "op" to "=",
+//                            "val" to UserManager.user?.userId
+//                        ),
                         hashMapOf(
                             "col" to "company_id",
                             "op" to "=",

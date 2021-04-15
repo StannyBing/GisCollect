@@ -220,6 +220,13 @@ public class HttpDownManager {
      */
     public void writeCache1(ResponseBody body, File file, DownInfo info) throws Exception {
         try {
+            try {
+                if (body.toString().contains("权限")) {
+                    throw new Exception("您没有下载权限！");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             InputStream inputStream = null;
             OutputStream outputStream = null;
 
@@ -229,7 +236,7 @@ public class HttpDownManager {
                 long fileSize = body.contentLength();
                 long fileSizeDownloaded = 0;
 
-                if (!file.getParentFile().exists()){
+                if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
                 }
 

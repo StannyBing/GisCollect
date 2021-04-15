@@ -11,10 +11,7 @@ import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import com.esri.arcgisruntime.geometry.Geometry
-import com.esri.arcgisruntime.geometry.Point
-import com.esri.arcgisruntime.geometry.Polygon
-import com.esri.arcgisruntime.geometry.Polyline
+import com.esri.arcgisruntime.geometry.*
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.gt.module_map.R
 import kotlinx.android.synthetic.main.map_measure_layout.view.*

@@ -1,5 +1,6 @@
 package com.gt.giscollect.module.collect.ui
 
+import android.Manifest
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -94,49 +95,70 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
                 //滑动菜单点击事件
                 when (id) {
                     R.id.tv_download -> {
-                        if (surveyList[pos].isDownload){
+                        if (surveyList[pos].isDownload) {
                             ZXDialogUtil.showYesNoDialog(
                                 mContext,
                                 "提示",
                                 "是否删除该条任务数据?"
                             ) { dialog, which ->
-                                FileUtils.deleteFilesByName(   ConstStrings.getSurveyPath(),
-                                    surveyList[pos].materialName)
+                                MapTool.mapListener?.getMap()?.operationalLayers?.firstOrNull {
+                                    it.name == surveyList[pos].materialName
+                                }?.let {
+                                    MapTool.mapListener?.getMap()?.operationalLayers?.remove(it)
+                                }
+                                FileUtils.deleteFilesByName(
+                                    ConstStrings.getSurveyPath(),
+                                    surveyList[pos].materialName
+                                )
                                 surveyList[pos].isDownload = false
                                 surveyAdapter.notifyDataSetChanged()
-                                }
-                        }else{
-                            ZXDialogUtil.showYesNoDialog(
-                                mContext,
-                                "提示",
-                                "是否下载该条任务数据?"
-                            ) { dialog, which ->
-                                mPresenter.downloadSurvey(surveyList[pos])
+                            }
+                        } else {
+                            getPermission(
+                                arrayOf(
+                                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                )
+                            ) {
+                                ZXDialogUtil.showYesNoDialog(
+                                    mContext,
+                                    "提示",
+                                    "是否下载该条任务数据?"
+                                ) { dialog, which ->
+                                    mPresenter.downloadSurvey(surveyList[pos])
 //                                showToast("正在建设中")
+                                }
                             }
                         }
                         return@setSwipeable
                     }
                     R.id.tv_upload -> {
-                        ZXDialogUtil.showYesNoDialog(
-                            mContext,
-                            "提示",
-                            "是否上传该条任务数据？"
-                        ) { dialog, which ->
-                            val files = FileUtils.getFilesByName(
-                                ConstStrings.getSurveyPath(),
-                                surveyList[pos].materialName
+                        getPermission(
+                            arrayOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
                             )
-                            files.firstOrNull { it.isDirectory }?.apply {
-                                val path = ZipUtils.zip(path, false)
-                                if (path != null) {
-                                    mPresenter.uploadSurvey(
-                                        path,
-                                        surveyList[pos].materialName,
-                                        surveyList[pos].templateid,
-                                        surveyList[pos].catalogId,
-                                        collectId = UUID.randomUUID().toString()
-                                    )
+                        ) {
+                            ZXDialogUtil.showYesNoDialog(
+                                mContext,
+                                "提示",
+                                "是否上传该条任务数据？"
+                            ) { dialog, which ->
+                                val files = FileUtils.getFilesByName(
+                                    ConstStrings.getSurveyPath(),
+                                    surveyList[pos].materialName
+                                )
+                                files.firstOrNull { it.isDirectory }?.apply {
+                                    val path = ZipUtils.zip(path, false)
+                                    if (path != null) {
+                                        mPresenter.uploadSurvey(
+                                            path,
+                                            surveyList[pos].materialName,
+                                            surveyList[pos].templateid,
+                                            surveyList[pos].catalogId,
+                                            collectId = UUID.randomUUID().toString()
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -147,42 +169,56 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
                 if (!surveyList[position].isDownload) {
                     showToast("该任务暂未下载，请下载后编辑")
                 } else {
-                    val files = FileUtils.getFilesByName(
-                        ConstStrings.getSurveyPath(),
-                        surveyList[position].materialName
-                    )
+                    getPermission(
+                        arrayOf(
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        )
+                    ) {
+                        val files = FileUtils.getFilesByName(
+                            ConstStrings.getSurveyPath(),
+                            surveyList[position].materialName
+                        )
 
-                    files.firstOrNull { it.isFile }?.apply {
+                        files.firstOrNull { it.isFile }?.apply {
 
-                        if (exists()) {
-                            val geoPackage = GeoPackage(path)
-                            geoPackage.loadAsync()
-                            geoPackage.addDoneLoadingListener {
-                                if (geoPackage.loadStatus == LoadStatus.LOADED) {
-                                    val geoTables = geoPackage.geoPackageFeatureTables
-                                    geoTables.forEach { table ->
-                                        val featureLayer = FeatureLayer(table as FeatureTable?)
-                                        featureLayer.loadAsync()
-                                        featureLayer.addDoneLoadingListener {
+                            addSurveyLayer(this, true)
 
-                                            fragChangeListener?.onFragGoto(
-                                                SurveyMainFragment.Survey_Feature,
-                                                featureLayer to arrayOf(
-                                                    true,
-                                                    false
-                                                )
-                                            )
-
-                                            featureLayer.name =
-                                                name.substring(0, name.lastIndexOf("."))
-
-                                            MapTool.mapListener?.getMap()?.operationalLayers?.add(
-                                                featureLayer
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+//                            if (exists()) {
+//                                val geoPackage = GeoPackage(path)
+//                                geoPackage.loadAsync()
+//                                geoPackage.addDoneLoadingListener {
+//                                    if (geoPackage.loadStatus == LoadStatus.LOADED) {
+//                                        val geoTables = geoPackage.geoPackageFeatureTables
+//                                        geoTables.forEach { table ->
+//                                            val featureLayer = FeatureLayer(table as FeatureTable?)
+//                                            table.loadAsync()
+//                                            table.addDoneLoadingListener {
+//
+//                                                //                                            }
+////                                            featureLayer.loadAsync()
+////                                            featureLayer.addDoneLoadingListener {
+//
+//                                                fragChangeListener?.onFragGoto(
+//                                                    SurveyMainFragment.Survey_Feature,
+//                                                    featureLayer to arrayOf(
+//                                                        true,
+//                                                        false
+//                                                    )
+//                                                )
+//
+//                                                featureLayer.name =
+//                                                    name.substring(0, name.lastIndexOf("."))
+//
+//                                                MapTool.mapListener?.getMap()
+//                                                    ?.operationalLayers?.add(
+//                                                    featureLayer
+//                                                )
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
@@ -234,25 +270,43 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
 
     override fun onSurveyDownload(file: File) {
         if (file.exists()) {
-            val geoPackage = GeoPackage(file.path)
-            geoPackage.loadAsync()
-            geoPackage.addDoneLoadingListener {
-                if (geoPackage.loadStatus == LoadStatus.LOADED) {
-                    val geoTables = geoPackage.geoPackageFeatureTables
-                    geoTables.forEach { table ->
-                        val featureLayer = FeatureLayer(table)
-                        featureLayer.loadAsync()
-                        featureLayer.addDoneLoadingListener {
-                            featureLayer.name = file.name.substring(0, file.name.lastIndexOf("."))
+            addSurveyLayer(file)
 
-                            MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
+            refresh()
+            showToast("下载成功")
+        }
+    }
+
+    private fun addSurveyLayer(file: File, isJump: Boolean = false) {
+        if (!file.exists()) {
+            showToast("该调查图层文件不存在")
+            return
+        }
+        val geoPackage = GeoPackage(file.path)
+        geoPackage.loadAsync()
+        geoPackage.addDoneLoadingListener {
+            if (geoPackage.loadStatus == LoadStatus.LOADED) {
+                val geoTables = geoPackage.geoPackageFeatureTables
+                geoTables.forEach { table ->
+                    val featureLayer = FeatureLayer(table)
+                    featureLayer.loadAsync()
+                    featureLayer.addDoneLoadingListener {
+                        featureLayer.name = file.name.substring(0, file.name.lastIndexOf("."))
+
+                        MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
+
+                        if (isJump) {
+                            fragChangeListener?.onFragGoto(
+                                SurveyMainFragment.Survey_Feature,
+                                featureLayer to arrayOf(
+                                    true,
+                                    false
+                                )
+                            )
                         }
                     }
                 }
             }
-
-            refresh()
-            showToast("下载成功")
         }
     }
 
@@ -269,7 +323,7 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
         this.surveyList.clear()
         tempalteList.rows.apply {
             forEach {
-                it.templateid=getTemplateId()
+                it.templateid = getTemplateId()
                 surveyList.add(it)
                 try {
                     val fileObj = JSONArray(it.fileJson).getJSONObject(0)
@@ -286,15 +340,15 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
         sr_collect_layers.isRefreshing = false
     }
 
-    private fun getTemplateId():String{
-        var templateId=""
+    private fun getTemplateId(): String {
+        var templateId = ""
         mSharedPrefUtil.getString("fieldShow")?.let {
-            if (it.isNotEmpty()){
+            if (it.isNotEmpty()) {
                 val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
-               jsonToLinkedHashMap.entries.forEach {
-                    if (it.key=="房屋调查"){
+                jsonToLinkedHashMap.entries.forEach {
+                    if (it.key == "房屋调查") {
                         MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach temp@{
-                            if (it.key=="templateid"){
+                            if (it.key == "templateid") {
                                 templateId = it.value
                                 return@temp
                             }

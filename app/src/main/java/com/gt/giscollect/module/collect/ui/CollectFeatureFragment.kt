@@ -213,7 +213,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                         val obj = JSONObject(it)
 
                         GeoPackageTool.getFeatureFromGpkgsWithNull(
-                            obj.getString("itemName"),
+                            obj.optString("itemName"),
                             listCall = { list ->
                                 if (list.isEmpty()) {
                                     checkCount--
@@ -222,21 +222,23 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                                     checkCount += (list.size - 1)
                                     if (obj.has("checkOverlayItem")) {
                                         checkOverlayItem.clear()
-                                        MyUtil.jsonToLinkedHashMap(obj.getJSONObject("checkOverlayItem"))
-                                            .forEach {
-                                                checkOverlayItem.add(
-                                                    KeyValueEntity(
-                                                        it.key,
-                                                        it.value
+                                        obj.optJSONObject("checkOverlayItem")?.let {
+                                            MyUtil.jsonToLinkedHashMap(it)
+                                                .forEach {
+                                                    checkOverlayItem.add(
+                                                        KeyValueEntity(
+                                                            it.key,
+                                                            it.value
+                                                        )
                                                     )
-                                                )
-                                            }
+                                                }
+                                        }
                                     }
                                     list.forEach {
                                         excuteInfo(
                                             it,
-                                            obj.getString("itemName")
-                                            , obj.getString("checkOverlayField")
+                                            obj.optString("itemName")
+                                            , obj.optString("checkOverlayField")
                                         )
                                     }
                                 }
@@ -922,28 +924,32 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         tv_collect_rename.visibility = View.GONE
 
         et_collect_rename.setText(featureLayer.name)
-        if (moduleType == 2) featureLayer.renderer = UniqueValueRenderer().apply {
-            fieldNames.add("filled")
-            defaultSymbol = SimpleFillSymbol(
-                SimpleFillSymbol.Style.SOLID,
-                mContext.resources.getColor(R.color.Chart_33),
-                SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f)
-            )
-            uniqueValues.clear()
-            uniqueValues.add(
-                UniqueValueRenderer.UniqueValue("是否编辑",
-                    "true",
-                    SimpleFillSymbol(
-                        SimpleFillSymbol.Style.SOLID,
-                        mContext.resources.getColor(R.color.Chart_22),
-                        null
-                    ),
-                    arrayListOf<String>().apply {
-                        add("true")
-                    })
-            )
-
+        val containsFilled = featureLayer.featureTable.fields.firstOrNull {
+            it.name == "filled"
         }
+        if (moduleType == 2 && containsFilled != null) featureLayer.renderer =
+            UniqueValueRenderer().apply {
+                fieldNames.add("filled")
+                defaultSymbol = SimpleFillSymbol(
+                    SimpleFillSymbol.Style.SOLID,
+                    mContext.resources.getColor(R.color.Chart_33),
+                    SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLACK, 1f)
+                )
+                uniqueValues.clear()
+                uniqueValues.add(
+                    UniqueValueRenderer.UniqueValue("是否编辑",
+                        "true",
+                        SimpleFillSymbol(
+                            SimpleFillSymbol.Style.SOLID,
+                            mContext.resources.getColor(R.color.Chart_22),
+                            null
+                        ),
+                        arrayListOf<String>().apply {
+                            add("true")
+                        })
+                )
+
+            }
 
         currentLayer = featureLayer
         currentLayer?.clearSelection()
@@ -1018,9 +1024,9 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                } else {
                 featureList.addAll(list)
 //                }
-                if (startNum >0) {
+                if (startNum > 0) {
                     featureAdapter.notifyItemInserted(startNum)
-                }else{
+                } else {
                     featureAdapter.notifyDataSetChanged()
                 }
                 tv_collect_feature_title.text =
