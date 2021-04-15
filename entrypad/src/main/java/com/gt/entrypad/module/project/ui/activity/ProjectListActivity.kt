@@ -143,22 +143,22 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                             "提示",
                             "是否上传该条任务数据？"
                         ) { dialog, which ->
-                      /*   val files = FileUtils.getFilesByName(
+                         val files = FileUtils.getFilesByName(
                                 ConstStrings.getSketchLayersPath(),
-                             data[pos].materialName
+                             data[pos].featureLayer?.name?:""
                             )
                             files.firstOrNull { it.isDirectory }?.apply {
                                 val path = ZipUtils.zip(path, false)
                                 if (path != null) {
                                     mPresenter.uploadSurvey(
                                         path,
-                                        surveyList[pos].materialName,
-                                        surveyList[pos].templateid,
-                                        surveyList[pos].catalogId,
+                                        data[pos].featureLayer?.name?:"",
+                                        "",
+                                        "",
                                         collectId = UUID.randomUUID().toString()
                                     )
                                 }
-                            }*/
+                            }
                         }
                     }
                 }
@@ -180,26 +180,25 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
 
     private fun refresh(){
         data.clear()
-        mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)?.apply {
-            forEach {projectId->
-                if (!projectId.isNullOrEmpty()){
-                    val file = File(ConstStrings.getSketchLayersPath()+projectId)
-                 if (file.exists() && file.isDirectory) {
-                     file.listFiles()?.forEach {
-                         if (it.isFile && it.name.endsWith(".gpkg")) {
-                             GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
-                                 featureTableList.forEach {featureTable->
-                                     data.add(ProjectListBean(id=projectId,featureLayer = FeatureLayer(featureTable).apply {
-                                         name = projectId
-                                         featureTable.displayName = projectId
-                                     }))
-                                 }
-                                 projectAdapter.notifyDataSetChanged()
-                             }
-                         }
-                     }
-                 }
-             }
+        mSharedPrefUtil.getMap<String,String>(ConstStrings.SketchIdList)?.apply {
+            entries?.forEach {sketch->
+                ConstStrings.sktchId=sketch.key
+                val file = File(ConstStrings.getSketchLayersPath()+sketch.value)
+                if (file.exists() && file.isDirectory) {
+                    file.listFiles()?.forEach {
+                        if (it.isFile && it.name.endsWith(".gpkg")) {
+                            GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
+                                featureTableList.forEach {featureTable->
+                                    data.add(ProjectListBean(id=sketch.key,featureLayer = FeatureLayer(featureTable).apply {
+                                        name = sketch.value
+                                        featureTable.displayName = sketch.value
+                                    }))
+                                }
+                                projectAdapter.notifyDataSetChanged()
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -144,6 +144,6 @@ object ConstStrings {
     var TolDistance = 1.0f
 
     fun clear() {
-
+        sktchId=""
     }
 }

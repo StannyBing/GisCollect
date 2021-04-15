@@ -204,16 +204,16 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         geoPackage?.addDoneLoadingListener {
             geoPackage.geoPackageFeatureTables?.forEach {
                 val layer = FeatureLayer(it)
-                var tempSketchList = arrayListOf<String>()
-                val sketchIdList = mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
-                sketchIdList?.let {
-                    tempSketchList.addAll(it)
+                var tempSketchList = hashMapOf<String,String>()
+                val sketchIdList = mSharedPrefUtil.getMap<String,String>(ConstStrings.SketchIdList)
+                sketchIdList?.entries?.forEach {
+                    tempSketchList[it.key]=it.value
                 }
                 val layerName = et_create_layer_name.text.toString()
                 if (!tempSketchList.contains(layerName)){
-                      tempSketchList.add(layerName)
+                    tempSketchList[ConstStrings.sktchId]=layerName
                   }
-                mSharedPrefUtil.putList(ConstStrings.SketchIdList,tempSketchList)
+                mSharedPrefUtil.putMap(ConstStrings.SketchIdList,tempSketchList)
                 if (geoPackage.geoPackageFeatureTables.size == 1) {
                     layer.loadAsync()
                     layer.name = et_create_layer_name.text.toString()
