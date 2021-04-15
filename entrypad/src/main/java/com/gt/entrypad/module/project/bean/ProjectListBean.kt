@@ -7,8 +7,7 @@ import java.util.*
 data class ProjectListBean(
      var id:String= "",
     var checkInfo: CheckBean? = null,
-    var featureLayer: FeatureLayer? = null,
-     var sketchPath:String=""
+    var featureLayer: FeatureLayer? = null
 ) {
 
 }

@@ -7,7 +7,8 @@ import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
-import com.gt.giscollect.base.*
+import com.gt.base.bean.NormalList
+import com.gt.base.bean.toJson
 import com.gt.giscollect.module.main.func.tool.LayerTool
 import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.system.bean.DataResBean

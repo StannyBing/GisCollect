@@ -6,8 +6,9 @@ import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
-import com.gt.giscollect.base.*
 import com.gt.base.app.TempIdsBean
+import com.gt.base.bean.NormalList
+import com.gt.base.bean.toJson
 import com.gt.giscollect.module.system.bean.TemplateBean
 import com.gt.giscollect.module.system.func.adapter.TempalteListAdapter
 import com.gt.giscollect.module.system.mvp.contract.TemplateDownloadContract

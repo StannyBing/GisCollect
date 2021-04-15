@@ -15,8 +15,9 @@ import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
+import com.gt.base.bean.NormalList
+import com.gt.base.bean.toJson
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.*
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.MapTool
 import com.gt.base.tool.MyUtil
@@ -26,7 +27,6 @@ import com.gt.giscollect.module.collect.mvp.model.SurveyListModel
 import com.gt.giscollect.module.collect.mvp.presenter.SurveyListPresenter
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.tool.SimpleDecoration
-import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper

@@ -8,7 +8,7 @@ import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.gt.giscollect.api.ApiConfigModule
 import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.NormalList
+import com.gt.base.bean.NormalList
 import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.giscollect.module.system.mvp.contract.DataDownloadContract
 import com.zx.zxutils.util.ZXFileUtil

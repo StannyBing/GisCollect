@@ -2,6 +2,7 @@
     <string name="app_name">entrypad</string>
     <string name="emptyText">--</string>
     <string name="createProject">创建工程</string>
+    <string name="moduleDownload">模板下载</string>
     <string name="registrationList">竣工验收列表</string>
     <string name="lastStep">上一步</string>
     <string name="nextStep">下一步</string>

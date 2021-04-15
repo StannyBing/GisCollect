@@ -27,6 +27,7 @@ object ConstStrings {
     var mTemplatesId: String = ""//当前选中的id
     var mGuideBean: GuideBean = GuideBean()//当前列表进入信息
     var sktchId: String = ""//当前选中的id
+    var drawTempleteName = "" //草图模板名字
     val checkList = arrayListOf<CheckBean>()
     val appfuncList = arrayListOf<AppFuncBean>()
 
@@ -42,7 +43,7 @@ object ConstStrings {
             field = value
             ZXSharedPrefUtil().putString("cookie", value)
         }
-
+    const val DrawTemplateIdList = "draw_template_id_list"
     const val TemplateIdList = "template_id_list"
     const val DataIdList = "data_id_list"
     const val RxLayerChange = "rx_layer_change"
@@ -103,7 +104,9 @@ object ConstStrings {
     fun getCollectTemplatePath(): String {
         return "$INI_PATH$APPNAME/CollectTemplate/"
     }
-
+    fun getDrawTemplatePath(): String {
+        return "$INI_PATH$APPNAME/DrawTemplate/"
+    }
     fun getStylePath(): String {
         return "$LOCAL_PATH$APPNAME/MapStyle/"
     }
@@ -124,7 +127,7 @@ object ConstStrings {
     }
 
     fun getSurveyTemplatePath(): String {
-        return "$LOCAL_PATH$APPNAME/survey/" + UserManager.user?.userId
+        return "$LOCAL_PATH$APPNAME/survey/" + UserManager.user?.userId+"/"
     }
     //踏勘文件搜索
     fun getSurveySearchPath(): String {
@@ -141,6 +144,6 @@ object ConstStrings {
     var TolDistance = 1.0f
 
     fun clear() {
-        sktchId = ""
+
     }
 }

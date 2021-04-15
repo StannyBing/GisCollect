@@ -1,5 +1,6 @@
 package com.stanny.sketchpad.tool
 
+import android.graphics.Point
 import android.graphics.PointF
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -256,5 +257,54 @@ object SketchPointTool {
             }
         }
         return false
+    }
+
+    /**
+     * 多边形外扩
+     */
+        fun polygonExpansion(points:List<PointF>,distance: Float):ArrayList<PointF>{
+        var tempPoints = arrayListOf<PointF>()
+        val range = points.size
+        for (i in 0 until range){
+           var point = points[i] //p点
+           var point1 = points[if (i==0)range-1 else i-1]//p1点
+           var point2  =  points[if (i==range-1) 0 else i+1]//p2点
+            //向量pp1
+           var vectorX1 = point1.x-point.x //向量pp1横坐标
+           var vectorY1 = point1.y-point.y//向量Pp1纵坐标
+            var n1 = normalize(vectorX1.toDouble(),vectorY1.toDouble())
+            var vectorUnitX1 = vectorX1/n1 //向量单位化横坐标
+            var vectorUnitY1 = vectorY1/n1 //向量单位化纵坐标
+            //向量pp2
+            var vectorX2 = point2.x-point.x //向量pp1横坐标
+            var vectorY2 = point2.y-point.y//向量Pp1纵坐标
+            var n2 = normalize(vectorX2.toDouble(),vectorY2.toDouble())
+            var vectorUnitX2 = vectorX2/n2 //向量单位化横坐标
+            var vectorUnitY2 = vectorY2/n2 //向量单位化纵坐标
+            //pq距离
+            var vectorLen = Math.sqrt((1-((vectorUnitX1*vectorUnitX2)+(vectorUnitY1*vectorUnitY2))))*distance
+            //根据向量的叉乘积来判断角是凹角还是凸角
+            if (((vectorX1 * vectorY2) + (-1 * vectorY1 * vectorX2)) < 0) {
+                vectorUnitX2 *= -1
+                vectorUnitY2 *= -1
+                vectorUnitX1 *= -1
+                vectorUnitY1 *= -1
+            }
+            //PQ的方向
+            var  vectorX = vectorUnitX1 + vectorUnitX2
+            var  vectorY = vectorUnitY1 + vectorUnitY2
+            var  n = vectorLen / normalize(vectorX, vectorY)
+            var  vectorUnitX = vectorX * n
+            var  vectorUnitY = vectorY * n
+            tempPoints.add(PointF((vectorUnitX + point.x).toFloat(),(vectorUnitY + point.y).toFloat()))
+       }
+        return tempPoints
+    }
+
+    /**
+     * 向量单位化处理
+     */
+    private fun normalize(x:Double,y:Double):Double{
+        return  Math.sqrt((x*x)+(y*y))
     }
 }

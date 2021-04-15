@@ -27,6 +27,7 @@ import com.gt.base.listener.FragChangeListener
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.bean.FileInfoBean
+import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.IDCardInfoBean
 import com.gt.entrypad.module.project.func.adapter.SketchFieldEditAdapter
 import com.gt.entrypad.module.project.func.adapter.SketchFileAdapter
@@ -59,7 +60,6 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     private var uploadTempFile: File? = null
     var fragChangeListener: FragChangeListener? = null
     private val REQUEST_CODE_CAMERA = 102
-
     companion object {
         /**
          * 启动器
@@ -85,6 +85,11 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
             adapter = fileAdapter
         }
         recordUtil = ZXRecordUtil(requireActivity())
+        if (ConstStrings.drawTempleteName.contains("宗地")){
+            btnWorld.text = "生成宗地图"
+        }else{
+            btnWorld.text = "生成房屋图"
+        }
     }
     override fun onViewListener() {
         fieldAdapter.setOnItemChildClickListener { adapter, view, position ->
@@ -191,6 +196,12 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
                     "文件预览",
                     filePath + "/" + fileList[position].path
                 )
+            }
+        }
+        //生成报告
+        btnWorld.setOnClickListener {
+            getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)){
+                showDialog()
             }
         }
     }
@@ -535,5 +546,30 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     fun reInit() {
       fieldAdapter.cardList.clear()
       fieldAdapter.notifyDataSetChanged()
+    }
+    /**
+     * 下载成功接口回调
+     */
+    override fun onFileDownloadResult(file: File) {
+        ZXFileUtil.openFile(mContext,file)
+    }
+
+    /**
+     * 上传接口回调
+     */
+    override fun uploadResult(uploadResult: HouseTableBean?) {
+        uploadResult?.let {
+            mPresenter.downloadFile(if (ConstStrings.drawTempleteName.contains("宗地")) "宗地图.docx" else "房屋图.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
+        }
+    }
+    private fun showDialog(){
+        //复制草图
+        var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
+        var toPath = mContext.filesDir.path+"/${ConstStrings.sktchId}/sketch/draw.jpg"
+        toPath = if (!ZXFileUtil.isFileExists(toPath)){
+            ZXFileUtil.createNewFile(toPath)
+            ZXFileUtil.copyFile(filePath, toPath)?.path?:""
+        } else toPath
+        mPresenter.zddWorld(fieldList,toPath)
     }
 }

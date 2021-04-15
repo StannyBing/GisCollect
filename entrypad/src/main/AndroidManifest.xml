@@ -49,6 +49,9 @@ package="com.gt.entrypad">
         <activity android:name=".module.project.ui.activity.FilePreviewActivity"
             android:screenOrientation="landscape"
             android:theme="@style/MainAppTheme"/>
+        <activity android:name=".module.project.ui.activity.DrawTemplateDownloadActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"/>
 
     </application>
 </manifest>

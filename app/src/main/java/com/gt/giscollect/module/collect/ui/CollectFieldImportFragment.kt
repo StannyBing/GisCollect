@@ -1,7 +1,6 @@
 package com.gt.giscollect.module.collect.ui
 
 import android.os.Bundle
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +9,7 @@ import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
 import com.gt.giscollect.R
-import com.gt.giscollect.base.toJson
+import com.gt.base.bean.toJson
 import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.func.adapter.FieldImportAdapter
 import com.gt.giscollect.module.collect.mvp.contract.CollectFieldImportContract
@@ -18,7 +17,6 @@ import com.gt.giscollect.module.collect.mvp.model.CollectFieldImportModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectFieldImportPresenter
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.util.ZXSystemUtil
-import com.zx.zxutils.views.SwipeRecylerView.ZXSRListener
 import kotlinx.android.synthetic.main.fragment_collect_field_import.*
 
 /**

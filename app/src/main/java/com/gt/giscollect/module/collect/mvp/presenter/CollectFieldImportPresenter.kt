@@ -3,7 +3,7 @@ package com.gt.giscollect.module.collect.mvp.presenter
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
 import com.google.gson.Gson
-import com.gt.giscollect.base.NormalList
+import com.gt.base.bean.NormalList
 import com.gt.giscollect.module.collect.bean.FieldImportBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectFieldImportContract
 import okhttp3.RequestBody

@@ -3,7 +3,9 @@ package com.gt.entrypad.module.project.mvp.model
 import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSchedulers
+import com.gt.base.bean.NormalList
 import com.gt.entrypad.api.ApiService
+import com.gt.entrypad.module.project.bean.DrawTemplateBean
 import com.gt.entrypad.module.project.bean.HouseTableBean
 
 import com.gt.entrypad.module.project.mvp.contract.ProjectListContract
@@ -15,10 +17,16 @@ import rx.Observable
  * 功能：
  */
 class ProjectListModel : BaseModel(), ProjectListContract.Model{
-
-    override fun uploadInfo(body: RequestBody): Observable<HouseTableBean> {
+    override fun uploadData(body: RequestBody): Observable<String> {
         return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
-            .uploadInfo(body)
+            .uploadDraw(body)
+            .compose(RxHelper.handleResult())
+            .compose(RxSchedulers.io_main())
+    }
+
+    override fun getProject(): Observable<String> {
+        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
+            .projectList()
             .compose(RxHelper.handleResult())
             .compose(RxSchedulers.io_main())
     }

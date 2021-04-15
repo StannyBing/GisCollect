@@ -97,6 +97,9 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         guideAdapter.setChildCall { it ->
+            ConstStrings.appfuncList.clear()
+            ConstStrings.appfuncList.addAll(it.appFuncs)
+            ConstStrings.mGuideBean = it
             if (it.itemName.contains("草图")) {
                 ProjectListActivity.startAction(this, false)
             }
@@ -104,9 +107,6 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
 //                SceneMapActivity.startAction(this, false)
 //            }
             else {
-                ConstStrings.appfuncList.clear()
-                ConstStrings.appfuncList.addAll(it.appFuncs)
-                ConstStrings.mGuideBean = it
                 MainActivity.startAction(this, false)
             }
 //            when {

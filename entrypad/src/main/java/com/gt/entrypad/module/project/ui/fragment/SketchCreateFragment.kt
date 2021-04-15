@@ -81,7 +81,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         sp_create_layer_model.showUnderineColor(false)
             .setItemHeightDp(40)
             .showSelectedTextColor(true, ContextCompat.getColor(mContext, R.color.colorPrimary))
-            .setDefaultItem("请选择房屋模板")
+            .setDefaultItem("请选择模板")
             .build()
 
         rv_create_layer_field.apply {
@@ -178,7 +178,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
             if (et_create_layer_name.text.toString().isEmpty()) {
                 showToast("请输入图层名")
             } else if (sp_create_layer_model.selectedValue.toString().isEmpty()) {
-                showToast("请选择房屋模板")
+                showToast("请选择模板")
             } else {
                 ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否新增图层？") { _, _ ->
                     if (et_create_layer_name.text.toString().contains("/")
@@ -293,10 +293,10 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
 
     fun reInit() {
 
-        val templateIds =
-            mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-
         val templateList = arrayListOf<KeyValueEntity>()
+        /*val templateIds =
+            mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.DrawTemplateIdList)
+
         val file = File(ConstStrings.getSketchTemplatePath())
         if (file.exists() && file.isDirectory) {
             val childFiles = file.listFiles()
@@ -306,7 +306,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
 //                } else
                 if (it.isFile && it.name.endsWith(".gpkg")) {
                     //只添加当前用户对应的采集模板
-               /*     templateIds?.forEach temp@{ temp ->
+               *//*     templateIds?.forEach temp@{ temp ->
                         if (it.path.contains(temp.name) && temp.templateId == ConstStrings.bussinessId) {
                             templateList.add(
                                 KeyValueEntity(
@@ -318,7 +318,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                             )
                             return@temp
                         }
-                    }*/
+                    }*//*
                     templateList.add(
                         KeyValueEntity(
                             it.name.substring(
@@ -329,10 +329,16 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                     )
                 }
             }
-        }
+        }*/
+        templateList.add( KeyValueEntity(
+            ConstStrings.drawTempleteName.substring(
+                0,
+               ConstStrings.drawTempleteName.lastIndexOf(".")
+            ), ConstStrings.getDrawTemplatePath()+ConstStrings.drawTempleteName
+        ))
         sp_create_layer_model.dataList.clear()
         sp_create_layer_model.dataList.addAll(templateList)
-        sp_create_layer_model.setDefaultItem("请选择房屋模板")
+        sp_create_layer_model.setDefaultItem("请选择模板")
         sp_create_layer_model.notifyDataSetChanged()
         sp_create_layer_model.setSelection(0)
         identifyList.clear()

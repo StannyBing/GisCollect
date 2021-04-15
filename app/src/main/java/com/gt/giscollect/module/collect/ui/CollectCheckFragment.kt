@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.giscollect.R
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
-import com.gt.giscollect.base.toJson
+import com.gt.base.bean.toJson
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.func.adapter.CollectCheckAdapter
 import com.gt.giscollect.module.collect.mvp.contract.CollectCheckContract

@@ -16,10 +16,12 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.view.SketchCreationMode
 import com.esri.arcgisruntime.mapping.view.SketchEditor
+import com.frame.zxmvp.http.unzip.ZipUtils
 import com.gt.base.app.AppInfoManager
 import com.gt.base.app.ConstStrings
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.tool.CopyAssetsToSd
+import com.gt.base.tool.MyUtil
 import com.gt.camera.module.CameraVedioActivity
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.giscollect.R
@@ -62,6 +64,8 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
 
     private var saveIndex = 0
     private var layerName="踏勘"
+    private var templeteId = ""
+    private var uuid =""
     companion object {
         /**
          * 启动器
@@ -265,7 +269,8 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
                                        if (featureLayer.featureTable.geometryType==sketchEditor.geometry.geometryType){
                                            currentFeature?.let {
                                                if (it.attributes?.containsKey("UUID") == true&&it.attributes.get("UUID")==null) {
-                                                   it.attributes?.put("UUID", UUID.randomUUID().toString())
+                                                   uuid =UUID.randomUUID().toString()
+                                                   it.attributes?.put("UUID", uuid)
                                                }
                                                it.geometry=sketchEditor.geometry
                                                excuteField(it)
@@ -289,6 +294,23 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         btnSubmit.setOnClickListener {
             saveIndex = 0
             postSave()
+            //提交
+            ZXDialogUtil.showYesNoDialog(
+                mContext,
+                "提示",
+                "是否上传该条踏勘数据？"
+            ) { dialog, which ->
+                val files = FileUtils.getFilesByName(
+                    ConstStrings.getSurveyTemplatePath() + layerName,
+                    "file"
+                )
+                files.firstOrNull { it.isDirectory }?.apply {
+                    val path = ZipUtils.zip(path, false)
+                    if (path != null) {
+                        mPresenter.uploadSurvey(path,"",templeteId,"",uuid)
+                    }
+                }
+            }
         }
         //文字编辑
         fieldAdapter.addTextChangedCall { position, value ->
@@ -303,21 +325,11 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         return R.layout.fragment_survey
     }
 
-    fun setSurveyModule(surveyModel:String){
+    fun setSurveyModule(creationMode: SketchCreationMode){
         MapTool.mapListener?.getMapView()?.sketchEditor = sketchEditor
         sketchEditor.clearGeometry()
-        when(surveyModel){
-           "点图层"->{
-               sketchEditor.start(SketchCreationMode.POINT)
-           }
-           "线图层"->{
-               sketchEditor.start(SketchCreationMode.POLYLINE)
-           }
-           "面图层"->{
-               sketchEditor.start(SketchCreationMode.POLYGON)
-
-           }
-       }
+        sketchEditor.start(creationMode)
+        templeteId = getTemplateId()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -514,7 +526,7 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         if (saveIndex == fieldList.size + fileList.size) {
             dismissLoading()
             //提交
-            showToast("保存成功")
+           // showToast("保存成功")
         } else {
             showLoading("正在保存中...")
             //默认加入一个值
@@ -642,5 +654,44 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         } else {
             postSave()
         }
+    }
+    private fun getTemplateId():String{
+        var templateId=""
+        mSharedPrefUtil.getString("fieldShow")?.let {
+            if (it.isNotEmpty()){
+                val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
+                jsonToLinkedHashMap.entries.forEach {
+                    if (it.key=="通用采集"){
+                        MyUtil.jsonToLinkedHashMap(JSONObject(it.value)).entries.forEach temp@{
+                            when(sketchEditor.sketchCreationMode){
+                                SketchCreationMode.POINT->{
+                                    if (it.key.toLowerCase()=="pointtemplateid"){
+                                        templateId = it.value
+                                        return@temp
+                                    }
+                                }
+                                SketchCreationMode.POLYLINE->{
+                                    if (it.key.toLowerCase()=="linetemplateid"){
+                                        templateId = it.value
+                                        return@temp
+                                    }
+                                }
+                                SketchCreationMode.POLYGON->{
+                                    if (it.key.toLowerCase()=="polygontemplateid"){
+                                        templateId = it.value
+                                        return@temp
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return templateId
+    }
+
+    override fun onSurveyUpload(name: String) {
+        showToast("上传成功")
     }
 }

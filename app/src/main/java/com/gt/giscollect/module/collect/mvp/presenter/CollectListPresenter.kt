@@ -9,7 +9,7 @@ import com.frame.zxmvp.http.upload.UploadRequestBody
 import com.gt.giscollect.api.ApiConfigModule
 import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.NormalList
+import com.gt.base.bean.NormalList
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.base.manager.UserManager

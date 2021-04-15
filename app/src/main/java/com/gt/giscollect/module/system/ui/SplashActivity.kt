@@ -9,14 +9,13 @@ import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.base.app.AppInfoManager
 import com.gt.base.manager.UserBean
-import com.gt.giscollect.base.toJson
+import com.gt.base.bean.toJson
 import com.gt.giscollect.module.system.func.tool.NetworkUtils
 
 import com.gt.giscollect.module.system.mvp.contract.SplashContract
 import com.gt.giscollect.module.system.mvp.model.SplashModel
 import com.gt.giscollect.module.system.mvp.presenter.SplashPresenter
 import com.gt.base.manager.UserManager
-import com.gt.giscollect.module.main.ui.MainActivity
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXUniqueIdUtil
 import com.zx.zxutils.views.ZXStatusBarCompat

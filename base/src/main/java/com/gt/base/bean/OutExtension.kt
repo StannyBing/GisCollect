@@ -1,4 +1,4 @@
-package com.gt.giscollect.base
+package com.gt.base.bean
 
 import android.graphics.Paint
 import com.google.gson.Gson

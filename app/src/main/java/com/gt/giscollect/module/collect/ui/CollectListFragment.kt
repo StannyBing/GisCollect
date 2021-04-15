@@ -6,8 +6,6 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.data.GeoPackage
-import com.esri.arcgisruntime.data.GeoPackageFeatureTable
-import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
@@ -18,7 +16,6 @@ import com.gt.base.manager.UserManager
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.*
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.func.adapter.CollectListAdapter
 import com.gt.module_map.tool.DeleteLayerFileTool
@@ -28,18 +25,14 @@ import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.MapTool
 import com.gt.base.app.TempIdsBean
+import com.gt.base.bean.toJson
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.tool.SimpleDecoration
-import com.zx.zxutils.other.ZXInScrollRecylerManager
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
-import com.zx.zxutils.util.ZXTimeUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.fragment_collect_list.*
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 /**
  * Create By XB

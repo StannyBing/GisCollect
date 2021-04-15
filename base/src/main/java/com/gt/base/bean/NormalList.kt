@@ -1,4 +1,4 @@
-package com.gt.giscollect.base
+package com.gt.base.bean
 
 data class NormalList<T>(
     var pageIndex: Int,

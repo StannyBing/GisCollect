@@ -8,6 +8,7 @@ import android.view.View
 import android.view.animation.TranslateAnimation
 import androidx.core.app.ActivityCompat
 import com.gt.base.activity.BaseActivity
+import com.gt.base.app.ConstStrings
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.R
@@ -44,6 +45,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         super.initView(savedInstanceState)
         toolBarTitleTv.text = getString(R.string.registrationPlatform)
         projectId = if (intent.hasExtra("projectId")) intent.getStringExtra("projectId") else ""
+        ConstStrings.sktchId = projectId
         leftTv.apply {
             setData(TitleViewViewModel(getString(R.string.lastStep)))
             setActionListener(object : ICustomViewActionListener {

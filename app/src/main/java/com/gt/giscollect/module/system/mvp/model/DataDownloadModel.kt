@@ -4,7 +4,7 @@ import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSchedulers
 import com.gt.giscollect.api.ApiService
-import com.gt.giscollect.base.NormalList
+import com.gt.base.bean.NormalList
 import com.gt.giscollect.module.system.bean.DataResBean
 
 import com.gt.giscollect.module.system.mvp.contract.DataDownloadContract

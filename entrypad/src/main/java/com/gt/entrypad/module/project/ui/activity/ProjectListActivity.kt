@@ -11,8 +11,11 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
+import com.frame.zxmvp.http.unzip.ZipUtils
 import com.gt.base.activity.BaseActivity
 import com.gt.base.app.ConstStrings
+import com.gt.base.bean.NormalList
+import com.gt.base.bean.toJson
 import com.gt.entrypad.app.RouterPath
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -28,17 +31,20 @@ import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
 import com.gt.base.tool.CopyAssetsToSd
+import com.gt.entrypad.module.project.bean.DrawTemplateBean
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.GeoPackageTool
 import com.gt.module_map.tool.MapTool
+import com.zx.bui.ui.buidialog.BUIDialog
 import com.zx.zxutils.util.*
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
 import kotlinx.android.synthetic.main.activity_project_list.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Create By admin On 2017/7/11
@@ -48,7 +54,6 @@ import java.text.SimpleDateFormat
 class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>(), ProjectListContract.View {
     private var data = arrayListOf<ProjectListBean>()
     private var projectAdapter = ProjectListAdapter(data)
-    private var docName = ""
     companion object {
         private const val ChangeTag = "sketch_list"
         /**
@@ -81,15 +86,25 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   DrawSketchActivity.startAction(this@ProjectListActivity,false,ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss")))
+                   moduleDialog()
                }
 
            })
        }
+
+        rightTv.apply {
+            setData(TitleViewViewModel(getString(R.string.moduleDownload)))
+            this.visibility=View.VISIBLE
+            setActionListener(object : ICustomViewActionListener {
+                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+                    DrawTemplateDownloadActivity.startAction(this@ProjectListActivity,false)
+                }
+
+            })
+        }
+
         toolBarTitleTv.text = getString(R.string.registrationList)
-       getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)){
-            downloadModule()
-       }
+
         rvProject.apply {
             layoutManager=LinearLayoutManager(mContext)
             adapter = projectAdapter
@@ -123,22 +138,28 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                         }
                     }
                     R.id.tv_upload->{
-                       //获取所选图形数据
-                        data[pos].featureLayer?.let {
-                            it.featureTable?.loadAsync()
-                            it.featureTable?.addDoneLoadingListener {
-                                val queryGet = it?.featureTable?.queryFeaturesAsync(QueryParameters())
-                                queryGet?.addDoneListener {
-                                    val list = queryGet.get()
-                                    list.forEach {
-                                        it.attributes.entries.forEach {
-                                            Log.e("fdfdf","${it.key}   ${it.value}")
-                                        }
-                                    }
+                        ZXDialogUtil.showYesNoDialog(
+                            mContext,
+                            "提示",
+                            "是否上传该条任务数据？"
+                        ) { dialog, which ->
+                      /*   val files = FileUtils.getFilesByName(
+                                ConstStrings.getSketchLayersPath(),
+                             data[pos].materialName
+                            )
+                            files.firstOrNull { it.isDirectory }?.apply {
+                                val path = ZipUtils.zip(path, false)
+                                if (path != null) {
+                                    mPresenter.uploadSurvey(
+                                        path,
+                                        surveyList[pos].materialName,
+                                        surveyList[pos].templateid,
+                                        surveyList[pos].catalogId,
+                                        collectId = UUID.randomUUID().toString()
+                                    )
                                 }
-                            }
+                            }*/
                         }
-                        showDialog(data[pos].sketchPath)
                     }
                 }
             }
@@ -154,30 +175,15 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 refresh()
             }
         })
-    }
-    /**
-     * 模板下载
-     */
-    private fun downloadModule(){
-        if (!ZXFileUtil.isFileExists("${ConstStrings.getSketchTemplatePath()}竣工验收.gpkg")){
-            showLoading("模板下载中...")
-            CopyAssetsToSd.copy(mContext,"jungong.gpkg", ConstStrings.getSketchTemplatePath(),"竣工验收.gpkg")
-            dismissLoading()
-        }
+        mPresenter.getProject()
     }
 
     private fun refresh(){
         data.clear()
         mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)?.apply {
             forEach {projectId->
-            ConstStrings.sktchId = projectId
-                var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
-                var toPath = mContext.filesDir.path+"/$projectId/sketch/draw.jpg"
-                toPath = if (!ZXFileUtil.isFileExists(toPath)){
-                    ZXFileUtil.createNewFile(toPath)
-                     ZXFileUtil.copyFile(filePath, toPath)?.path?:""
-                } else toPath
-                if (!projectId.isNullOrEmpty()){   val file = File(ConstStrings.getSketchLayersPath())
+                if (!projectId.isNullOrEmpty()){
+                    val file = File(ConstStrings.getSketchLayersPath()+projectId)
                  if (file.exists() && file.isDirectory) {
                      file.listFiles()?.forEach {
                          if (it.isFile && it.name.endsWith(".gpkg")) {
@@ -186,7 +192,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                      data.add(ProjectListBean(id=projectId,featureLayer = FeatureLayer(featureTable).apply {
                                          name = projectId
                                          featureTable.displayName = projectId
-                                     },sketchPath =toPath))
+                                     }))
                                  }
                                  projectAdapter.notifyDataSetChanged()
                              }
@@ -199,53 +205,35 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
     }
 
     /**
-     * 下载成功接口回调
+     * 项目列表数据回调
      */
-    override fun onFileDownloadResult(file: File) {
-        ZXFileUtil.openFile(mContext,file)
+    override fun onProjectList(result: String?) {
+
     }
+
 
     /**
-     * 上传接口回调
+     * 获取模板列表
      */
-    override fun uploadResult(uploadResult: HouseTableBean?) {
-        uploadResult?.let {
-            mPresenter.downloadFile(docName,"/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
-        }
-    }
-
-    private fun showDialog(sketchPath:String){
-      val arrayList = arrayListOf<String>().apply {
-          add("房屋图.docx")
-          add("宗地图.docx")
-          add("渝北现场查勘表.docx")
-      }
-      //信息上传
-        ZXDialogUtil.showListDialog(mContext,"生成图形","确定", arrayList, { dialog, which ->
-            docName= arrayList[which]
-            uploadInfo(docName,sketchPath)
-        }, { dialog, which -> })
-    }
-
-    /**
-     * 上传填写信息
-     */
-    private fun uploadInfo(tplName:String,sketchPath: String){
-        getPermission(
-            arrayOf(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-        ){
-            var fileData = arrayListOf<String>()
-            var infoData = arrayListOf<String>()
-            for (index in 0..25){
-                infoData.add("测试")
+    private fun moduleDialog(){
+       BUIDialog.showSimpleList(mContext,"请选择", arrayListOf<BUIDialog.ListBean>().apply {
+           ConstStrings.mGuideBean.getTemplates().forEach {
+                add(BUIDialog.ListBean(it.key,it.value.toString()))
+           }
+       },{
+           ConstStrings.drawTempleteName = it.key+".gpkg"
+           if (ZXFileUtil.isFileExists(ConstStrings.getDrawTemplatePath()+ConstStrings.drawTempleteName)){
+                DrawSketchActivity.startAction(this@ProjectListActivity,false,ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss")))
+            }else{
+                showToast("请下载模板")
             }
-            //获取草图
-            fileData.add(sketchPath)
-            mPresenter.uploadInfo(infoData,fileData,tplName)
-        }
+       },BUIDialog.BtnBuilder().withCancelBtn {  }.withSubmitBtn {  })
+
+    }
+
+    override fun onSurveyUpload(name: String) {
+        showToast("上传成功")
+
     }
 }
 

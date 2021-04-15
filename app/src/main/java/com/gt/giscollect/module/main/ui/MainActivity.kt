@@ -9,6 +9,7 @@ import android.view.animation.TranslateAnimation
 import androidx.fragment.app.Fragment
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.MapView
+import com.esri.arcgisruntime.mapping.view.SketchCreationMode
 import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
@@ -341,15 +342,8 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
     }
 
     override fun onLongPress(x: Float, y: Float) {
-        var data = arrayListOf<String>().apply {
-            add("点图层")
-            add("线图层")
-            add("面图层")
-        }
-       ZXDialogUtil.showListDialog(mContext,"请选择图层","",data,DialogInterface.OnClickListener { dialog, which ->
-           excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
-           surveyFragment?.setSurveyModule(data[which])
-       },true)
+        excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
+        surveyFragment?.setSurveyModule(SketchCreationMode.POINT)
     }
 
     override fun onSingleTap(x: Float, y: Float) {

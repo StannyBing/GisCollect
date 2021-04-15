@@ -11,7 +11,7 @@ import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
 import com.gt.base.app.AppInfoManager
 import com.gt.base.manager.UserBean
-import com.gt.giscollect.base.toJson
+import com.gt.base.bean.toJson
 
 import com.gt.giscollect.module.system.mvp.contract.LoginContract
 import com.gt.giscollect.module.system.mvp.model.LoginModel

@@ -23,6 +23,9 @@ import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
+import com.stanny.sketchpad.tool.SketchPointTool
+import com.stanny.sketchpad.tool.algorithm.OffsetAlgorithm
+import com.stanny.sketchpad.tool.algorithm.entity.Point
 import com.zx.zxutils.util.*
 import java.io.File
 import java.io.FileNotFoundException
@@ -155,7 +158,7 @@ class SketchPadContentView @JvmOverloads constructor(
         if (drawSite) {
             var points = arrayListOf<PointF>()
             graphicList.forEach {
-                it.points.forEach {pointF->
+                it.points.forEachIndexed { index, pointF ->
                     points.add(PointF(pointF.x+it.offsetX,pointF.y+it.offsetY))
                 }
             }
@@ -198,15 +201,23 @@ class SketchPadContentView @JvmOverloads constructor(
                     sitePoints.add(points[index])
                 }
             }
+            val textPaint = Paint().apply {
+                isAntiAlias = true
+                style = Paint.Style.FILL
+                strokeWidth = 1f
+                textSize = 20f
+                this.color = SketchPadConstant.graphicSiteColor
+            }
+            var tempSite = arrayListOf<Point>()
             sitePoints.forEachIndexed { index, pointF ->
-                val textPaint = Paint().apply {
-                    isAntiAlias = true
-                    style = Paint.Style.FILL
-                    strokeWidth = 5f
-                    textSize = 30f
-                    this.color = SketchPadConstant.graphicSiteColor
+                tempSite.add(Point(pointF.x.toDouble(),pointF.y.toDouble()))
+            }
+            OffsetAlgorithm.offsetAlgorithm(tempSite,-20.0)?.apply {
+                if (!isNullOrEmpty()){
+                    this[0].forEachIndexed { index, point ->
+                        canvas?.drawText("J$index", point.x.toFloat(),point.y.toFloat(), textPaint)
+                    }
                 }
-                canvas?.drawText("j$index", pointF.x,pointF.y, textPaint)
             }
         }
     }

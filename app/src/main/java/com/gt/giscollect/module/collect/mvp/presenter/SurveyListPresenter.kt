@@ -9,13 +9,10 @@ import com.frame.zxmvp.http.upload.UploadRequestBody
 import com.gt.giscollect.api.ApiConfigModule
 import com.gt.base.app.ConstStrings
 import com.gt.giscollect.app.MyApplication
-import com.gt.giscollect.base.NormalList
-import com.gt.base.app.CheckBean
-import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
+import com.gt.base.bean.NormalList
 import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.collect.mvp.contract.SurveyListContract
 import com.gt.giscollect.module.system.bean.DataResBean
-import com.tencent.bugly.crashreport.CrashReport
 import com.zx.zxutils.listener.ZXUnZipRarListener
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXUnZipRarUtil
@@ -23,9 +20,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.json.JSONArray
-import org.json.JSONObject
 import java.io.File
-import java.net.URLEncoder
 
 
 /**

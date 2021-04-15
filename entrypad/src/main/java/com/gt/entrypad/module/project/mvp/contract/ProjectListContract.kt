@@ -3,6 +3,8 @@ package com.gt.entrypad.module.project.mvp.contract
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IView
 import com.frame.zxmvp.base.IModel
+import com.gt.base.bean.NormalList
+import com.gt.entrypad.module.project.bean.DrawTemplateBean
 import com.gt.entrypad.module.project.bean.HouseTableBean
 import okhttp3.RequestBody
 import rx.Observable
@@ -15,18 +17,28 @@ import java.io.File
 interface ProjectListContract {
     //对于经常使用的关于UI的方法可以定义到IView中,如显示隐藏进度条,和显示文字消息
     interface View : IView {
-        fun uploadResult(uploadResult: HouseTableBean?)
-        fun onFileDownloadResult(file : File)
+        fun onSurveyUpload(name: String)
+
+
+        fun onProjectList(result:String?)
     }
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
     interface Model : IModel{
-        fun uploadInfo(body: RequestBody): Observable<HouseTableBean>
+        fun uploadData(body: RequestBody): Observable<String>
+
+        fun getProject():Observable<String>
     }
 	
 	//方法
 	abstract class Presenter : BasePresenter<View, Model>(){
-        abstract fun uploadInfo(info: List<String>?, files:List<String>,tplName:String)
-        abstract fun downloadFile(name : String, downUrl : String)
+        abstract fun getProject()
+        abstract fun uploadSurvey(
+            file: String,
+            name: String,
+            templateId: String,
+            catalogId: String ,
+            collectId: String
+        )
     }
 }
 

@@ -7,7 +7,10 @@ import com.frame.zxmvp.http.download.listener.DownloadOnNextListener
 import com.frame.zxmvp.http.download.manager.HttpDownManager
 import com.frame.zxmvp.http.upload.UploadRequestBody
 import com.gt.base.app.ConstStrings
+import com.gt.base.bean.NormalList
+import com.gt.base.manager.UserManager
 import com.gt.entrypad.api.ApiConfigModule
+import com.gt.entrypad.module.project.bean.DrawTemplateBean
 import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.mvp.contract.ProjectListContract
 import com.zx.zxutils.util.ZXDialogUtil
@@ -16,6 +19,7 @@ import com.zx.zxutils.util.ZXSystemUtil
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONArray
 import java.io.File
 
 
@@ -25,42 +29,28 @@ import java.io.File
  */
 class ProjectListPresenter : ProjectListContract.Presenter() {
 
-    override fun uploadInfo(info: List<String>?, files: List<String>,tplName:String) {
+    override fun uploadSurvey(
+        file: String,
+        name: String,
+        templateId: String,
+        catalogId: String,
+        collectId: String
+    ) {
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
-        if (!info.isNullOrEmpty()&&info.size==26){
-            builder.addFormDataPart("txt2",info[0])
-            builder.addFormDataPart("xb",info[1])
-            builder.addFormDataPart("sfzh",info[2])
-            builder.addFormDataPart("txt8",info[3])
-            builder.addFormDataPart("xzjd",info[4])
-            builder.addFormDataPart("cm",info[5])
-            builder.addFormDataPart("cxz",info[6])
-            builder.addFormDataPart("jdzz",info[7])
-            builder.addFormDataPart("num3",info[10])
-            builder.addFormDataPart("num11",info[15])
-            builder.addFormDataPart("num9",info[16])
-            builder.addFormDataPart("east",info[20] )
-            builder.addFormDataPart("south",info[21] )
-            builder.addFormDataPart("west",info[22] )
-            builder.addFormDataPart("north",info[23] )
-            builder.addFormDataPart("txt17",info[20] )
-            builder.addFormDataPart("txt19",info[21] )
-            builder.addFormDataPart("txt18",info[22] )
-            builder.addFormDataPart("txt20",info[24] )
-            builder.addFormDataPart("txt21",info[25] )
-            builder.addFormDataPart("tplName",tplName)
-        }
-
-
-        files.forEach {
-            if (it.isNotEmpty()&&!(it.contains("http")||it.contains("https"))){
-                builder.addFormDataPart(
-                    "file",
-                    it,
-                    RequestBody.create(MediaType.parse("multipart/form-data"), File(it))
-                )
-            }
-        }
+        var originHttpFile = ""//上传过后的网络图片
+//        builder.addFormDataPart("flag", "2")
+//        builder.addFormDataPart("isOverwrite", "true")
+        builder.addFormDataPart("templateId", templateId)
+        builder.addFormDataPart("catalogId", catalogId)
+//        builder.addFormDataPart("catalogId", "catalogId")
+        builder.addFormDataPart("layerName", name)
+        builder.addFormDataPart("userId", UserManager.user?.userId)
+        //  if (collectId.isNotEmpty()) builder.addFormDataPart("collectId", collectId)
+        builder.addFormDataPart(
+            "file",
+            file,
+            RequestBody.create(MediaType.parse("multipart/form-data"), File(file))
+        )
         val uploadRequestBody =
             UploadRequestBody(
                 builder.build(),
@@ -70,11 +60,36 @@ class ProjectListPresenter : ProjectListContract.Presenter() {
                         progress
                     )
                 })
-        mModel.uploadInfo(uploadRequestBody)
+        mModel.uploadData(uploadRequestBody)
             .compose(RxHelper.bindToLifecycle(mView))
-            .subscribe(object : RxSubscriber<HouseTableBean>(mView) {
-                override fun _onNext(t: HouseTableBean?) {
-                    mView.uploadResult(t)
+//            .flatMap {
+//                mModel.updateInfoData(
+//                    hashMapOf(
+//                        "materialName" to name,
+//                        "catalogId" to "6f38bfad-ab3a-4bde-b485-8efcdd29bb9a",
+//                        "maType" to "FS",
+//                        "imFlag" to "N",
+//                        "maYear" to Calendar.getInstance().get(Calendar.YEAR).toString(),
+////                        "created" to Date().toString().replace("GMT+08:00", "CST"),
+//                        "userId" to UserManager.user?.userId,
+//                        "rnCode" to UserManager.user?.rnCode,
+//                        "fileJson" to
+//                                Gson().toJson(
+//                                    arrayListOf(
+//                                        hashMapOf(
+//                                            "fileName" to it.fileName,
+//                                            "fileExt" to it.ext,
+//                                            "fileUri" to it.localUri,
+//                                            "fileSize" to it.fileSize
+//                                        )
+//                                    )
+//                                )
+//                    ).toJson()
+//                )
+//            }
+            .subscribe(object : RxSubscriber<String>(mView) {
+                override fun _onNext(t: String?) {
+                    mView.onSurveyUpload(name)
                     mView.dismissLoading()
                     mView.showToast("上传成功")
                 }
@@ -85,49 +100,19 @@ class ProjectListPresenter : ProjectListContract.Presenter() {
                 }
             })
     }
+    override fun getProject() {
+        mModel.getProject()
+            .compose(RxHelper.bindToLifecycle(mView))
+            .subscribe(object : RxSubscriber<String>(mView) {
+                override fun _onNext(t: String?) {
+                    mView.onProjectList(t)
+                    mView.dismissLoading()
+                }
 
-    override fun downloadFile(name: String, downUrl: String) {
-        val downInfo = DownInfo(downUrl)
-        val savePath = ZXSystemUtil.getSDCardPath() + "GisCollect/houseEntry/" + name
-        downInfo.baseUrl = ApiConfigModule.BASE_IP
-        downInfo.savePath = savePath
-        downInfo.listener = object : DownloadOnNextListener<Any>() {
-            override fun onNext(o: Any) {
-                mView.showToast(o.toString())
-                ZXDialogUtil.dismissLoadingDialog()
-            }
-
-            override fun onStart() {
-                ZXDialogUtil.showLoadingDialog(mContext, "正在下载中，请稍后...", 0)
-
-            }
-
-            override fun onComplete(file: File) {
-                mView.onFileDownloadResult(file)
-                ZXDialogUtil.dismissLoadingDialog()
-
-            }
-
-            override fun onError(message: String?) {
-                mView.showToast(message)
-                mView.dismissLoading()
-
-            }
-
-            override fun updateProgress(progress: Int) {
-                ZXDialogUtil.showLoadingDialog(mContext, "正在下载中，请稍后...", progress)
-            }
-        }
-        if (ZXFileUtil.isFileExists(savePath)) {
-            mView.onFileDownloadResult(File(savePath))
-        } else {
-            HttpDownManager.getInstance().startDown(downInfo) { chain ->
-                val original = chain.request()
-                val request = original.newBuilder()
-                    .header("Cookie", ConstStrings.Cookie)
-                    .build()
-                chain.proceed(request)
-            }
-        }
+                override fun _onError(code: Int, message: String?) {
+                    mView.handleError(code, message)
+                    mView.dismissLoading()
+                }
+            })
     }
 }
