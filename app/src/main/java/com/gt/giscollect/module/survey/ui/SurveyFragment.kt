@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.GeometryType
+import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.Polygon
 import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.layers.FeatureLayer
@@ -289,6 +290,7 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         }
         ivClose.setOnClickListener {
             exit()
+            mRxManager.post("close","")
         }
         //提交
         btnSubmit.setOnClickListener {
@@ -319,13 +321,30 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
         btnSearch.setOnClickListener {
             mRxManager.post("surveySearch","")
         }
+        //切换模式
+        tvChangeMode.setOnClickListener {
+           when(tvChangeMode.text){
+               "点"-> {
+                   setSurveyModule(SketchCreationMode.POLYLINE,null)
+                   tvChangeMode.text="线"
+               }
+               "线"-> {
+                   setSurveyModule(SketchCreationMode.POLYGON,null)
+                   tvChangeMode.text="面"
+               }
+               "面"-> {
+                   setSurveyModule(SketchCreationMode.POINT,null)
+                   tvChangeMode.text="点"
+               }
+           }
+        }
     }
 
     override fun getLayoutId(): Int {
         return R.layout.fragment_survey
     }
 
-    fun setSurveyModule(creationMode: SketchCreationMode){
+    fun setSurveyModule(creationMode: SketchCreationMode,point: Point?){
         MapTool.mapListener?.getMapView()?.sketchEditor = sketchEditor
         sketchEditor.clearGeometry()
         sketchEditor.start(creationMode)
@@ -692,6 +711,8 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
     }
 
     override fun onSurveyUpload(name: String) {
+        //关闭页面
         showToast("上传成功")
+        mRxManager.post("close","")
     }
 }

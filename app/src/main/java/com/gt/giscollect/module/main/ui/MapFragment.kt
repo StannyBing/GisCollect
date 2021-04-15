@@ -481,7 +481,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 
                 override fun onLongPress(e: MotionEvent?) {
                     singleTapList.forEach {
-                        it.onLongPress(0.0f,0.0f)
+                        it.onLongPress(e?.x?:0.0f,e?.y?:0.0f)
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.gt.giscollect.module.main.ui
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Point
 import android.os.Bundle
 import android.view.View
 import android.view.animation.TranslateAnimation
@@ -168,6 +169,9 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         mRxManager.on("surveySearchBack", Action1<String> {
             excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
         })
+        mRxManager.on("close", Action1 <String>{
+            iv_data_hide.performClick()
+        })
     }
 
     private fun excuteFuncCall(it: BtnFuncFragment.Companion.DataType): Fragment? {
@@ -287,9 +291,11 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
             }
             //踏勘
             BtnFuncFragment.Companion.DataType.SurveyFunction->{
-                ZXFragmentUtil.addFragment(supportFragmentManager,SurveyFragment.newInstance().apply {
-                    surveyFragment = this
-                },R.id.fm_data)
+               surveyFragment?.apply {
+                   ZXFragmentUtil.showFragment(this)
+               }?: ZXFragmentUtil.addFragment(supportFragmentManager,SurveyFragment.newInstance().apply {
+                   surveyFragment = this
+               },R.id.fm_data)
                showFragment = surveyFragment
             }
             BtnFuncFragment.Companion.DataType.SurveySearch -> {
@@ -311,8 +317,10 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
         }
         //切换菜单，关闭要素模块
         if (showFragment !is IdentifyFragment) {
-            IdentifyTool.stopQueryIdentify()
-            MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
+            if (!(showFragment is FileSearchFragment||showFragment is SurveyFragment)){
+                IdentifyTool.stopQueryIdentify()
+                MapTool.mapListener?.getMapView()?.sketchEditor?.stop()
+            }
         }
         if (showFragment is MeasureFragment) {
             measureFragment?.startMeasure()
@@ -343,7 +351,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
 
     override fun onLongPress(x: Float, y: Float) {
         excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
-        surveyFragment?.setSurveyModule(SketchCreationMode.POINT)
+        surveyFragment?.setSurveyModule(SketchCreationMode.POINT, getMapView()?.screenToLocation(Point(x.toInt(),y.toInt())))
     }
 
     override fun onSingleTap(x: Float, y: Float) {
