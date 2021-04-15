@@ -492,21 +492,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     }
                 }
             }.setClickable {
-                clickPosition = it
-                isInEdit = false
-                //                MapTool.mapListener?.getMap()?.operationalLayers?.forEach {
-//                    if (it is FeatureLayer) {
-//                        it.clearSelection()
-//                    }
-//                }
-//                MapTool.mapListener?.getMapView()?.setViewpointGeometryAsync(featureList[it].geometry)
-                currentLayer?.clearSelection()
-                HighLightLayerTool.showHighLight(featureList[it])
-                currentLayer?.selectFeature(featureList[it])
-                fragChangeListener?.onFragGoto(
-                    CollectMainFragment.Collect_Field,
-                    featureList[it] to (ll_collect_edit_bar.visibility == View.VISIBLE)
-                )
+                enter(it)
             }
 
         //要素显示名
@@ -674,12 +660,29 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 }
                 //检测图层压盖
                 checkOverlay(sketchEditor.geometry)
+                enter(featureList.size-1)
             } else {
                 showToast("暂未添加要素")
             }
         }
     }
-
+    private fun enter(postion:Int){
+        clickPosition = postion
+        isInEdit = false
+        //                MapTool.mapListener?.getMap()?.operationalLayers?.forEach {
+//                    if (it is FeatureLayer) {
+//                        it.clearSelection()
+//                    }
+//                }
+//                MapTool.mapListener?.getMapView()?.setViewpointGeometryAsync(featureList[it].geometry)
+        currentLayer?.clearSelection()
+        HighLightLayerTool.showHighLight(featureList[postion])
+        currentLayer?.selectFeature(featureList[postion])
+        fragChangeListener?.onFragGoto(
+            CollectMainFragment.Collect_Field,
+            featureList[postion] to (ll_collect_edit_bar.visibility == View.VISIBLE)
+        )
+    }
     /**
      * 删除要素
      */

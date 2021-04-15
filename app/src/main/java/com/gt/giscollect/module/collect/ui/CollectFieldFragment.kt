@@ -492,8 +492,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
             if (!editable || moduleType != 1) View.GONE else View.VISIBLE
         if (moduleType == 2) {
             spSurveyType.visibility = View.VISIBLE
-            mSharedPrefUtil.getString("fieldShow")?.let {
-                if (it.isNotEmpty()) {
+            mSharedPrefUtil.getString("fieldShow").let {
+                if (!it.isNullOrEmpty()) {
                     var moduleTypeData = arrayListOf<KeyValueEntity>()
                     moduleTypeData.add(KeyValueEntity("请选择调查类型", "0"))
                     val jsonToLinkedHashMap = MyUtil.jsonToLinkedHashMap(JSONObject(it))
@@ -507,6 +507,18 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         }
                     }
                     spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
+                }else{
+                    spSurveyType.visibility = View.GONE
+                    if (featureLayer is ArcGISFeature) {
+                        showLoading("正在加载在线属性信息")
+                        featureLayer.loadAsync()
+                        featureLayer.addDoneLoadingListener {
+                            loadFeature(featureLayer)
+                            dismissLoading()
+                        }
+                    } else {
+                        loadFeature(featureLayer)
+                    }
                 }
             }
         } else {

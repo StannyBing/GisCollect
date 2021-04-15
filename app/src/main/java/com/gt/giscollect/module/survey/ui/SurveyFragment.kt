@@ -347,6 +347,7 @@ class SurveyFragment : BaseFragment<SurveyPresenter, SurveyModel>(),
     fun setSurveyModule(creationMode: SketchCreationMode,point: Point?){
         MapTool.mapListener?.getMapView()?.sketchEditor = sketchEditor
         sketchEditor.clearGeometry()
+        sketchEditor.geometry.
         sketchEditor.start(creationMode)
         templeteId = getTemplateId()
     }
