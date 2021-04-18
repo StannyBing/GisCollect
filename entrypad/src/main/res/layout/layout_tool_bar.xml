@@ -6,10 +6,25 @@
     android:layout_height="48dp"
     android:fitsSystemWindows="true"
     android:background="@color/colorPrimary">
+
+    <ImageView
+        android:id="@+id/ivBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/leftTv"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="12dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/icon_draw_reture" />
+
+
+
     <com.gt.entrypad.module.project.ui.view.titleView.TitleView
         android:id="@+id/leftTv"
         android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/ivBack"
         android:background="@drawable/shape_solid_bg"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

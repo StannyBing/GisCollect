@@ -100,8 +100,8 @@ class ProjectListPresenter : ProjectListContract.Presenter() {
                 }
             })
     }
-    override fun getProject() {
-        mModel.getProject()
+    override fun getProject(body: RequestBody) {
+        mModel.getProject(body)
             .compose(RxHelper.bindToLifecycle(mView))
             .subscribe(object : RxSubscriber<String>(mView) {
                 override fun _onNext(t: String?) {

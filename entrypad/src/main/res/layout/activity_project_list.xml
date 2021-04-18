@@ -4,15 +4,10 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <include layout="@layout/layout_tool_bar"/>
-    <ImageView
-        android:id="@+id/iv"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leftTv"
-        android:layout_width="60dp"
-        android:layout_height="60dp"/>
 
+
+    <include
+        layout="@layout/layout_tool_bar" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvProject"
             android:layout_width="0dp"

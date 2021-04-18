@@ -1,5 +1,6 @@
 package com.gt.base.app
 
+import com.gt.base.bean.GisServiceBean
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import org.json.JSONObject
 
@@ -9,6 +10,19 @@ import org.json.JSONObject
  */
 object AppInfoManager {
     val mSharedPrefUtil = ZXSharedPrefUtil()
+    var gisService:List<GisServiceBean>?=null
+    get() {
+        if (field == null) {
+            val sharedPref = mSharedPrefUtil
+            return sharedPref.getList("gisService")
+        }
+        return field
+    }
+    set(value) {
+        val sharedPref = mSharedPrefUtil
+        sharedPref.putList("gisService", value)
+        field = value
+    }
     var appInfo: AppInfoBean? = null
         get() {
             if (field == null) {
@@ -22,7 +36,6 @@ object AppInfoManager {
             sharedPref.putObject("appInfoBean", value)
             field = value
         }
-
     fun setData(appInfo: String) {
         try {
             val obj = JSONObject(appInfo)

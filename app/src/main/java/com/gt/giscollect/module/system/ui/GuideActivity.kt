@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.gt.base.activity.BaseActivity
 import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.giscollect.R
@@ -13,13 +15,12 @@ import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.main.ui.MainActivity
 import com.gt.base.app.AppFuncBean
 import com.gt.base.bean.GuideBean
-import com.gt.giscollect.module.scene.ui.SceneMapActivity
+import com.gt.base.bean.GisServiceBean
 import com.gt.giscollect.module.system.func.adapter.GuideAdapter
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
 import com.stanny.module_rtk.tool.WHandService
-import com.stanny.module_rtk.tool.WHandTool
 import com.zx.zxutils.util.ZXDialogUtil
 import kotlinx.android.synthetic.main.activity_guide.*
 import org.json.JSONObject
@@ -72,6 +73,7 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
 
         mPresenter.getAppFuncs(hashMapOf("userId" to (UserManager.user?.userId ?: "")))
         mPresenter.doSurveyType()
+        mPresenter.doGisService(hashMapOf("userId" to (UserManager.user?.userId ?: "")))
     }
 
     private fun getBussinessId(name: String): String {
@@ -283,5 +285,29 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
       typeResult?.let {
           mSharedPrefUtil.putString("fieldShow",it)
       }
+    }
+
+    /**
+     * 用户在线服务数据回调
+     */
+    override fun gisServiceResult(serviceResult: List<GisServiceBean>?) {
+        var jsonMap = LinkedHashMap<String,LinkedHashMap<String, GisServiceBean.OnlineBean>>()
+        var jsonMap1 = LinkedHashMap<String, GisServiceBean.OnlineBean>()
+        serviceResult?.let {
+            //取出所有在线服务
+            it.forEach {
+                it.children?.forEach {
+                    jsonMap1[it.sname]= GisServiceBean.OnlineBean(it.surl,it.visible,it.type)
+                }
+            }
+            jsonMap["onlineService"]=jsonMap1
+            AppInfoManager.setData(Gson().toJson(jsonMap))
+            AppInfoManager.gisService = it.sortedBy { it.sseq }.apply {
+                forEach {
+                    it.children = it.children?.sortedBy { it.sseq }
+                }
+            }
+        }
+        if (serviceResult.isNullOrEmpty()) AppInfoManager.gisService= arrayListOf()
     }
 }

@@ -24,9 +24,9 @@ class ProjectListModel : BaseModel(), ProjectListContract.Model{
             .compose(RxSchedulers.io_main())
     }
 
-    override fun getProject(): Observable<String> {
+    override fun getProject(body: RequestBody): Observable<String> {
         return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
-            .projectList()
+            .projectList(body)
             .compose(RxHelper.handleResult())
             .compose(RxSchedulers.io_main())
     }

@@ -16,6 +16,7 @@ import com.gt.base.activity.BaseActivity
 import com.gt.base.app.ConstStrings
 import com.gt.base.bean.NormalList
 import com.gt.base.bean.toJson
+import com.gt.base.manager.UserManager
 import com.gt.entrypad.app.RouterPath
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
@@ -82,7 +83,15 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
 	override fun initView(savedInstanceState: Bundle?) {
         ZXStatusBarCompat.translucent(this)
         ZXStatusBarCompat.setStatusBarLightMode(this)
-        leftTv.apply {
+        leftTv.visibility=View.GONE
+        ivBack.apply {
+            this.visibility=View.VISIBLE
+            setOnClickListener {
+                finish()
+            }
+        }
+        right2Tv.apply {
+           this.visibility=View.VISIBLE
            setData(TitleViewViewModel(getString(R.string.createProject)))
            setActionListener(object : ICustomViewActionListener {
                override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
@@ -175,7 +184,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 refresh()
             }
         })
-        mPresenter.getProject()
+        mPresenter.getProject(hashMapOf("USER_ID" to UserManager.user?.userId).toJson())
     }
 
     private fun refresh(){
@@ -225,7 +234,9 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 DrawSketchActivity.startAction(this@ProjectListActivity,false,ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss")))
             }else{
                 showToast("请下载模板")
-            }
+               DrawTemplateDownloadActivity.startAction(this@ProjectListActivity,false)
+
+           }
        },BUIDialog.BtnBuilder().withCancelBtn {  }.withSubmitBtn {  })
 
     }

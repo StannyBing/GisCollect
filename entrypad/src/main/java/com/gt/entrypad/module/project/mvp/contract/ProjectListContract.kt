@@ -26,12 +26,12 @@ interface ProjectListContract {
     interface Model : IModel{
         fun uploadData(body: RequestBody): Observable<String>
 
-        fun getProject():Observable<String>
+        fun getProject(body: RequestBody):Observable<String>
     }
 	
 	//方法
 	abstract class Presenter : BasePresenter<View, Model>(){
-        abstract fun getProject()
+        abstract fun getProject(body: RequestBody)
         abstract fun uploadSurvey(
             file: String,
             name: String,

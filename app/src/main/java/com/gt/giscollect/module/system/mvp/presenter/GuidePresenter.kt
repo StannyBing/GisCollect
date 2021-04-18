@@ -5,6 +5,7 @@ import com.frame.zxmvp.baserx.RxSubscriber
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gt.base.app.AppFuncBean
+import com.gt.base.bean.GisServiceBean
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import org.json.JSONObject
 import java.lang.Exception
@@ -49,4 +50,18 @@ class GuidePresenter : GuideContract.Presenter() {
             })
     }
 
+    override fun doGisService(map: Map<String, String>) {
+        mModel.doGisService(map)
+            .compose(RxHelper.bindToLifecycle(mView))
+            .subscribe(object : RxSubscriber<List<GisServiceBean>>(mView) {
+                override fun _onNext(t: List<GisServiceBean>?) {
+                    mView.gisServiceResult(t)
+                }
+
+                override fun _onError(code: Int, message: String?) {
+                    mView.gisServiceResult(null)
+                    //mView.handleError(code, message)
+                }
+            })
+    }
 }

@@ -19,7 +19,7 @@ interface ApiService {
     fun fwdWorld(@Body body: RequestBody): Observable<BaseRespose<HouseTableBean>>
 
     @POST("/template/queryCollect")
-    fun projectList(): Observable<BaseRespose<String>>
+    fun projectList(@Body body: RequestBody): Observable<BaseRespose<String>>
 
     @POST("template/queryCollectTemplate")
     fun getDrawTemplateList(@Body body: RequestBody): Observable<BaseRespose<NormalList<DrawTemplateBean>>>

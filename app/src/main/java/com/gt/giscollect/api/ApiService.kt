@@ -6,6 +6,7 @@ import com.gt.base.manager.UserBean
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.bean.VersionBean
 import com.gt.giscollect.module.system.bean.DataResBean
+import com.gt.base.bean.GisServiceBean
 import com.gt.giscollect.module.system.bean.TemplateBean
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -64,4 +65,8 @@ interface ApiService {
 
     @POST("file/uploadCommonCollectData")
     fun uploadTanKan(@Body body: RequestBody): Observable<BaseRespose<String>>
+
+    //在线服务
+    @GET("/tGisService/queryUserGisServiceAll")
+    fun getGisService(@QueryMap map: Map<String, String>) : Observable<BaseRespose<List<GisServiceBean>>>
 }

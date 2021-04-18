@@ -3,19 +3,24 @@ package com.gt.giscollect.module.layer.ui
 import android.Manifest
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.data.GeoPackage
 import com.esri.arcgisruntime.data.VectorTileCache
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
+import com.esri.arcgisruntime.layers.WebTiledLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.symbology.SimpleRenderer
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
+import com.gt.base.bean.GisServiceBean
 import com.gt.base.fragment.BaseFragment
+import com.gt.giscollect.module.layer.bean.GisLayerBean
+import com.gt.giscollect.module.layer.bean.GisSpotLayerBean
 import com.gt.giscollect.module.layer.func.adapter.DataLayerAdapter
 import com.gt.giscollect.module.layer.mvp.contract.LayerListContract
 import com.gt.giscollect.module.layer.mvp.model.LayerListModel
@@ -23,6 +28,8 @@ import com.gt.giscollect.module.layer.mvp.presenter.LayerListPresenter
 import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.main.func.tool.StyleFileTool
 import com.gt.giscollect.tool.SimpleDecoration
+import com.gt.module_map.tool.maplayer.GoogleLayer
+import com.zx.zxutils.other.QuickAdapter.entity.MultiItemEntity
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
@@ -54,9 +61,11 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
     private var type: Int = 0//0：基础层       1：业务层
 
     //图层列表
-    private val dataList = arrayListOf<Layer>()
+    private val dataList = arrayListOf<MultiItemEntity>()
     private val dataAdapter = DataLayerAdapter(dataList)
 
+    private var baseLayers = listOf<Layer>()
+    private var otherList = arrayListOf<Layer>()
 
     /**
      * layout配置
@@ -75,28 +84,53 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
             layoutManager = LinearLayoutManager(requireActivity())
             adapter = dataAdapter
             addItemDecoration(SimpleDecoration(requireActivity()))
+            dataAdapter.bindToRecyclerView(rv_layer_list)
         }
         if (type == 0) {
 //            btn_layer_import.visibility = View.VISIBLE
-            dataList.addAll(MapTool.mapListener?.getMap()?.basemap?.baseLayers ?: arrayListOf())
+            baseLayers = MapTool.mapListener?.getMap()?.basemap?.baseLayers ?: arrayListOf<Layer>()
+           if ( AppInfoManager.gisService.isNullOrEmpty()){
+              baseLayers.forEach {
+                  dataList.add(GisSpotLayerBean(it))
+              }
+           }else{
+               if (!baseLayers.isNullOrEmpty())dataList.add(GisLayerBean("基础图层").apply {
+                   isExpanded = false
+                   if (!hasSubItem()){
+                       baseLayers.forEach {
+                           if (it is WebTiledLayer||it is GoogleLayer){
+                               addSubItem(GisSpotLayerBean(it))
+                           }
+                       }
+                   }
+               })
+               addOnLineLayer()
+           }
         } else {
+            baseLayers = MapTool.mapListener?.getMap()?.operationalLayers?: arrayListOf<Layer>()
+            baseLayers.forEach {
+                dataList.add(GisSpotLayerBean(it))
+            }
 //            btn_layer_import.visibility = View.GONE
-            dataList.addAll(MapTool.mapListener?.getMap()?.operationalLayers ?: arrayListOf())
         }
         MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
             override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
                 rv_layer_list?.let {
                     if (this@LayerListFragment.type == 0) {
                         if (type == MapTool.ChangeType.BaseAdd) {
-                            dataList.add(layer)
+                           // dataList.add(layer)
+                            addLayer(layer)
                         } else if (type == MapTool.ChangeType.BaseRemove) {
-                            dataList.remove(layer)
+                           // dataList.remove(layer)
+                            removeLayer(layer)
                         }
                     } else {
                         if (type == MapTool.ChangeType.OperationalAdd) {
-                            dataList.add(layer)
+                            //dataList.add(layer)
+                            addLayer(layer)
                         } else if (type == MapTool.ChangeType.OperationalRemove) {
-                            dataList.remove(layer)
+                            //dataList.remove(layer)
+                            removeLayer(layer)
                         }
                     }
                     dataAdapter.notifyDataSetChanged()
@@ -107,6 +141,71 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
     }
 
     /**
+     * 添加在线图层
+     */
+
+    private fun addOnLineLayer(){
+        (AppInfoManager.gisService?: arrayListOf()).forEach {
+            dataList.add(recursionChildren(it))
+        }
+        var tempList = arrayListOf<Layer>()
+        baseLayers.forEach {
+            if (it !is WebTiledLayer&&it !is GoogleLayer){
+                if (!otherList.contains(it)){
+                    tempList.add(it)
+                }
+            }
+        }
+      if (tempList.isNotEmpty()){
+          dataList.add( GisLayerBean("其他图层").apply {
+              if (!hasSubItem()){
+                  tempList.forEach {
+                      addSubItem(GisSpotLayerBean(it))
+                  }
+              }
+          })
+      }
+    }
+    private fun recursionChildren(gisServiceBean: GisServiceBean):GisLayerBean{
+        return gisServiceBean?.let {
+            GisLayerBean(it.sname,it.sseq).apply {
+                if (!hasSubItem()){
+                    //排序
+                    it.children?.forEach {
+                        baseLayers.forEach base@{layer->
+                            if (it.sname==layer.name){
+                                addSubItem(GisSpotLayerBean(layer))
+                                otherList.add(layer)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 添加layer
+     */
+    private fun addLayer(layer: Layer){
+        dataList.add(GisSpotLayerBean(layer))
+    }
+
+    /**
+     * 移除layer
+     */
+    private fun removeLayer(layer: Layer){
+        var tempList = dataList
+        tempList.forEach {
+            if (it is GisSpotLayerBean&&it.layer==layer){
+                dataList.remove(it)
+            }
+        }
+    }
+
+
+    /**
      * View事件设置
      */
     override fun onViewListener() {
@@ -115,20 +214,26 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
                 //滑动菜单点击事件
                 if (id == R.id.tv_delete) {
-                    if (MapTool.mapListener?.getMap()?.basemap?.baseLayers?.contains(dataList[pos]) == true) {
-                        MapTool.mapListener?.getMap()?.basemap?.baseLayers?.remove(dataList[pos])
-                    }
-                    dataList.removeAt(pos)
-                    dataAdapter.notifyItemRemoved(pos)
-                    dataAdapter.notifyItemRangeChanged(pos, 5)
+                    val entity = dataList[pos]
+                   if (entity is GisSpotLayerBean){
+                       if (MapTool.mapListener?.getMap()?.basemap?.baseLayers?.contains(entity.layer) == true) {
+                           MapTool.mapListener?.getMap()?.basemap?.baseLayers?.remove(entity.layer)
+                       }
+                       dataList.removeAt(pos)
+                       dataAdapter.notifyItemRemoved(pos)
+                       dataAdapter.notifyItemRangeChanged(pos, 5)
+                   }
                 }
             }
         //数据
         dataAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.iv_layer_checked) {
 //                val visible = dataList[position].isVisible
-                dataList[position].isVisible = !dataList[position].isVisible
-                dataAdapter.notifyItemChanged(position)
+               var layerBean=   dataList[position]
+               if (layerBean is GisSpotLayerBean){
+                   layerBean.layer.isVisible = !layerBean.layer.isVisible
+                   dataAdapter.notifyItemChanged(position)
+               }
 //                if (!visible) {
 //                    moveToLayer(position)
 //                }
@@ -137,6 +242,18 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
             }
             mRxManager.post(ConstStrings.RxLayerChange, true)
         }
+
+        dataAdapter.setOnItemClickListener { adapter, view, position ->
+            val entity = dataList[position]
+            if (entity is GisLayerBean){
+                if (entity.isExpanded) {
+                    dataAdapter.collapse(position, true)
+                } else {
+                    dataAdapter.expand(position, true)
+                }
+            }
+        }
+
         //导入离线图层
         btn_layer_import.setOnClickListener {
             getPermission(
@@ -182,7 +299,8 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
                                             localMap,
                                             MapTool.ChangeType.BaseAdd
                                         )
-                                        dataList.add(localMap)
+                                        //dataList.add(localMap)
+                                        addLayer(localMap)
                                         dataAdapter.notifyDataSetChanged()
                                         localMap.addDoneLoadingListener {
                                             moveToLayer(dataList.lastIndex)
@@ -220,7 +338,8 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
                                                                         featureLayer,
                                                                         MapTool.ChangeType.BaseAdd
                                                                     )
-                                                                    dataList.add(featureLayer)
+                                                                   // dataList.add(featureLayer)
+                                                                    addLayer(featureLayer)
                                                                     dataAdapter.notifyDataSetChanged()
                                                                 }
                                                             }
@@ -247,12 +366,16 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
 
     private fun moveToLayer(position: Int) {
         try {
-            val extent = dataList[position].fullExtent
-            if (extent.xMin == 0.0 || extent.xMax == 0.0 || extent.yMin == 0.0 || extent.yMax == 0.0) {
-                MapTool.mapListener?.getMapView()?.setViewpointCenterAsync(extent.center, 100000.0)
-            } else {
-                MapTool.mapListener?.getMapView()?.setViewpointAsync(Viewpoint(extent), 1f)
+            val entity = dataList[position]
+            if (entity is GisSpotLayerBean){
+                var extent = entity.layer.fullExtent
+                if (extent.xMin == 0.0 || extent.xMax == 0.0 || extent.yMin == 0.0 || extent.yMax == 0.0) {
+                    MapTool.mapListener?.getMapView()?.setViewpointCenterAsync(extent.center, 100000.0)
+                } else {
+                    MapTool.mapListener?.getMapView()?.setViewpointAsync(Viewpoint(extent), 1f)
+                }
             }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
