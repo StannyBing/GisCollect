@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import com.gt.base.activity.BaseActivity
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
@@ -88,9 +89,6 @@ class LoginActivity : BaseActivity<LoginPresenter, LoginModel>(), LoginContract.
             }
             if (!ZXFileUtil.isFileExists(ConstStrings.getCollectTemplatePath())) {
                 File(ConstStrings.getCollectTemplatePath()).mkdirs()
-            }
-            if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersPath())) {
-                File(ConstStrings.getSketchLayersPath()).mkdirs()
             }
         }
     }

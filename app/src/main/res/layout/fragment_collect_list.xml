@@ -40,7 +40,7 @@
             android:textSize="@dimen/text_size_small" />
     </RadioGroup>
 
-    <com.gt.giscollect.base.VerticalSwipeRefreshLayout
+    <com.gt.base.view.VerticalSwipeRefreshLayout
         android:id="@+id/sr_collect_layers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </com.gt.giscollect.base.VerticalSwipeRefreshLayout>
+    </com.gt.base.view.VerticalSwipeRefreshLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

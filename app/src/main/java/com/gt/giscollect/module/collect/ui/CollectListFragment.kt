@@ -330,12 +330,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                 "currPage" to 0,
                 "pageSize" to 999,
                 "filters" to arrayListOf(
-                    hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
-                    hashMapOf(
-                        "col" to "template_id",
-                        "op" to "=",
-                        "val" to ConstStrings.mGuideBean.getTemplatesFirst()
-                    )
+                    hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId)
+
                 )
             ).toJson()
         )

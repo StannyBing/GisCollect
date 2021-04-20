@@ -56,6 +56,12 @@ data class GuideBean(
         }
     }
 
+    fun getTemplatesSecond(): String {
+        return getTemplates().lastOrNull().let {
+            it?.value?.toString() ?: ""
+        }
+    }
+
     fun getBusinesses(): List<KeyValueEntity> {
         val dataList = arrayListOf<KeyValueEntity>()
         try {

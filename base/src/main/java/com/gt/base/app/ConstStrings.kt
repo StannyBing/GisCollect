@@ -28,6 +28,8 @@ object ConstStrings {
     var mGuideBean: GuideBean = GuideBean()//当前列表进入信息
     var sktchId: String = ""//当前选中的id
     var drawTempleteName = "" //草图模板名字
+    var drawTemplatesId: String = ""//当前选中的id
+
     val checkList = arrayListOf<CheckBean>()
     val appfuncList = arrayListOf<AppFuncBean>()
 
@@ -55,6 +57,10 @@ object ConstStrings {
 
     fun getCachePath(): String {
         return "$LOCAL_PATH/$APPNAME/Cache/"
+    }
+
+    fun getProjectCachePath(): String {
+        return "$LOCAL_PATH/$APPNAME/Project/Cache"
     }
 
     fun getZipPath(): String {
@@ -119,7 +125,15 @@ object ConstStrings {
         return "$INI_PATH$APPNAME/SurveyLayers/" + UserManager.user?.userId + "/"
     }
     fun getSketchLayersPath(): String {
-        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/" + sktchId + "/"
+        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/$drawTemplatesId/" + sktchId
+    }
+
+    fun getSketchLayersFirstPath():String{
+        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/${mGuideBean.getTemplatesFirst()}/" + sktchId
+    }
+
+    fun getSketchLayersSecondPath():String{
+        return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/${mGuideBean.getTemplatesSecond()}/" + sktchId
     }
 
     fun getSketchTemplatePath(): String {

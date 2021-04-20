@@ -114,25 +114,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                 identifyList.clear()
                 if (sp_create_layer_model.selectedValue.toString().isNotEmpty()) {
                     val file = File(sp_create_layer_model.selectedValue.toString())
-                    if (file.exists() && file.isDirectory) {
-                        file.listFiles().forEach {
-                            if (it.name.endsWith(".shp")) {
-                                val table = ShapefileFeatureTable(it.path)
-                                table.loadAsync() //异步方式读取文件
-                                table.addDoneLoadingListener {
-                                    tempalteType = table.geometryType
-                                    table.fields.forEach {
-                                        if (it.isEditable) {//不能加载FID字段
-                                            identifyList.add(it)
-                                        }
-                                    }
-                                    identifyAdapter.notifyDataSetChanged()
-                                    table.close()
-                                }
-                                return@forEach
-                            }
-                        }
-                    } else if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
+                    if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
                         GeoPackageTool.getTablesFromGpkg(file.path) {
                             if (it.isNotEmpty()) {
                                 val table = it.first()
@@ -255,7 +237,6 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
      * 从模板分钟复制gpkg
      */
     private fun copyGpkgFromTemplate(name: String): GeoPackage? {
-        ConstStrings.clear()
         val file = File(sp_create_layer_model.selectedValue.toString())
         if (file.exists() && file.isFile) {
             val destFile =
@@ -344,10 +325,5 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         identifyList.clear()
         identifyAdapter.notifyDataSetChanged()
         et_create_layer_name.setText("")
-    }
-
-    override fun onDestroy() {
-        ConstStrings.clear()
-        super.onDestroy()
     }
 }

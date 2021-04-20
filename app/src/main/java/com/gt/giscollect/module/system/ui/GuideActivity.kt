@@ -3,6 +3,7 @@ package com.gt.giscollect.module.system.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -22,8 +23,10 @@ import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
 import com.stanny.module_rtk.tool.WHandService
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXFileUtil
 import kotlinx.android.synthetic.main.activity_guide.*
 import org.json.JSONObject
+import java.io.File
 
 
 /**
@@ -102,6 +105,12 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             ConstStrings.appfuncList.clear()
             ConstStrings.appfuncList.addAll(it.appFuncs)
             ConstStrings.mGuideBean = it
+            if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersFirstPath())) {
+                File(ConstStrings.getSketchLayersFirstPath()).mkdirs()
+            }
+            if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersSecondPath())) {
+                File(ConstStrings.getSketchLayersSecondPath()).mkdirs()
+            }
             if (it.itemName.contains("草图")) {
                 ProjectListActivity.startAction(this, false)
             }

@@ -1,6 +1,7 @@
 package com.gt.entrypad.api
 
 import com.frame.zxmvp.basebean.BaseRespose
+import com.gt.base.app.CheckBean
 import com.gt.base.bean.NormalList
 import com.gt.entrypad.module.project.bean.DrawTemplateBean
 import com.gt.entrypad.module.project.bean.HouseTableBean
@@ -19,7 +20,7 @@ interface ApiService {
     fun fwdWorld(@Body body: RequestBody): Observable<BaseRespose<HouseTableBean>>
 
     @POST("/template/queryCollect")
-    fun projectList(@Body body: RequestBody): Observable<BaseRespose<String>>
+    fun projectList(@Body body: RequestBody): Observable<BaseRespose<NormalList<CheckBean>>>
 
     @POST("template/queryCollectTemplate")
     fun getDrawTemplateList(@Body body: RequestBody): Observable<BaseRespose<NormalList<DrawTemplateBean>>>

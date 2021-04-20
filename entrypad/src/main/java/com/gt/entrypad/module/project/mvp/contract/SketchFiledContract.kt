@@ -29,7 +29,7 @@ interface SketchFiledContract {
 
     //方法
     abstract class Presenter : BasePresenter<View, Model>() {
-        abstract fun zddWorld(info: List<Pair<Field, Any?>>?, files:String)
+        abstract fun zddWorld(info: List<Pair<Field, Any?>>?, files:String,tplName:String)
         abstract fun downloadFile(name : String, downUrl : String)
     }
 }

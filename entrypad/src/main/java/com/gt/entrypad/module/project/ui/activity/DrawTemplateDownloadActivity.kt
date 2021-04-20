@@ -1,5 +1,6 @@
 package com.gt.entrypad.module.project.ui.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -83,7 +84,9 @@ class DrawTemplateDownloadActivity :BaseActivity<DrawTemplatePresenter,DrawTempl
         tempalteAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.iv_data_dowloand) {
                 if (!templateList[position].isDownload) {
-                    mPresenter.downloadTemplate(templateList[position])
+                   getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)){
+                       mPresenter.downloadTemplate(templateList[position])
+                   }
                 } else {
 
                 }

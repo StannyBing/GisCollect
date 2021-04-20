@@ -40,6 +40,7 @@ import com.gt.entrypad.module.project.ui.activity.ScanIdCardActivity
 import com.gt.entrypad.module.project.ui.view.idCardView.IdCardViewViewModel
 import com.gt.entrypad.tool.FileUtil
 import com.gt.entrypad.tool.SimpleDecoration
+import com.zx.zxutils.listener.ZXRecordListener
 import com.zx.zxutils.util.*
 import kotlinx.android.synthetic.main.activity_scan_id_card.*
 import kotlinx.android.synthetic.main.fragment_sketch_filed.*
@@ -74,7 +75,6 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        super.initView(savedInstanceState)
         rv_sketch_filed_list.apply {
             layoutManager = LinearLayoutManager(mContext)
             addItemDecoration(SimpleDecoration(mContext))
@@ -90,6 +90,8 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
         }else{
             btnWorld.text = "生成房屋图"
         }
+        super.initView(savedInstanceState)
+
     }
     override fun onViewListener() {
         fieldAdapter.setOnItemChildClickListener { adapter, view, position ->
@@ -198,6 +200,36 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
                 )
             }
         }
+        //录音
+        recordUtil?.setOnRecordListener(object : ZXRecordListener {
+            override fun onSuccess(file: File?) {
+                if (file != null) {
+                    val fileBean = FileInfoBean(
+                        file.name,
+                        file.path.substring(file.path.lastIndexOf("/") + 1),
+                        "",
+                        ZXTimeUtil.getCurrentTime(),
+                        "record"
+                    )
+                    if (currentFeature is ArcGISFeature) {
+                        uploadTempFile = File(file.path)
+                    } else {
+                        fileList.add(fileBean)
+                    }
+                    fileAdapter.notifyDataSetChanged()
+                    saveField("record")
+                    handler.postDelayed({
+                        ZXDialogUtil.dismissDialog()
+                    }, 100)
+                }
+            }
+
+            override fun onInitPath(): String {
+                val path = filePath + "/" + System.currentTimeMillis() + "x.mp3"
+                ZXFileUtil.createNewFile(path)
+                return path
+            }
+        })
         //生成报告
         btnWorld.setOnClickListener {
             getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)){
@@ -559,7 +591,7 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
      */
     override fun uploadResult(uploadResult: HouseTableBean?) {
         uploadResult?.let {
-            mPresenter.downloadFile(if (ConstStrings.drawTempleteName.contains("宗地")) "宗地图.docx" else "房屋图.docx","/office/word/downloadReport?fileName=${it.fileName}&filePath=${it.localUri}")
+            mPresenter.downloadFile(if (ConstStrings.drawTempleteName.contains("宗地")) "宗地图.docx" else "房屋图.docx","/file/downloadFileByAbsPath?fileName=${it.fileName}&fileUri=${it.filePath}")
         }
     }
     private fun showDialog(){
@@ -570,6 +602,10 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
             ZXFileUtil.createNewFile(toPath)
             ZXFileUtil.copyFile(filePath, toPath)?.path?:""
         } else toPath
-        mPresenter.zddWorld(fieldList,toPath)
+        mPresenter.zddWorld(fieldList,toPath,if (ConstStrings.drawTempleteName.contains("宗地")) "宗地图.docx" else "房屋图.docx")
+    }
+    override fun onDestroy() {
+        ConstStrings.clear()
+        super.onDestroy()
     }
 }

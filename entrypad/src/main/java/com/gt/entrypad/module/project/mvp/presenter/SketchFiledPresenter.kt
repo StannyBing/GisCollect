@@ -29,7 +29,7 @@ import java.util.*
  * 功能：
  */
 class SketchFiledPresenter : SketchFiledContract.Presenter() {
-    override fun zddWorld(info: List<Pair<Field, Any?>>?, files: String) {
+    override fun zddWorld(info: List<Pair<Field, Any?>>?, files: String, tplName:String) {
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         info?.forEach {
             if (it.second is String){
@@ -39,6 +39,7 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
                 builder.addFormDataPart(it.first.name,time)
             }
         }
+        builder.addFormDataPart("tplName",tplName)
         if (files.isNotEmpty()&&!(files.contains("http")||files.contains("https"))){
             builder.addFormDataPart(
                 "file",
@@ -77,7 +78,7 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
 
     override fun downloadFile(name: String, downUrl: String) {
         val downInfo = DownInfo(downUrl)
-        val savePath = ZXSystemUtil.getSDCardPath() + "GisCollect/houseEntry/" + name
+        val savePath = ZXSystemUtil.getSDCardPath() + "GisCollect/houseEntry/" + ConstStrings.sktchId+"/$name"
         downInfo.baseUrl = ApiConfigModule.BASE_IP
         downInfo.savePath = savePath
         downInfo.listener = object : DownloadOnNextListener<Any>() {
@@ -88,19 +89,16 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
 
             override fun onStart() {
                 ZXDialogUtil.showLoadingDialog(mContext, "正在下载中，请稍后...", 0)
-
             }
 
             override fun onComplete(file: File) {
                 mView.onFileDownloadResult(file)
                 ZXDialogUtil.dismissLoadingDialog()
-
             }
 
             override fun onError(message: String?) {
                 mView.showToast(message)
                 mView.dismissLoading()
-
             }
 
             override fun updateProgress(progress: Int) {

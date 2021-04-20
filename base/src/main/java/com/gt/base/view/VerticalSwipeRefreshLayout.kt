@@ -1,4 +1,4 @@
-package com.gt.giscollect.base
+package com.gt.base.view
 
 import android.content.Context
 import android.util.AttributeSet
