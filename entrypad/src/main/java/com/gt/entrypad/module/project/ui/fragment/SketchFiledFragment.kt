@@ -237,10 +237,7 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
                 showDialog()
             }
         }
-        //完成
-        btnFinish.setOnClickListener {
-            ProjectListActivity.startAction(mActivity, false)
-        }
+
     }
 
     override fun getLayoutId(): Int {

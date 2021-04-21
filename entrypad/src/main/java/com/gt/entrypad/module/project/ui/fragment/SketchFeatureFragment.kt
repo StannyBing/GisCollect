@@ -230,6 +230,10 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
                     featureAdapter.notifyDataSetChanged()
                 }
             }
+        //完成
+        btnFinish.setOnClickListener {
+            ProjectListActivity.startAction(mActivity, false)
+        }
     }
 
     private fun createFeature(latLngs:ArrayList<ArrayList<Point>>) {
