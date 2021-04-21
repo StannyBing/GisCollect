@@ -1,8 +1,10 @@
 package com.gt.entrypad.module.project.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.gt.base.bean.RtkInfoBean
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.entrypad.R
@@ -94,7 +96,7 @@ class LoadMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sket
                 if (any is ArrayList<*>){
                     val list = any as ArrayList<RtkPointBean>
                     sitePointFragment.refreshData(list)
-                }else{
+                }else if (any is RtkPointBean){
                     sitePointFragment.refreshData(any)
                 }
             }

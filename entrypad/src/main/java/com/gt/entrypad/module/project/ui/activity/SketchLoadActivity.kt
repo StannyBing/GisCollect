@@ -75,6 +75,9 @@ class SketchLoadActivity :BaseActivity<MapPresenter,MapModel>(),MapContract.View
             }
             iv_data_show.visibility = View.GONE
         }
+        iv_collect_title_back.setOnClickListener {
+            finish()
+        }
     }
 
     override fun getLayoutId(): Int {

@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder
 import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.util.Log
 import android.view.View
 import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.geometry.SpatialReference
@@ -180,6 +181,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                        if (it.id==rtkPointBean.parentId){
                            it.rtkList?.clear()
                            it.rtkList?.add(rtkPointBean)
+                           Log.e("fdfdf","${it.rtkList?.size?:0}")
                            return@siteData
                        }
                    }

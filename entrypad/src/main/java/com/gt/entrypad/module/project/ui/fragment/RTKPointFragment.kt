@@ -56,7 +56,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
     }
 
     override fun onViewListener() {
-        rtkLayout.itemLatEt.addTextChangedListener(object :TextWatcher{
+        LatEt.addTextChangedListener(object :TextWatcher{
             override fun afterTextChanged(s: Editable?) {
                 var  point = rtkPointBean.sitePoint
                 var text = s.toString().trim()
@@ -72,7 +72,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
 
         })
 
-        rtkLayout.itemLngEt.addTextChangedListener(object :TextWatcher{
+       LngEt.addTextChangedListener(object :TextWatcher{
             override fun afterTextChanged(s: Editable?) {
                 var  point = rtkPointBean.sitePoint
                 var text = s.toString().trim()
@@ -88,20 +88,25 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
 
         })
 
-
-        rtkLayout.itemDistanceEt.addTextChangedListener(object :TextWatcher{
-            override fun afterTextChanged(s: Editable?) {
-                rtkPointBean.distance = if (s.toString().trim().isNullOrEmpty()) 0.0 else s.toString().trim().toDouble()
+        rtkLayoutTv.setOnClickListener {
+            if (WHandTool.mStatus == BluetoothProfile.STATE_CONNECTED) {
+                val info = WHandTool.getDeviceInfoOneTime()
+                if (info != null) {
+                    //TODO:Rtk生成的x y z坐标 z的值赋给Point的z
+                    val location = PointTool.change4326To3857(
+                        Point(
+                            info.longitude,
+                            info.latitude,
+                            0.0,
+                            SpatialReference.create(4326)
+                        )
+                    )
+                    rtkPointBean.sitePoint = location
+                }
+            } else {
+                fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Set)
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-        })
-
+        }
 
         rgRtk.setOnCheckedChangeListener { group, checkedId ->
             setCheckStatus(checkedId)
@@ -130,8 +135,8 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     fragChangeListener?.onFragBack(LoadMainFragment.RTK_Point, rtkData)
                 }
             }else if (rbDirectPoint.isChecked){
-                if (!(rtkPointBean.distance != 0.0 && rtkPointBean.sitePoint.x != 0.0 && rtkPointBean.sitePoint.y!= 0.0)) {
-                    showToast("坐标或者距离不能为0")
+                if (!(rtkPointBean.sitePoint.x != 0.0 && rtkPointBean.sitePoint.y!= 0.0)) {
+                    showToast("坐标不能为0")
                     return@setOnClickListener
                 }
                 rtkPointBean.resultSitePoint = rtkPointBean.sitePoint
@@ -185,6 +190,8 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
     }
 
     fun showData(any: Any?) {
+        rtkPointBean = RtkPointBean()
+        if (any is SiteBean)rtkPointBean.parentId = any.id
         if (rbReferPoint.isChecked){
             any?.let {
                 rtkData.clear()
@@ -216,7 +223,6 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
             }
         }else {
             any?.let {
-                rtkPointBean = RtkPointBean()
                 if (it is SiteBean) {
                     if (it.rtkList.isNullOrEmpty()) {
                        rtkPointBean = RtkPointBean(title = "参考点P0", parentId = it.id)
@@ -237,9 +243,8 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
                     }
                 }
             }
-            rtkLayout.itemLatEt.setText(if (rtkPointBean.sitePoint.x==0.0) "" else "${rtkPointBean.sitePoint.x}")
-            rtkLayout.itemLngEt.setText(if (rtkPointBean.sitePoint.y==0.0) "" else "${rtkPointBean.sitePoint.y}")
-            rtkLayout.itemDistanceEt.setText(if (rtkPointBean.distance==0.0) "" else "${rtkPointBean.distance}")
+           LatEt.setText(if (rtkPointBean.sitePoint.x==0.0) "" else "${rtkPointBean.sitePoint.x}")
+           LngEt.setText(if (rtkPointBean.sitePoint.y==0.0) "" else "${rtkPointBean.sitePoint.y}")
         }
     }
 
@@ -254,7 +259,6 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
             //直接打点
             rbDirectPoint.id->{
                 rtkLayout.visibility=View.VISIBLE
-                rtkLayout.rtkTv.visibility=View.GONE
                 rtkPointRv.visibility=View.GONE
             }
         }

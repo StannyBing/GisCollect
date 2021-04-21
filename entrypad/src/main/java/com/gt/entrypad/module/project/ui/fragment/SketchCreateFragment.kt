@@ -138,9 +138,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         btn_collect_create_save.setOnClickListener {
             if (et_create_layer_name.text.toString().isEmpty()) {
                 showToast("请输入图层名")
-            } else if (sp_create_layer_model.selectedValue.toString().isEmpty()) {
-                showToast("请选择模板")
-            } else {
+            }  else {
                 ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否新增图层？") { _, _ ->
                     if (et_create_layer_name.text.toString().contains("/")
                         || et_create_layer_name.text.toString().contains("\\")
@@ -159,8 +157,9 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
     }
     private fun loadFeature(){
         identifyList.clear()
-        if (ConstStrings.drawTempleteName.isNotEmpty()) {
-            val file = File(ConstStrings.drawTempleteName.toString())
+        var path = ConstStrings.getDrawTemplatePath()+ConstStrings.drawTempleteName
+        if (path.isNotEmpty()) {
+            val file = File(path)
             if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
                 GeoPackageTool.getTablesFromGpkg(file.path) {
                     if (it.isNotEmpty()) {
@@ -240,7 +239,8 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
      * 从模板分钟复制gpkg
      */
     private fun copyGpkgFromTemplate(name: String): GeoPackage? {
-        val file = File(sp_create_layer_model.selectedValue.toString())
+        var path = ConstStrings.getDrawTemplatePath()+ConstStrings.drawTempleteName
+        val file = File(path)
         if (file.exists() && file.isFile) {
             val destFile =
                 File(ConstStrings.getSketchLayersPath() + name + "/")
@@ -277,8 +277,8 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
 
     fun reInit() {
 
-        val templateList = arrayListOf<KeyValueEntity>()
-        /*val templateIds =
+/*        val templateList = arrayListOf<KeyValueEntity>()
+        *//*val templateIds =
             mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.DrawTemplateIdList)
 
         val file = File(ConstStrings.getSketchTemplatePath())
@@ -290,7 +290,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
 //                } else
                 if (it.isFile && it.name.endsWith(".gpkg")) {
                     //只添加当前用户对应的采集模板
-               *//*     templateIds?.forEach temp@{ temp ->
+               *//**//*     templateIds?.forEach temp@{ temp ->
                         if (it.path.contains(temp.name) && temp.templateId == ConstStrings.bussinessId) {
                             templateList.add(
                                 KeyValueEntity(
@@ -302,7 +302,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                             )
                             return@temp
                         }
-                    }*//*
+                    }*//**//*
                     templateList.add(
                         KeyValueEntity(
                             it.name.substring(
@@ -313,7 +313,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                     )
                 }
             }
-        }*/
+        }*//*
         templateList.add( KeyValueEntity(
             ConstStrings.drawTempleteName.substring(
                 0,
@@ -326,7 +326,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
         sp_create_layer_model.notifyDataSetChanged()
         sp_create_layer_model.setSelection(0)
         identifyList.clear()
-        identifyAdapter.notifyDataSetChanged()
+        identifyAdapter.notifyDataSetChanged()*/
         et_create_layer_name.setText("")
     }
 }

@@ -3,10 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <FrameLayout
         android:id="@+id/mapFl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+
+    <ImageView
+        android:id="@+id/iv_collect_title_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="12dp"
+        app:srcCompat="@drawable/icon_return" />
     <ImageView
         android:id="@+id/iv_data_show"
         android:layout_width="45dp"

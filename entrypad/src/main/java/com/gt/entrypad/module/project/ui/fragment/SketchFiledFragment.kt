@@ -36,6 +36,7 @@ import com.gt.entrypad.module.project.mvp.contract.SketchFiledContract
 import com.gt.entrypad.module.project.mvp.model.SketchFiledModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchFiledPresenter
 import com.gt.entrypad.module.project.ui.activity.FilePreviewActivity
+import com.gt.entrypad.module.project.ui.activity.ProjectListActivity
 import com.gt.entrypad.module.project.ui.activity.ScanIdCardActivity
 import com.gt.entrypad.module.project.ui.view.idCardView.IdCardViewViewModel
 import com.gt.entrypad.tool.FileUtil
@@ -235,6 +236,10 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
             getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)){
                 showDialog()
             }
+        }
+        //完成
+        btnFinish.setOnClickListener {
+            ProjectListActivity.startAction(mActivity, false)
         }
     }
 
