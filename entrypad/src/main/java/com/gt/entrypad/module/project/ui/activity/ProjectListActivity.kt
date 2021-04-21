@@ -59,13 +59,15 @@ import java.util.*
  * 功能：
  */
 @Route(path = RouterPath.PROJECT_LIST)
-class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>(), ProjectListContract.View {
+class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>(),
+    ProjectListContract.View {
     private var data = arrayListOf<ProjectListBean>()
     private var projectAdapter = ProjectListAdapter(data)
     private var totalCheckList = arrayListOf<ProjectListBean>()
     private var currpage = 0
     private var templeteId = ""
     private var clickPosition = -1
+
     companion object {
         private const val ChangeTag = "sketch_list"
         /**
@@ -77,17 +79,18 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             if (isFinish) activity.finish()
         }
     }
+
     override fun onViewListener() {
         //刷新
         sr_project_layers.setOnRefreshListener {
-            currpage=0
+            currpage = 0
             loadData()
         }
         //切换
         rgProjectLocal.setOnCheckedChangeListener { group, checkedId ->
             setCheckList()
         }
-        spProjectType.onItemSelectedListener = object :AdapterView.OnItemSelectedListener{
+        spProjectType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
@@ -99,9 +102,9 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 id: Long
             ) {
                 templeteId = spProjectType.selectedValue.toString()
-                currpage=0
-                Log.e("fdfdf",templeteId)
-                if (templeteId.isNotEmpty()){
+                currpage = 0
+                Log.e("fdfdf", templeteId)
+                if (templeteId.isNotEmpty()) {
                     ConstStrings.drawTemplatesId = templeteId
                     loadData()
                 }
@@ -125,20 +128,22 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
         })
         projectAdapter.notifyDataSetChanged()
     }
-	/**
+
+    /**
      * layout配置
      */
-	override fun getLayoutId(): Int {
+    override fun getLayoutId(): Int {
         return R.layout.activity_project_list
     }
 
-	/**
+    /**
      * 初始化
      */
-	override fun initView(savedInstanceState: Bundle?) {
+    override fun initView(savedInstanceState: Bundle?) {
         ZXStatusBarCompat.translucent(this)
         ZXStatusBarCompat.setStatusBarLightMode(this)
-        leftTv.visibility=View.GONE
+        leftTv.visibility = View.GONE
+        right2Tv.visibility = View.GONE
         spProjectType
             .setData(ConstStrings.mGuideBean.getTemplates())
             .showUnderineColor(false)
@@ -148,31 +153,34 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             .build()
 
         ivBack.apply {
-            this.visibility=View.VISIBLE
+            this.visibility = View.VISIBLE
             setOnClickListener {
                 finish()
             }
         }
-        right2Tv.apply {
-           this.visibility=View.VISIBLE
-           setData(TitleViewViewModel(getString(R.string.createProject)))
-           setActionListener(object : ICustomViewActionListener {
-               override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                   moduleDialog()
-               }
-
-           })
-       }
+//        right2Tv.apply {
+//           this.visibility=View.VISIBLE
+//           setData(TitleViewViewModel(getString(R.string.createProject)))
+//           setActionListener(object : ICustomViewActionListener {
+//               override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
+//                   moduleDialog()
+//               }
+//
+//           })
+//       }
 
         rightTv.apply {
             setData(TitleViewViewModel(getString(R.string.moduleDownload)))
-            this.visibility=View.VISIBLE
+            this.visibility = View.VISIBLE
             setActionListener(object : ICustomViewActionListener {
                 override fun onAction(action: String, view: View, viewModel: BaseCustomViewModel) {
-                    DrawTemplateDownloadActivity.startAction(this@ProjectListActivity,false)
+                    DrawTemplateDownloadActivity.startAction(this@ProjectListActivity, false)
                 }
 
             })
+        }
+        btn_project_create.setOnClickListener {
+            moduleDialog()
         }
 
         toolBarTitleTv.text = getString(R.string.registrationList)
@@ -185,9 +193,13 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
         ZXRecyclerDeleteHelper(this, rv_project_layers)
             .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
-                when(id){
-                    R.id.tv_delete->{
-                        ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否删除该项目，这将同时删除该项目的草图数据？"){ dialog, which ->
+                when (id) {
+                    R.id.tv_delete -> {
+                        ZXDialogUtil.showYesNoDialog(
+                            mContext,
+                            "提示",
+                            "是否删除该项目，这将同时删除该项目的草图数据？"
+                        ) { dialog, which ->
                             ConstStrings.sktchId = data[pos].id
                             data[pos].featureLayer?.let {
                                 FileUtils.deleteFilesByName(
@@ -198,18 +210,23 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                     ConstStrings.getSketchLayersPath() + it.name + "/file/",
                                     it
                                 )
-                                FileUtils.deleteFiles(mContext.filesDir.path+"/${ data[pos].id}/sketch/draw.jpg")
-                                MapTool.postLayerChange(ChangeTag,it,MapTool.ChangeType.OperationalRemove)
-                                val list = mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
-                                if (!list.isNullOrEmpty())list?.remove(ConstStrings.sktchId)
-                                mSharedPrefUtil.putList(ConstStrings.SketchIdList,list)
+                                FileUtils.deleteFiles(mContext.filesDir.path + "/${data[pos].id}/sketch/draw.jpg")
+                                MapTool.postLayerChange(
+                                    ChangeTag,
+                                    it,
+                                    MapTool.ChangeType.OperationalRemove
+                                )
+                                val list =
+                                    mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
+                                if (!list.isNullOrEmpty()) list?.remove(ConstStrings.sktchId)
+                                mSharedPrefUtil.putList(ConstStrings.SketchIdList, list)
                                 totalCheckList.remove(data[pos])
                                 data.removeAt(pos)
                                 projectAdapter.notifyDataSetChanged()
                             }
                         }
                     }
-                    R.id.tv_upload->{
+                    R.id.tv_upload -> {
                         if (data[pos].featureLayer == null) {
                             ZXDialogUtil.showYesNoDialog(
                                 mContext,
@@ -226,16 +243,16 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                             "是否上传该条任务数据？"
                         ) { dialog, which ->
                             clickPosition = pos
-                         val files = FileUtils.getFilesByName(
+                            val files = FileUtils.getFilesByName(
                                 ConstStrings.getSketchLayersPath(),
-                             data[pos].featureLayer?.name?:""
+                                data[pos].featureLayer?.name ?: ""
                             )
                             files.firstOrNull { it.isDirectory }?.apply {
                                 val path = ZipUtils.zip(path, false)
                                 if (path != null) {
                                     mPresenter.uploadSurvey(
                                         path,
-                                        data[pos].featureLayer?.name?:"",
+                                        data[pos].featureLayer?.name ?: "",
                                         templeteId,
                                         "",
                                         collectId = UUID.randomUUID().toString()
@@ -253,65 +270,84 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 }
                 ConstString.feature = data[position].featureLayer
                 ConstStrings.sktchId = data[position].id
-                mSharedPrefUtil.putBool("isEdit",true)
-               SketchLoadActivity.startAction(this,false)
+                mSharedPrefUtil.putBool("isEdit", true)
+                SketchLoadActivity.startAction(this, false)
             }
-        MapTool.registerLayerChange(ChangeTag,object :MapTool.LayerChangeListener{
+        MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
             override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
                 loadData()
             }
         })
         super.initView(savedInstanceState)
     }
+
     private fun downloadProject(projectListBean: ProjectListBean) {
-        getPermission(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+        getPermission(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        ) {
             projectListBean.checkInfo?.let {
                 mPresenter.downloadProject(it)
             }
         }
     }
-    private fun loadData(){
-        mPresenter.getProject(hashMapOf(  "currPage" to currpage,
-            "pageSize" to 15,"filters" to arrayListOf(
-                hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
-                hashMapOf("col" to "template_id", "op" to "=", "val" to templeteId)
-            )).toJson())
+
+    private fun loadData() {
+        mPresenter.getProject(
+            hashMapOf(
+                "currPage" to currpage,
+                "pageSize" to 15, "filters" to arrayListOf(
+                    hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
+                    hashMapOf("col" to "template_id", "op" to "=", "val" to templeteId)
+                )
+            ).toJson()
+        )
     }
 
     /**
      * 项目列表数据回调
      */
     override fun onProjectList(result: List<CheckBean>?) {
-        if (currpage==0){
+        if (currpage == 0) {
             data.clear()
             totalCheckList.clear()
         }
-        var checkList = result?: arrayListOf()
+        var checkList = result ?: arrayListOf()
         val tempCheck = arrayListOf<CheckBean>().apply {
             addAll(checkList)
         }
 
-        var map =  mSharedPrefUtil.getMap<String,String>(ConstStrings.SketchIdList)
+        var map = mSharedPrefUtil.getMap<String, String>(ConstStrings.SketchIdList)
         map?.apply {
-            entries.forEach { sketch->
-                ConstStrings.sktchId=sketch.key
-                val file = File(ConstStrings.getSketchLayersPath()+sketch.value)
+            entries.forEach { sketch ->
+                ConstStrings.sktchId = sketch.key
+                val file = File(ConstStrings.getSketchLayersPath() + sketch.value)
                 if (file.exists() && file.isDirectory) {
                     file.listFiles()?.forEach {
                         if (it.isFile && it.name.endsWith(".gpkg")) {
-                            GeoPackageTool.getTablesFromGpkg(it.path){featureTableList->
-                                featureTableList.forEach {featureTable->
-                                    data.add(ProjectListBean(id=sketch.key,featureLayer = FeatureLayer(featureTable).apply {
-                                        name = sketch.value
-                                        featureTable.displayName = sketch.value
-                                    }))
+                            GeoPackageTool.getTablesFromGpkg(it.path) { featureTableList ->
+                                featureTableList.forEach { featureTable ->
+                                    data.add(
+                                        ProjectListBean(
+                                            id = sketch.key,
+                                            featureLayer = FeatureLayer(featureTable).apply {
+                                                name = sketch.value
+                                                featureTable.displayName = sketch.value
+                                            })
+                                    )
                                 }
                                 //循环判断本地是否跟线上的相等
                                 data.forEachIndexed { index, it ->
                                     var bean: CheckBean? = null
-                                    checkList.forEach {check->
-                                        if (it.featureLayer?.name==check.getFileName().replace(".gpkg", "")){
-                                            bean=check
+                                    checkList.forEach { check ->
+                                        if (it.featureLayer?.name == check.getFileName().replace(
+                                                ".gpkg",
+                                                ""
+                                            )
+                                        ) {
+                                            bean = check
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                                 tempCheck.removeIf {
                                                     it.collectId == check.collectId
@@ -321,11 +357,21 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                                             }
                                         }
                                     }
-                                    totalCheckList.add(ProjectListBean(checkInfo = bean, featureLayer = it.featureLayer))
+                                    totalCheckList.add(
+                                        ProjectListBean(
+                                            checkInfo = bean,
+                                            featureLayer = it.featureLayer
+                                        )
+                                    )
                                 }
                                 //将本地没有保存的checkBean添加进
                                 tempCheck.forEach check@{ check ->
-                                    totalCheckList.add(ProjectListBean(checkInfo = check, featureLayer = null))
+                                    totalCheckList.add(
+                                        ProjectListBean(
+                                            checkInfo = check,
+                                            featureLayer = null
+                                        )
+                                    )
                                 }
                                 setCheckList()
                                 sr_project_layers.isRefreshing = false
@@ -335,7 +381,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 }
             }
         }
-        if (map.isNullOrEmpty()){
+        if (map.isNullOrEmpty()) {
             totalCheckList.addAll(data)
         }
         setCheckList()
@@ -346,29 +392,36 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
     /**
      * 获取模板列表
      */
-    private fun moduleDialog(){
-       BUIDialog.showSimpleList(mContext,"请选择", arrayListOf<BUIDialog.ListBean>().apply {
-           ConstStrings.mGuideBean.getTemplates().forEach {
-                add(BUIDialog.ListBean(it.key,it.value.toString()))
-           }
-       },{
-           ConstStrings.drawTempleteName = it.key+".gpkg"
-           templeteId = it.value.toString()
-           ConstStrings.drawTemplatesId = templeteId
-           if (ZXFileUtil.isFileExists(ConstStrings.getDrawTemplatePath()+ConstStrings.drawTempleteName)){
-                DrawSketchActivity.startAction(this@ProjectListActivity,false,ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss")))
-            }else{
+    private fun moduleDialog() {
+        BUIDialog.showSimpleList(mContext, "请选择", arrayListOf<BUIDialog.ListBean>().apply {
+            ConstStrings.mGuideBean.getTemplates().forEach {
+                add(BUIDialog.ListBean(it.key, it.value.toString()))
+            }
+        }, {
+            ConstStrings.drawTempleteName = it.key + ".gpkg"
+            templeteId = it.value.toString()
+            ConstStrings.drawTemplatesId = templeteId
+            if (ZXFileUtil.isFileExists(ConstStrings.getDrawTemplatePath() + ConstStrings.drawTempleteName)) {
+                DrawSketchActivity.startAction(
+                    this@ProjectListActivity,
+                    false,
+                    ZXTimeUtil.getTime(
+                        System.currentTimeMillis(),
+                        SimpleDateFormat("yyyyMMdd_HHmmss")
+                    )
+                )
+            } else {
                 showToast("请下载模板")
-               DrawTemplateDownloadActivity.startAction(this@ProjectListActivity,false)
+                DrawTemplateDownloadActivity.startAction(this@ProjectListActivity, false)
 
-           }
-       },BUIDialog.BtnBuilder().withCancelBtn {  }.withSubmitBtn {  })
+            }
+        }, BUIDialog.BtnBuilder().withCancelBtn { }.withSubmitBtn { })
 
     }
 
     override fun onSurveyUpload(name: String) {
         showToast("上传成功")
-        if (!data.isNullOrEmpty()){
+        if (!data.isNullOrEmpty()) {
             val bean = data[clickPosition]
             bean?.featureLayer?.let {
                 FileUtils.deleteFilesByName(
@@ -379,11 +432,11 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                     ConstStrings.getSketchLayersPath() + it.name + "/file/",
                     it
                 )
-                FileUtils.deleteFiles(mContext.filesDir.path+"/${ data[clickPosition].id}/sketch/draw.jpg")
-                MapTool.postLayerChange(ChangeTag,it,MapTool.ChangeType.OperationalRemove)
+                FileUtils.deleteFiles(mContext.filesDir.path + "/${data[clickPosition].id}/sketch/draw.jpg")
+                MapTool.postLayerChange(ChangeTag, it, MapTool.ChangeType.OperationalRemove)
                 val list = mSharedPrefUtil.getList<String>(ConstStrings.SketchIdList)
-                if (!list.isNullOrEmpty())list?.remove(ConstStrings.sktchId)
-                mSharedPrefUtil.putList(ConstStrings.SketchIdList,list)
+                if (!list.isNullOrEmpty()) list?.remove(ConstStrings.sktchId)
+                mSharedPrefUtil.putList(ConstStrings.SketchIdList, list)
                 totalCheckList.remove(data[clickPosition])
                 data.removeAt(clickPosition)
                 projectAdapter.notifyDataSetChanged()
@@ -404,7 +457,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                         featureLayer.addDoneLoadingListener {
                             featureLayer.name = file.name.substring(0, file.name.lastIndexOf("."))
 
-                          //  MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
+                            //  MapTool.mapListener?.getMap()?.operationalLayers?.add(featureLayer)
                         }
                     }
                 }

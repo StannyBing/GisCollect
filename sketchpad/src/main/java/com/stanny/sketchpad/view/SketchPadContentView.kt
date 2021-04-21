@@ -535,13 +535,13 @@ class SketchPadContentView @JvmOverloads constructor(
             val maxPoint = getDrawMax()
             val tempBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             draw(Canvas(tempBitmap))
-//            val drawBitmap = Bitmap.createBitmap(
-//                tempBitmap,
-//                contentTransX.toInt() - minPoint.x.toInt(),
-//                contentTransY.toInt() - minPoint.y.toInt(),
-//                (maxPoint.x - minPoint.x).toInt()*2,
-//                (maxPoint.y - minPoint.y).toInt()*2
-//            )
+            val drawBitmap = Bitmap.createBitmap(
+                tempBitmap,
+                minPoint.x.toInt() - (maxPoint.x - minPoint.x).toInt()/2,
+                minPoint.y.toInt() - (maxPoint.x - minPoint.x).toInt()/2,
+                (maxPoint.x - minPoint.x).toInt(),
+                (maxPoint.y - minPoint.y).toInt()
+            )
             val ivDraw = ImageView(context)
             ivDraw.setImageBitmap(tempBitmap)
             ZXDialogUtil.showCustomViewDialog(
@@ -622,7 +622,7 @@ class SketchPadContentView @JvmOverloads constructor(
         if (minX == null || minY == null) {
             return PointF(0f, 0f)
         }
-        return PointF(minX!!, minY!!)
+        return PointF(minX!! + contentTransX, minY!! + contentTransY)
     }
 
     /**
@@ -650,7 +650,7 @@ class SketchPadContentView @JvmOverloads constructor(
         if (maxX == null || maxY == null) {
             return PointF(0f, 0f)
         }
-        return PointF(maxX!!, maxY!!)
+        return PointF(maxX!! + contentTransX, maxY!! + contentTransY)
     }
 
     /**
