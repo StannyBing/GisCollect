@@ -535,45 +535,31 @@ class SketchPadContentView @JvmOverloads constructor(
             val maxPoint = getDrawMax()
             val tempBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             draw(Canvas(tempBitmap))
-//            val drawBitmap = Bitmap.createBitmap(
-//                tempBitmap,
-//                contentTransX.toInt() - minPoint.x.toInt(),
-//                contentTransY.toInt() - minPoint.y.toInt(),
-//                (maxPoint.x - minPoint.x).toInt()*2,
-//                (maxPoint.y - minPoint.y).toInt()*2
-//            )
+            val drawBitmap = Bitmap.createBitmap(
+                tempBitmap,
+                contentTransX.toInt() - minPoint.x.toInt(),
+                contentTransY.toInt() - minPoint.y.toInt(),
+                (maxPoint.x - minPoint.x).toInt()*2,
+                (maxPoint.y - minPoint.y).toInt()*2
+            )
            /* val ivDraw = ImageView(context)
-            ivDraw.setImageBitmap(tempBitmap)
+            ivDraw.setImageBitmap(drawBitmap)
             ZXDialogUtil.showCustomViewDialog(
                 context,
                 "",
                 ivDraw
             ) { dialog: DialogInterface?, which: Int ->
                 ZXBitmapUtil.bitmapToFile(
-                    tempBitmap,
+                    drawBitmap,
                     File(ZXSystemUtil.getSDCardPath() + "test.jpg")
                 )
-            }
-            val file = context.filesDir.path
-            //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
-            val s = "$file/sketch/draw.jpg"
-            try {
-                Runnable {
-                    tempBitmap.compress(
-                        Bitmap.CompressFormat.JPEG,
-                        100,
-                        FileOutputStream(ZXFileUtil.createNewFile(s))
-                    )
-                }.run()
-            } catch (e: FileNotFoundException) {
-
             }*/
-            //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
             val file = context.filesDir.path
+            //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
             val s = "$file/sketch/draw.jpg"
             try {
                 Runnable {
-                    tempBitmap.compress(
+                    drawBitmap.compress(
                         Bitmap.CompressFormat.JPEG,
                         100,
                         FileOutputStream(ZXFileUtil.createNewFile(s))
@@ -582,6 +568,7 @@ class SketchPadContentView @JvmOverloads constructor(
             } catch (e: FileNotFoundException) {
 
             }
+            //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
             ZXSharedPrefUtil().putString("graphicList", Gson().toJson(sitePoints))
             callBack()
         } else {
@@ -636,7 +623,7 @@ class SketchPadContentView @JvmOverloads constructor(
         if (minX == null || minY == null) {
             return PointF(0f, 0f)
         }
-        return PointF(minX!!, minY!!)
+        return PointF(minX!! + contentTransX, minY!! + contentTransY)
     }
 
     /**
@@ -664,7 +651,7 @@ class SketchPadContentView @JvmOverloads constructor(
         if (maxX == null || maxY == null) {
             return PointF(0f, 0f)
         }
-        return PointF(maxX!!, maxY!!)
+        return PointF(maxX!! + contentTransX, maxY!! + contentTransY)
     }
 
     /**

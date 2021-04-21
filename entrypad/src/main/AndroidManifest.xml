@@ -12,7 +12,7 @@ package="com.gt.entrypad">
             android:name="com.gt.entrypad.api.ApiConfigModule"
             android:value="ConfigModule" />
     <activity android:name=".module.project.ui.activity.ProjectListActivity"
-        android:screenOrientation="landscape"
+        android:screenOrientation="portrait"
         android:theme="@style/MainAppTheme"
         android:windowSoftInputMode="adjustResize|stateHidden"/>
 
@@ -50,7 +50,7 @@ package="com.gt.entrypad">
             android:screenOrientation="landscape"
             android:theme="@style/MainAppTheme"/>
         <activity android:name=".module.project.ui.activity.DrawTemplateDownloadActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="portrait"
             android:theme="@style/MainAppTheme"/>
 
     </application>
