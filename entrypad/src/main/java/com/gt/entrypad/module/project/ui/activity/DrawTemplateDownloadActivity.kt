@@ -20,6 +20,7 @@ import com.gt.entrypad.tool.SimpleDecoration
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
+import com.zx.zxutils.views.ZXStatusBarCompat
 import kotlinx.android.synthetic.main.activity_draw_templete.*
 import org.json.JSONArray
 import java.io.File

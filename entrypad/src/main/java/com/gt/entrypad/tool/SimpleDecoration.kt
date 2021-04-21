@@ -14,7 +14,7 @@ import com.gt.entrypad.R
 
 class SimpleDecoration(
     var context: Context,
-    @ColorRes var color: Int = R.color.white,
+    @ColorRes var color: Int = R.color.gray_8f,
     var height: Int = 1
 ) : ItemDecoration() {
 

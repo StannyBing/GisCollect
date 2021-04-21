@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.esri.arcgisruntime.data.GeoPackage
-import com.esri.arcgisruntime.data.QueryParameters
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
@@ -20,7 +19,6 @@ import com.frame.zxmvp.http.unzip.ZipUtils
 import com.gt.base.activity.BaseActivity
 import com.gt.base.app.CheckBean
 import com.gt.base.app.ConstStrings
-import com.gt.base.bean.NormalList
 import com.gt.base.bean.toJson
 import com.gt.base.manager.UserManager
 import com.gt.entrypad.app.RouterPath
@@ -31,14 +29,10 @@ import com.gt.entrypad.module.project.mvp.contract.ProjectListContract
 import com.gt.entrypad.module.project.mvp.model.ProjectListModel
 import com.gt.entrypad.module.project.mvp.presenter.ProjectListPresenter
 import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
-import com.zx.zxutils.views.ZXStatusBarCompat
 import com.gt.entrypad.R
 import com.gt.entrypad.app.ConstString
-import com.gt.entrypad.module.project.bean.HouseTableBean
 import com.gt.entrypad.module.project.bean.ProjectListBean
 import com.gt.entrypad.module.project.func.adapter.ProjectListAdapter
-import com.gt.base.tool.CopyAssetsToSd
-import com.gt.entrypad.module.project.bean.DrawTemplateBean
 import com.gt.entrypad.tool.SimpleDecoration
 import com.gt.module_map.tool.DeleteLayerFileTool
 import com.gt.module_map.tool.FileUtils
@@ -47,7 +41,6 @@ import com.gt.module_map.tool.MapTool
 import com.zx.bui.ui.buidialog.BUIDialog
 import com.zx.zxutils.util.*
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
-import com.zx.zxutils.views.SwipeRecylerView.ZXSRListener
 import kotlinx.android.synthetic.main.activity_project_list.*
 import kotlinx.android.synthetic.main.layout_tool_bar.*
 import java.io.File
@@ -140,14 +133,13 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
      * 初始化
      */
     override fun initView(savedInstanceState: Bundle?) {
-        ZXStatusBarCompat.translucent(this)
-        ZXStatusBarCompat.setStatusBarLightMode(this)
         leftTv.visibility = View.GONE
         right2Tv.visibility = View.GONE
         spProjectType
             .setData(ConstStrings.mGuideBean.getTemplates())
             .showUnderineColor(false)
             .setItemHeightDp(40)
+            .setItemTextSizeSp(14)
             .showSelectedTextColor(true, ContextCompat.getColor(mContext, R.color.colorPrimary))
             .setDefaultItem(0)
             .build()
@@ -319,73 +311,145 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             addAll(checkList)
         }
 
-        var map = mSharedPrefUtil.getMap<String, String>(ConstStrings.SketchIdList)
+        //拿到所有的模板id
+        val map = mSharedPrefUtil.getMap<String, String>(ConstStrings.SketchIdList)
         map?.apply {
             entries.forEach { sketch ->
                 ConstStrings.sktchId = sketch.key
+                //取对应模板的文件夹
                 val file = File(ConstStrings.getSketchLayersPath() + sketch.value)
                 if (file.exists() && file.isDirectory) {
                     file.listFiles()?.forEach {
+                        //拿到所有的gpkg
                         if (it.isFile && it.name.endsWith(".gpkg")) {
-                            GeoPackageTool.getTablesFromGpkg(it.path) { featureTableList ->
-                                featureTableList.forEach { featureTable ->
-                                    data.add(
-                                        ProjectListBean(
-                                            id = sketch.key,
-                                            featureLayer = FeatureLayer(featureTable).apply {
-                                                name = sketch.value
-                                                featureTable.displayName = sketch.value
-                                            })
-                                    )
-                                }
-                                //循环判断本地是否跟线上的相等
-                                data.forEachIndexed { index, it ->
-                                    var bean: CheckBean? = null
-                                    checkList.forEach { check ->
-                                        if (it.featureLayer?.name == check.getFileName().replace(
-                                                ".gpkg",
-                                                ""
-                                            )
-                                        ) {
-                                            bean = check
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                                tempCheck.removeIf {
-                                                    it.collectId == check.collectId
-                                                }
-                                            } else {
-                                                tempCheck.remove(check)
-                                            }
-                                        }
-                                    }
-                                    totalCheckList.add(
-                                        ProjectListBean(
-                                            checkInfo = bean,
-                                            featureLayer = it.featureLayer
-                                        )
-                                    )
-                                }
-                                //将本地没有保存的checkBean添加进
-                                tempCheck.forEach check@{ check ->
-                                    totalCheckList.add(
-                                        ProjectListBean(
-                                            checkInfo = check,
-                                            featureLayer = null
-                                        )
-                                    )
-                                }
-                                setCheckList()
-                                sr_project_layers.isRefreshing = false
-                            }
+                            getFeatureLayerFromGpkg(checkList, tempCheck, it.path, sketch)
                         }
                     }
                 }
             }
         }
-        if (map.isNullOrEmpty()) {
-            totalCheckList.addAll(data)
-        }
         setCheckList()
         sr_project_layers.isRefreshing = false
+
+//        var map = mSharedPrefUtil.getMap<String, String>(ConstStrings.SketchIdList)
+//        map?.apply {
+//            entries.forEach { sketch ->
+//                ConstStrings.sktchId = sketch.key
+//                val file = File(ConstStrings.getSketchLayersPath() + sketch.value)
+//                if (file.exists() && file.isDirectory) {
+//                    file.listFiles()?.forEach {
+//                        if (it.isFile && it.name.endsWith(".gpkg")) {
+//                            GeoPackageTool.getTablesFromGpkg(it.path) { featureTableList ->
+//                                featureTableList.forEach { featureTable ->
+//                                    data.add(
+//                                        ProjectListBean(
+//                                            id = sketch.key,
+//                                            featureLayer = FeatureLayer(featureTable).apply {
+//                                                name = sketch.value
+//                                                featureTable.displayName = sketch.value
+//                                            })
+//                                    )
+//                                }
+//                                //循环判断本地是否跟线上的相等
+//                                data.forEachIndexed { index, it ->
+//                                    var bean: CheckBean? = null
+//                                    checkList.forEach { check ->
+//                                        if (it.featureLayer?.name == check.getFileName().replace(
+//                                                ".gpkg",
+//                                                ""
+//                                            )
+//                                        ) {
+//                                            bean = check
+//                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                                                tempCheck.removeIf {
+//                                                    it.collectId == check.collectId
+//                                                }
+//                                            } else {
+//                                                tempCheck.remove(check)
+//                                            }
+//                                        }
+//                                    }
+//                                    totalCheckList.add(
+//                                        ProjectListBean(
+//                                            checkInfo = bean,
+//                                            featureLayer = it.featureLayer
+//                                        )
+//                                    )
+//                                }
+//                                //将本地没有保存的checkBean添加进
+//                                tempCheck.forEach check@{ check ->
+//                                    totalCheckList.add(
+//                                        ProjectListBean(
+//                                            checkInfo = check,
+//                                            featureLayer = null
+//                                        )
+//                                    )
+//                                }
+//                                setCheckList()
+//                                sr_project_layers.isRefreshing = false
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        if (map.isNullOrEmpty()) {
+//            totalCheckList.addAll(data)
+//        }
+//        setCheckList()
+//        sr_project_layers.isRefreshing = false
+    }
+
+    private fun getFeatureLayerFromGpkg(
+        checkList: List<CheckBean>,
+        tempCheck: ArrayList<CheckBean>,
+        path: String,
+        sketch: MutableMap.MutableEntry<String, String>
+    ) {
+        //拿到所有的数据并遍历
+        GeoPackageTool.getTablesFromGpkg(path) { featureTableList ->
+            featureTableList.forEach { featureTable ->
+//                data.add(
+//                    ProjectListBean(
+//                        id = sketch.key,
+//                        featureLayer = FeatureLayer(featureTable).apply {
+//                            name = sketch.value
+//                            featureTable.displayName = sketch.value
+//                        })
+//                )
+                val layer = FeatureLayer(featureTable).apply {
+                    name = sketch.value
+                    featureTable.displayName = sketch.value
+                }
+                //判断跟线上的是否相等
+                var bean: CheckBean? = null
+                checkList.forEach { check ->
+                    if (layer.name == check.getFileName().replace(
+                            ".gpkg",
+                            ""
+                        )
+                    ) {
+                        bean = check
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            tempCheck.removeIf {
+                                it.collectId == check.collectId
+                            }
+                        } else {
+                            tempCheck.remove(check)
+                        }
+                        return@forEach
+                    }
+                }
+                totalCheckList.add(
+                    ProjectListBean(
+                        checkInfo = bean,
+                        featureLayer = layer
+                    )
+                )
+            }
+            setCheckList()
+            sr_project_layers.isRefreshing = false
+        }
     }
 
 
@@ -415,7 +479,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 DrawTemplateDownloadActivity.startAction(this@ProjectListActivity, false)
 
             }
-        }, BUIDialog.BtnBuilder().withCancelBtn { }.withSubmitBtn { })
+        }, BUIDialog.BtnBuilder().withCancelBtn { })
 
     }
 

@@ -1,5 +1,6 @@
 package com.gt.entrypad.module.project.ui.fragment
 
+import android.bluetooth.BluetoothProfile
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -156,7 +157,7 @@ class RTKPointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(),
         rtkAdapter.setOnItemChildClickListener { adapter, view, position ->
             when (view.id) {
                 R.id.rtkTv -> {
-                    if (WHandTool.isOpen) {
+                    if (WHandTool.mStatus == BluetoothProfile.STATE_CONNECTED) {
                         val info = WHandTool.getDeviceInfoOneTime()
                         if (info != null) {
                             //TODO:Rtk生成的x y z坐标 z的值赋给Point的z
