@@ -91,7 +91,6 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
                         if (it.isNotEmpty()) {
                             mSharedPrefUtil.getString("floorList")?.let {
                                 if (it.isNotEmpty()) {
-
                                     iv_data_show.performClick()
                                     loadMainFragment?.let {
 
@@ -123,7 +122,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         //收起菜单
         iv_data_hide.setOnClickListener {
             rl_main_data.animation =
-                TranslateAnimation(0f, ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f)
+                TranslateAnimation(0f, ZXSystemUtil.dp2px(320f).toFloat(), 0f, 0f)
                     .apply {
                         duration = 500
                         start()
@@ -135,7 +134,7 @@ class DrawSketchActivity : BaseActivity<DrawSketchPresenter, DrawSketchModel>(),
         iv_data_show.setOnClickListener {
             if (rl_main_data.visibility != View.VISIBLE) {
                 rl_main_data.animation =
-                    TranslateAnimation(ZXSystemUtil.dp2px(260f).toFloat(), 0f, 0f, 0f)
+                    TranslateAnimation(ZXSystemUtil.dp2px(320f).toFloat(), 0f, 0f, 0f)
                         .apply {
                             duration = 500
                             start()

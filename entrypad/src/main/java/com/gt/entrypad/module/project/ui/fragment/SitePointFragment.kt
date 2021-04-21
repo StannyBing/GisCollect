@@ -62,15 +62,19 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             }
         }
         btnGraphic.setOnClickListener {
-            if (siteData.size<2){
-                showToast("请添加界址点")
-            }else{
-                val gsonBuilder = GsonBuilder()
-                gsonBuilder.serializeSpecialFloatingPointValues()
-                val gson = gsonBuilder.create()
-                mSharedPrefUtil.putString("siteList",gson.toJson(siteData))
-                SketchLoadActivity.startAction(mActivity,false)
-            }
+           run site@{
+               siteData.forEach {
+                   if (it.status=="未编辑"){
+                       showToast("界址点坐标不能为空")
+                       return@setOnClickListener
+                   }
+               }
+           }
+            val gsonBuilder = GsonBuilder()
+            gsonBuilder.serializeSpecialFloatingPointValues()
+            val gson = gsonBuilder.create()
+            mSharedPrefUtil.putString("siteList",gson.toJson(siteData))
+            SketchLoadActivity.startAction(mActivity,false)
         }
     }
 
@@ -89,6 +93,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                         ZXDialogUtil.showYesNoDialog(mContext, "提示", "是否删除该界址点？"){ dialog, which ->
                             siteData.removeAt(pos)
                             siteAdapter.notifyDataSetChanged()
+                            setBtnGraphic(false)
                         }
                     }
                 }
@@ -105,6 +110,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
     private fun setBtnGraphic(isEnable:Boolean){
         btnGraphic.apply {
             this.isEnabled = isEnabled
+            this.isClickable=isEnable
             setBackgroundResource(if (isEnable) R.drawable.shape_btn_bg else R.drawable.shape_btn_normal_bg)
         }
         tvSitAdd.visibility = if (isEnable) View.GONE else View.VISIBLE
@@ -121,7 +127,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             val points =   Gson().fromJson<List<PointF>>(it,object : TypeToken<List<PointF>>(){}.type)
             if (!points.isNullOrEmpty()){
                 points.forEachIndexed { index, pointF ->
-                    val key = "J$index"
+                    val key = "界址点J$index"
                     //保存界址对象
                     siteHashmap[key]=SiteBean(title = key,point = pointF)
                     data.add(key)
@@ -167,8 +173,20 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                        }
                    }
                }
+           }else{
+               val rtkPointBean = it as RtkPointBean
+               run siteData@ {
+                   siteData?.forEach {
+                       if (it.id==rtkPointBean.parentId){
+                           it.rtkList?.clear()
+                           it.rtkList?.add(rtkPointBean)
+                           return@siteData
+                       }
+                   }
+               }
            }
        }
         siteAdapter.notifyDataSetChanged()
     }
+
 }

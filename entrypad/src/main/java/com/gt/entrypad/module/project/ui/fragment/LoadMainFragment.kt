@@ -11,6 +11,7 @@ import com.gt.entrypad.module.project.mvp.contract.SketchMainContract
 import com.gt.entrypad.module.project.mvp.model.SketchMainModel
 import com.gt.entrypad.module.project.mvp.presenter.SketchMainPresenter
 import com.stanny.module_rtk.ui.RtkDeviceFragment
+import com.zx.bui.ui.buidialog.BUIDialog
 import com.zx.zxutils.util.ZXFragmentUtil
 import kotlinx.android.synthetic.main.fragment_load_main.iv_collect_title_back
 import kotlinx.android.synthetic.main.fragment_load_main.tv_collect_title_name
@@ -91,6 +92,8 @@ class LoadMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sket
                 if (any is ArrayList<*>){
                     val list = any as ArrayList<RtkPointBean>
                     sitePointFragment.refreshData(list)
+                }else{
+                    sitePointFragment.refreshData(any)
                 }
             }
             RTK_Point->{

@@ -542,7 +542,7 @@ class SketchPadContentView @JvmOverloads constructor(
 //                (maxPoint.x - minPoint.x).toInt()*2,
 //                (maxPoint.y - minPoint.y).toInt()*2
 //            )
-            val ivDraw = ImageView(context)
+           /* val ivDraw = ImageView(context)
             ivDraw.setImageBitmap(tempBitmap)
             ZXDialogUtil.showCustomViewDialog(
                 context,
@@ -556,6 +556,20 @@ class SketchPadContentView @JvmOverloads constructor(
             }
             val file = context.filesDir.path
             //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
+            val s = "$file/sketch/draw.jpg"
+            try {
+                Runnable {
+                    tempBitmap.compress(
+                        Bitmap.CompressFormat.JPEG,
+                        100,
+                        FileOutputStream(ZXFileUtil.createNewFile(s))
+                    )
+                }.run()
+            } catch (e: FileNotFoundException) {
+
+            }*/
+            //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
+            val file = context.filesDir.path
             val s = "$file/sketch/draw.jpg"
             try {
                 Runnable {
