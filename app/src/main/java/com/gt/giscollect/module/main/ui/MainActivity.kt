@@ -1,5 +1,6 @@
 package com.gt.giscollect.module.main.ui
 
+import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
@@ -12,6 +13,7 @@ import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.mapping.view.SketchCreationMode
 import com.gt.base.activity.BaseActivity
+import com.gt.base.app.ConstStrings
 import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.module.collect.ui.CollectMainFragment
@@ -32,10 +34,12 @@ import com.gt.giscollect.module.survey.ui.FileSearchFragment
 import com.gt.giscollect.module.survey.ui.SurveyFragment
 import com.gt.giscollect.module.system.ui.SettingMainFragment
 import com.gt.map.MapFragment
+import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.view.measure.MeasureView
 import com.zx.zxutils.http.ZXHttpListener
 import com.zx.zxutils.http.ZXHttpTool
 import com.zx.zxutils.util.ZXDialogUtil
+import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.util.ZXFragmentUtil
 import com.zx.zxutils.util.ZXSystemUtil
 import kotlinx.android.synthetic.main.activity_main.*
@@ -351,7 +355,7 @@ class MainActivity : BaseActivity<MainPresenter, MainModel>(), MainContract.View
 
     override fun onLongPress(x: Float, y: Float) {
         excuteFuncCall(BtnFuncFragment.Companion.DataType.SurveyFunction)
-        surveyFragment?.setSurveyModule(SketchCreationMode.POINT, getMapView()?.screenToLocation(Point(x.toInt(),y.toInt())))
+//        surveyFragment?.setSurveyModule(SketchCreationMode.POINT, getMapView()?.screenToLocation(Point(x.toInt(),y.toInt())))
     }
 
     override fun onSingleTap(x: Float, y: Float) {

@@ -1,5 +1,6 @@
 package com.gt.giscollect.module.collect.mvp.presenter
 
+import com.esri.arcgisruntime.layers.FeatureLayer
 import com.frame.zxmvp.baserx.RxHelper
 import com.frame.zxmvp.baserx.RxSubscriber
 import com.frame.zxmvp.http.download.DownInfo
@@ -14,6 +15,7 @@ import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.base.manager.UserManager
 import com.gt.giscollect.module.system.bean.DataResBean
+import com.gt.giscollect.module.system.bean.TemplateBean
 import com.tencent.bugly.crashreport.CrashReport
 import com.zx.zxutils.listener.ZXUnZipRarListener
 import com.zx.zxutils.util.ZXFileUtil
@@ -31,6 +33,26 @@ import java.net.URLEncoder
  * 功能：
  */
 class CollectListPresenter : CollectListContract.Presenter() {
+
+    override fun getTemplateList(path : String, layer: FeatureLayer, pos: Int, requestBody: RequestBody) {
+        if (MyApplication.isOfflineMode){
+            return
+        }
+        mModel.templateListData(requestBody)
+            .compose(RxHelper.bindToLifecycle(mView))
+            .subscribe(object : RxSubscriber<NormalList<TemplateBean>>(mView) {
+                override fun _onNext(t: NormalList<TemplateBean>?) {
+                    if (t != null) {
+                        mView.onTemplateListResult(path, layer, pos, t)
+                    }
+                }
+
+                override fun _onError(code: Int, message: String?) {
+                    mView.handleError(code, message)
+                }
+
+            })
+    }
 
     override fun getSurveyDataList(requestBody: RequestBody) {
         if (MyApplication.isOfflineMode){

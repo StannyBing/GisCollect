@@ -25,8 +25,10 @@ import com.gt.giscollect.module.collect.mvp.presenter.CollectListPresenter
 import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.MapTool
 import com.gt.base.app.TempIdsBean
+import com.gt.base.bean.NormalList
 import com.gt.base.bean.toJson
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
+import com.gt.giscollect.module.system.bean.TemplateBean
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
@@ -137,10 +139,20 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                         }
                                     }
                                     if (mTempId.isEmpty()) {
-                                        mPresenter.uploadCollect(
-                                            path,
-                                            layer.name,
-                                            collectId = collectList[pos].checkInfo?.collectId ?: ""
+                                        mPresenter.getTemplateList(
+                                            path, layer, pos,
+                                            hashMapOf(
+                                                "currPage" to 0,
+                                                "total" to 0,
+                                                "pageSize" to 999,
+                                                "filters" to arrayListOf(
+                                                    hashMapOf(
+                                                        "col" to "template_id",
+                                                        "op" to "=",
+                                                        "val" to ConstStrings.mGuideBean.getTemplatesFirst()
+                                                    )
+                                                )
+                                            ).toJson()
                                         )
                                     } else {
                                         mPresenter.uploadCollect(
@@ -164,18 +176,19 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             "提示",
                             "是否删除该图层，这将同时删除该图层的相关采集数据？"
                         ) { dialog, which ->
-                           var name = collectList[pos].featureLayer?.name
+                            var name = collectList[pos].featureLayer?.name
                             collectList.removeAt(pos)
                             collectAdapter.notifyItemRemoved(pos)
                             collectAdapter.notifyItemRangeChanged(pos, 5)
 
-                           /*
-                            MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)*/
+                            /*
+                             MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)*/
 
-                            val list = mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+                            val list =
+                                mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
                             list.forEach list@{
                                 var tempLayersName = it.layerNames.filter {
-                                    it!=name
+                                    it != name
                                 }
                                 it.layerNames.clear()
                                 it.layerNames.addAll(tempLayersName)
@@ -213,7 +226,6 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
             }
         super.initView(savedInstanceState)
     }
-
 
     private fun renameLayer(currentLayer: FeatureLayer, beforeName: String?, afterName: String) {
         val files = FileUtils.getFilesByName(
@@ -284,11 +296,16 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     }
 
     private fun downloadCollect(collectCheckBean: CollectCheckBean) {
-       getPermission(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-           collectCheckBean.checkInfo?.let {
-               mPresenter.downloadCollect(it)
-           }
-       }
+        getPermission(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        ) {
+            collectCheckBean.checkInfo?.let {
+                mPresenter.downloadCollect(it)
+            }
+        }
     }
 
     /**
@@ -434,5 +451,43 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun onCollectUpload(name: String) {
         refresh()
         showToast("上传成功")
+    }
+
+    override fun onTemplateListResult(
+        path: String,
+        layer: FeatureLayer,
+        pos: Int,
+        tempalteList: NormalList<TemplateBean>
+    ) {
+        if (tempalteList.rows.size == 1) {
+            mPresenter.uploadCollect(
+                path,
+                layer.name,
+                tempalteList.rows.first().templateId,
+                tempalteList.rows.first().catalogId,
+                collectId = collectList[pos].checkInfo?.collectId ?: ""
+            )
+            return
+        }
+        tempalteList.rows.firstOrNull {
+            it.tplName.contains(layer.featureTable.tableName)
+        }.let {
+            if (it == null) {
+                mPresenter.uploadCollect(
+                    path,
+                    layer.name,
+                    ConstStrings.mGuideBean.getTemplatesFirst(),
+                    collectId = collectList[pos].checkInfo?.collectId ?: ""
+                )
+            } else {
+                mPresenter.uploadCollect(
+                    path,
+                    layer.name,
+                    it.templateId,
+                    it.catalogId,
+                    collectId = collectList[pos].checkInfo?.collectId ?: ""
+                )
+            }
+        }
     }
 }

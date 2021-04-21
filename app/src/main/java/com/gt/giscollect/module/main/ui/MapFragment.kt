@@ -31,7 +31,9 @@ import com.gt.giscollect.module.main.mvp.model.MapModel
 import com.gt.giscollect.module.main.mvp.presenter.MapPresenter
 import com.gt.base.manager.UserManager
 import com.gt.module_map.tool.PointTool
+import com.zx.zxutils.other.QuickAdapter.ZXMultiItemQuickAdapter
 import com.zx.zxutils.util.*
+import com.zx.zxutils.views.ExpandableView.ZXExpandAdapter
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.json.JSONObject
 import rx.Observable

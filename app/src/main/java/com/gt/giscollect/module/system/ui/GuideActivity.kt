@@ -1,5 +1,6 @@
 package com.gt.giscollect.module.system.ui
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -21,6 +22,7 @@ import com.gt.giscollect.module.system.func.adapter.GuideAdapter
 import com.gt.giscollect.module.system.mvp.contract.GuideContract
 import com.gt.giscollect.module.system.mvp.model.GuideModel
 import com.gt.giscollect.module.system.mvp.presenter.GuidePresenter
+import com.gt.module_map.tool.FileUtils
 import com.stanny.module_rtk.tool.WHandService
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
@@ -73,6 +75,22 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         }
 
         startService(Intent(this, WHandService::class.java))
+
+        //TODO 图层文件转移
+        getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)){
+            if (ZXFileUtil.isFileExists(ConstStrings.getOperationalLayersPath(true))){
+                val status = FileUtils.copyFolder(ConstStrings.getOperationalLayersPath(true), ConstStrings.getOperationalLayersPath())
+                if (status){
+                    ZXFileUtil.deleteFiles(ConstStrings.getOperationalLayersPath(true))
+                }
+            }
+            if (ZXFileUtil.isFileExists(ConstStrings.getSurveyLayersPath(true))){
+                val status = FileUtils.copyFolder(ConstStrings.getSurveyLayersPath(true), ConstStrings.getOperationalLayersPath())
+                if (status){
+                    ZXFileUtil.deleteFiles(ConstStrings.getSurveyLayersPath(true))
+                }
+            }
+        }
 
         mPresenter.getAppFuncs(hashMapOf("userId" to (UserManager.user?.userId ?: "")))
         mPresenter.doSurveyType()

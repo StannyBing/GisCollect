@@ -1,11 +1,13 @@
 package com.gt.giscollect.module.collect.mvp.contract
 
+import com.esri.arcgisruntime.layers.FeatureLayer
 import com.frame.zxmvp.base.BasePresenter
 import com.frame.zxmvp.base.IView
 import com.frame.zxmvp.base.IModel
 import com.gt.base.bean.NormalList
 import com.gt.base.app.CheckBean
 import com.gt.giscollect.module.system.bean.DataResBean
+import com.gt.giscollect.module.system.bean.TemplateBean
 import okhttp3.RequestBody
 import rx.Observable
 import java.io.File
@@ -17,6 +19,8 @@ import java.io.File
 interface CollectListContract {
     //对于经常使用的关于UI的方法可以定义到IView中,如显示隐藏进度条,和显示文字消息
     interface View : IView {
+        fun onTemplateListResult(path : String, layer: FeatureLayer, pos: Int, tempalteList : NormalList<TemplateBean>)
+
         fun onCollectUpload(name: String)
 
         fun onCheckListResult(checkList: List<CheckBean>){}
@@ -37,6 +41,8 @@ interface CollectListContract {
         fun checkListData(body: RequestBody): Observable<NormalList<CheckBean>>
 
         fun dataListData(requestBody: RequestBody): Observable<NormalList<DataResBean>>
+
+        fun templateListData(requestBody: RequestBody) : Observable<NormalList<TemplateBean>>
     }
 
     //方法
@@ -54,6 +60,8 @@ interface CollectListContract {
         abstract fun downloadCollect(bean: CheckBean)
 
         abstract fun getSurveyDataList(requestBody: RequestBody)
+
+        abstract fun getTemplateList(path : String, layer: FeatureLayer, pos: Int, requestBody: RequestBody)
     }
 }
 

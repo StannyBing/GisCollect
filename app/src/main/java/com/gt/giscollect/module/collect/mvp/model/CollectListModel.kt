@@ -9,6 +9,7 @@ import com.gt.base.app.CheckBean
 
 import com.gt.giscollect.module.collect.mvp.contract.CollectListContract
 import com.gt.giscollect.module.system.bean.DataResBean
+import com.gt.giscollect.module.system.bean.TemplateBean
 import okhttp3.RequestBody
 import rx.Observable
 
@@ -17,6 +18,14 @@ import rx.Observable
  * 功能：
  */
 class CollectListModel : BaseModel(), CollectListContract.Model {
+
+    override fun templateListData(requestBody: RequestBody): Observable<NormalList<TemplateBean>> {
+        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
+            .getTemplateList(requestBody)
+            .compose(RxHelper.handleResult())
+            .compose(RxSchedulers.io_main())
+    }
+
 
     override fun dataListData(requestBody: RequestBody): Observable<NormalList<DataResBean>> {
         return mRepositoryManager.obtainRetrofitService(ApiService::class.java)

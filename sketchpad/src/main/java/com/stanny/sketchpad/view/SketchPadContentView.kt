@@ -7,7 +7,6 @@ import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.stanny.sketchpad.R
-import com.stanny.sketchpad.adapter.SketchPadFloorAdapter
 import com.stanny.sketchpad.adapter.SketchPadLabelAdapter
 import com.stanny.sketchpad.bean.SketchLabelBean
 import com.stanny.sketchpad.bean.SketchPadFloorBean
@@ -23,7 +21,6 @@ import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.bean.SketchPadLabelBean
 import com.stanny.sketchpad.listener.SketchPadListener
 import com.stanny.sketchpad.tool.SketchPadConstant
-import com.stanny.sketchpad.tool.SketchPointTool
 import com.stanny.sketchpad.tool.algorithm.OffsetAlgorithm
 import com.stanny.sketchpad.tool.algorithm.entity.Point
 import com.zx.zxutils.util.*
@@ -72,6 +69,7 @@ class SketchPadContentView @JvmOverloads constructor(
     private var drawHighlight = false//是否高亮
     private var sketchPadFloorBean: SketchPadFloorBean? = null
     private var sitePoints = arrayListOf<PointF>()
+
     init {
         setWillNotDraw(false)
 
@@ -159,10 +157,10 @@ class SketchPadContentView @JvmOverloads constructor(
             var points = arrayListOf<PointF>()
             graphicList.forEach {
                 it.points.forEachIndexed { index, pointF ->
-                    points.add(PointF(pointF.x+it.offsetX,pointF.y+it.offsetY))
+                    points.add(PointF(pointF.x + it.offsetX, pointF.y + it.offsetY))
                 }
             }
-            drawSite(points,canvas)
+            drawSite(points, canvas)
         }
         //高亮显示
         if (drawHighlight) {
@@ -180,24 +178,31 @@ class SketchPadContentView @JvmOverloads constructor(
         canvas?.restore()
     }
 
-    private fun drawSite(points:ArrayList<PointF>,canvas: Canvas?){
+    private fun drawSite(points: ArrayList<PointF>, canvas: Canvas?) {
         sitePoints.clear()
         //求出界址点个数
-        if (points.size>=3){
-            for (index in 0 until points.size){
-                var  point0 =  if (index==0){
-                    points[points.size-1]
-                }else{
+        if (points.size >= 3) {
+            for (index in 0 until points.size) {
+                var point0 = if (index == 0) {
+                    points[points.size - 1]
+                } else {
                     points[index - 1]
                 }
-                var  point1 =  if (index==points.size-1){
+                var point1 = if (index == points.size - 1) {
                     points[0]
-                }else{
+                } else {
                     points[index + 1]
                 }
 
-                val degree = excuteDegree(points[index].x.toDouble(), points[index].y.toDouble(), point0.x.toDouble(), point0.y.toDouble(), point1.x.toDouble(), point1.y.toDouble())
-                if (Math.abs(degree)!=0.0&&Math.abs(degree)!=180.0){
+                val degree = excuteDegree(
+                    points[index].x.toDouble(),
+                    points[index].y.toDouble(),
+                    point0.x.toDouble(),
+                    point0.y.toDouble(),
+                    point1.x.toDouble(),
+                    point1.y.toDouble()
+                )
+                if (Math.abs(degree) != 0.0 && Math.abs(degree) != 180.0) {
                     sitePoints.add(points[index])
                 }
             }
@@ -210,17 +215,18 @@ class SketchPadContentView @JvmOverloads constructor(
             }
             var tempSite = arrayListOf<Point>()
             sitePoints.forEachIndexed { index, pointF ->
-                tempSite.add(Point(pointF.x.toDouble(),pointF.y.toDouble()))
+                tempSite.add(Point(pointF.x.toDouble(), pointF.y.toDouble()))
             }
-            OffsetAlgorithm.offsetAlgorithm(tempSite,-20.0)?.apply {
-                if (!isNullOrEmpty()){
+            OffsetAlgorithm.offsetAlgorithm(tempSite, -20.0)?.apply {
+                if (!isNullOrEmpty()) {
                     this[0].forEachIndexed { index, point ->
-                        canvas?.drawText("J$index", point.x.toFloat(),point.y.toFloat(), textPaint)
+                        canvas?.drawText("J$index", point.x.toFloat(), point.y.toFloat(), textPaint)
                     }
                 }
             }
         }
     }
+
     /**
      * 触摸事件
      * 包含普通触摸、双指缩放、单指移动、松手贴边
@@ -521,29 +527,39 @@ class SketchPadContentView @JvmOverloads constructor(
      * 保存图形
      */
     fun saveGraphicInfo(callBack: () -> Unit) {
-        if (graphicList.isNotEmpty()){
+        if (graphicList.isNotEmpty()) {
             showSizeInfo(true)
             showSite(true)
             resetCenter()
             val minPoint = getDrawMin()
             val maxPoint = getDrawMax()
-            val viewBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            draw(Canvas(viewBitmap))
+            val tempBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            draw(Canvas(tempBitmap))
+//            val drawBitmap = Bitmap.createBitmap(
+//                tempBitmap,
+//                contentTransX.toInt() - minPoint.x.toInt(),
+//                contentTransY.toInt() - minPoint.y.toInt(),
+//                (maxPoint.x - minPoint.x).toInt()*2,
+//                (maxPoint.y - minPoint.y).toInt()*2
+//            )
             val ivDraw = ImageView(context)
-            ivDraw.setImageBitmap(viewBitmap)
+            ivDraw.setImageBitmap(tempBitmap)
             ZXDialogUtil.showCustomViewDialog(
                 context,
                 "",
                 ivDraw
             ) { dialog: DialogInterface?, which: Int ->
-                ZXBitmapUtil.bitmapToFile(viewBitmap, File(ZXSystemUtil.getSDCardPath() + "test.jpg"))
+                ZXBitmapUtil.bitmapToFile(
+                    tempBitmap,
+                    File(ZXSystemUtil.getSDCardPath() + "test.jpg")
+                )
             }
             val file = context.filesDir.path
             //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
             val s = "$file/sketch/draw.jpg"
             try {
                 Runnable {
-                    viewBitmap.compress(
+                    tempBitmap.compress(
                         Bitmap.CompressFormat.JPEG,
                         100,
                         FileOutputStream(ZXFileUtil.createNewFile(s))
@@ -552,9 +568,9 @@ class SketchPadContentView @JvmOverloads constructor(
             } catch (e: FileNotFoundException) {
 
             }
-            ZXSharedPrefUtil().putString("graphicList",Gson().toJson(sitePoints))
+            ZXSharedPrefUtil().putString("graphicList", Gson().toJson(sitePoints))
             callBack()
-        }else{
+        } else {
             ZXToastUtil.showToast("请绘制草图")
         }
     }
@@ -663,6 +679,9 @@ class SketchPadContentView @JvmOverloads constructor(
         }
 
         override fun onLongPress(event: MotionEvent) {
+            if (event.downTime == event.eventTime) {
+                return
+            }
             graphicList.forEach {
                 if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                     graphicList.forEach {
@@ -700,6 +719,7 @@ class SketchPadContentView @JvmOverloads constructor(
             return super.onScale(detector)
         }
     }
+
     fun excuteDegree(
         vertexPointX: Double,
         vertexPointY: Double,

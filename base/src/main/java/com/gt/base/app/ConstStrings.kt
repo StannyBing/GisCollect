@@ -110,20 +110,29 @@ object ConstStrings {
     fun getCollectTemplatePath(): String {
         return "$INI_PATH$APPNAME/CollectTemplate/"
     }
+
     fun getDrawTemplatePath(): String {
         return "$INI_PATH$APPNAME/DrawTemplate/"
     }
+
     fun getStylePath(): String {
         return "$LOCAL_PATH$APPNAME/MapStyle/"
     }
 
-    fun getOperationalLayersPath(): String {
-        return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
+    fun getOperationalLayersPath(isInner: Boolean = false): String {
+        if (isInner) {
+            return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
+        }
+        return "$LOCAL_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
     }
 
-    fun getSurveyLayersPath(): String {
-        return "$INI_PATH$APPNAME/SurveyLayers/" + UserManager.user?.userId + "/"
+    fun getSurveyLayersPath(isInner: Boolean = false): String {
+        if (isInner) {
+            return "$INI_PATH$APPNAME/SurveyLayers/" + UserManager.user?.userId + "/"
+        }
+        return "$LOCAL_PATH$APPNAME/SurveyLayers/" + UserManager.user?.userId + "/"
     }
+
     fun getSketchLayersPath(): String {
         return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/$drawTemplatesId/" + sktchId
     }
@@ -141,12 +150,14 @@ object ConstStrings {
     }
 
     fun getSurveyTemplatePath(): String {
-        return "$LOCAL_PATH$APPNAME/survey/" + UserManager.user?.userId+"/"
+        return "$LOCAL_PATH$APPNAME/survey/" + UserManager.user?.userId + "/"
     }
+
     //踏勘文件搜索
     fun getSurveySearchPath(): String {
         return "$LOCAL_PATH$APPNAME/survey/file/"
     }
+
     //地图默认中心点
     var Longitude = 106.496001
     var Latitude = 29.62016
@@ -158,6 +169,6 @@ object ConstStrings {
     var TolDistance = 1.0f
 
     fun clear() {
-        sktchId=""
+        sktchId = ""
     }
 }

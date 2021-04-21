@@ -116,7 +116,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             .build()
 
         sketchEditor.sketchStyle = SketchStyle().apply {
-            vertexSymbol = SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10f)
+            vertexSymbol = SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10f) as MarkerSymbol?
             selectedVertexSymbol =
                 SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10f)
             fillSymbol =
