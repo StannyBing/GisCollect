@@ -65,6 +65,8 @@ class LoadMainFragment :BaseFragment<SketchMainPresenter,SketchMainModel>(),Sket
         iv_collect_title_back.setOnClickListener {
             onFragBack(currentFragType)
         }
+
+        rootView.setOnClickListener(null)
     }
 
     override fun getLayoutId(): Int {

@@ -537,23 +537,23 @@ class SketchPadContentView @JvmOverloads constructor(
             draw(Canvas(tempBitmap))
             val drawBitmap = Bitmap.createBitmap(
                 tempBitmap,
-                contentTransX.toInt() - minPoint.x.toInt(),
-                contentTransY.toInt() - minPoint.y.toInt(),
-                (maxPoint.x - minPoint.x).toInt()*2,
-                (maxPoint.y - minPoint.y).toInt()*2
+                minPoint.x.toInt() - SketchPadConstant.backgroundGridSpace.toInt() ,
+                minPoint.y.toInt() - SketchPadConstant.backgroundGridSpace.toInt() ,
+                (maxPoint.x - minPoint.x).toInt() + SketchPadConstant.backgroundGridSpace.toInt()  * 2,
+                (maxPoint.y - minPoint.y).toInt() + SketchPadConstant.backgroundGridSpace.toInt()  * 2
             )
-           /* val ivDraw = ImageView(context)
+            val ivDraw = ImageView(context)
             ivDraw.setImageBitmap(drawBitmap)
-            ZXDialogUtil.showCustomViewDialog(
-                context,
-                "",
-                ivDraw
-            ) { dialog: DialogInterface?, which: Int ->
-                ZXBitmapUtil.bitmapToFile(
-                    drawBitmap,
-                    File(ZXSystemUtil.getSDCardPath() + "test.jpg")
-                )
-            }*/
+//            ZXDialogUtil.showCustomViewDialog(
+//                context,
+//                "",
+//                ivDraw
+//            ) { dialog: DialogInterface?, which: Int ->
+//                ZXBitmapUtil.bitmapToFile(
+//                    drawBitmap,
+//                    File(ZXSystemUtil.getSDCardPath() + "test.jpg")
+//                )
+//            }
             val file = context.filesDir.path
             //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
             val s = "$file/sketch/draw.jpg"
@@ -624,6 +624,7 @@ class SketchPadContentView @JvmOverloads constructor(
             return PointF(0f, 0f)
         }
         return PointF(minX!! + contentTransX, minY!! + contentTransY)
+//        return PointF(minX!!, minY!!)
     }
 
     /**
@@ -652,6 +653,7 @@ class SketchPadContentView @JvmOverloads constructor(
             return PointF(0f, 0f)
         }
         return PointF(maxX!! + contentTransX, maxY!! + contentTransY)
+//        return PointF(maxX!!, maxY!!)
     }
 
     /**
@@ -680,9 +682,6 @@ class SketchPadContentView @JvmOverloads constructor(
         }
 
         override fun onLongPress(event: MotionEvent) {
-            if (event.downTime == event.eventTime) {
-                return
-            }
             graphicList.forEach {
                 if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
                     graphicList.forEach {

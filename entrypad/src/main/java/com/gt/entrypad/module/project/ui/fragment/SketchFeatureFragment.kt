@@ -10,6 +10,7 @@ import com.esri.arcgisruntime.data.*
 import com.esri.arcgisruntime.geometry.*
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
+import com.esri.arcgisruntime.mapping.Viewpoint
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gt.base.app.ConstStrings
@@ -286,6 +287,17 @@ class SketchFeatureFragment : BaseFragment<SketchFeaturePresenter, SketchFeature
     fun excuteLayer(featureLayer: FeatureLayer,isEdit:Boolean=false) {
         currentLayer = featureLayer
         currentLayer?.clearSelection()
+
+        try {
+            var extent = featureLayer.fullExtent
+            if (extent.xMin == 0.0 || extent.xMax == 0.0 || extent.yMin == 0.0 || extent.yMax == 0.0) {
+                MapTool.mapListener?.getMapView()?.setViewpointCenterAsync(extent.center, 100000.0)
+            } else {
+                MapTool.mapListener?.getMapView()?.setViewpointAsync(Viewpoint(extent), 1f)
+            }
+        }catch (e : Exception){
+            e.printStackTrace()
+        }
 
         //设置字段显示筛选项
         sp_collect_feature_showfield.dataList.clear()

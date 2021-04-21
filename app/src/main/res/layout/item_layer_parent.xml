@@ -22,7 +22,6 @@
         android:layout_marginStart="10dp"
         android:layout_toRightOf="@id/layerMenuItemArrowIv"
         android:gravity="center_vertical"
-        android:textColor="@color/black"
         android:textSize="13sp" />
 
 
