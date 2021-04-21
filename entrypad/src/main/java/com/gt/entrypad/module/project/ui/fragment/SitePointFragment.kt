@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder
 import com.frame.zxmvp.base.BaseModel
 import com.frame.zxmvp.baserx.RxHelper.bindToLifecycle
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.view.View
 import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.gt.base.app.ConstStrings
@@ -95,6 +96,18 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             .setClickable {
                 fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteData[it])
             }
+        setBtnGraphic(false)
+    }
+
+    /**
+     * 设置图形按钮和添加按钮状态
+     */
+    private fun setBtnGraphic(isEnable:Boolean){
+        btnGraphic.apply {
+            this.isEnabled = isEnabled
+            setBackgroundResource(if (isEnable) R.drawable.shape_btn_bg else R.drawable.shape_btn_normal_bg)
+        }
+        tvSitAdd.visibility = if (isEnable) View.GONE else View.VISIBLE
     }
 
     override fun getLayoutId(): Int {
@@ -108,7 +121,7 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
             val points =   Gson().fromJson<List<PointF>>(it,object : TypeToken<List<PointF>>(){}.type)
             if (!points.isNullOrEmpty()){
                 points.forEachIndexed { index, pointF ->
-                    val key = "界址点$index"
+                    val key = "J$index"
                     //保存界址对象
                     siteHashmap[key]=SiteBean(title = key,point = pointF)
                     data.add(key)
@@ -123,14 +136,15 @@ class SitePointFragment : BaseFragment<SketchMainPresenter, SketchMainModel>(), 
                                     return@let
                                 }
                             }
-                            if (siteData.size==0){
-                               siteBean.rtkList?.add(RtkPointBean(resultSitePoint = PointTool.change4326To3857(Point(106.079242,30.048013, SpatialReference.create(4326)))))
-                            }else{
-                                siteBean.rtkList?.add(RtkPointBean(resultSitePoint =PointTool.change4326To3857(Point(106.260516,30.245145, SpatialReference.create(4326)))))
-                            }
                             siteData.add(siteBean)
                             siteAdapter.notifyDataSetChanged()
-                            fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteBean)
+                            //设置按钮是否可以点击
+                            if (siteData.size==2){
+                                setBtnGraphic(true)
+                            }else{
+                                setBtnGraphic(false)
+                            }
+                           // fragChangeListener?.onFragGoto(LoadMainFragment.RTK_Point,siteBean)
                         }
                     },
                     DialogInterface.OnClickListener { dialog, which ->
