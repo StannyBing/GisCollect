@@ -212,10 +212,22 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                     layer,
                     MapTool.ChangeType.OperationalAdd
                 )
+                copyDraw()
                 fragChangeListener?.onFragGoto(SketchMainFragment.Sketch_Feature,layer)
             }
             showToast("创建成功")
         }
+    }
+
+    private fun copyDraw(){
+        //复制草图
+        var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
+        var toPath = mContext.filesDir.path+"/${ConstStrings.sktchId}/sketch/draw.jpg"
+        toPath = if (!ZXFileUtil.isFileExists(toPath)){
+            ZXFileUtil.createNewFile(toPath)
+            ZXFileUtil.copyFile(filePath, toPath)?.path?:""
+        } else toPath
+        ConstStrings.copyDrawPath = toPath
     }
 
     /**

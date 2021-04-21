@@ -96,7 +96,6 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             ) {
                 templeteId = spProjectType.selectedValue.toString()
                 currpage = 0
-                Log.e("fdfdf", templeteId)
                 if (templeteId.isNotEmpty()) {
                     ConstStrings.drawTemplatesId = templeteId
                     loadData()
@@ -143,7 +142,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
             .showSelectedTextColor(true, ContextCompat.getColor(mContext, R.color.colorPrimary))
             .setDefaultItem(0)
             .build()
-
+        ConstStrings.drawTempleteName = spProjectType.selectedKey.toString()+".gpkg"
         ivBack.apply {
             this.visibility = View.VISIBLE
             setOnClickListener {
@@ -262,6 +261,7 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 }
                 ConstString.feature = data[position].featureLayer
                 ConstStrings.sktchId = data[position].id
+                ConstStrings.copyDrawPath = data[position].drawPath
                 mSharedPrefUtil.putBool("isEdit", true)
                 SketchLoadActivity.startAction(this, false)
             }
@@ -443,7 +443,8 @@ class ProjectListActivity : BaseActivity<ProjectListPresenter, ProjectListModel>
                 totalCheckList.add(
                     ProjectListBean(
                         checkInfo = bean,
-                        featureLayer = layer
+                        featureLayer = layer,
+                        drawPath =  mContext.filesDir.path+"/${ConstStrings.sktchId}/sketch/draw.jpg"
                     )
                 )
             }

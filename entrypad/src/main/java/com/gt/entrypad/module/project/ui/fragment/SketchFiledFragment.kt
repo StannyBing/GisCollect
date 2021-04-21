@@ -598,13 +598,13 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     }
     private fun showDialog(){
         //复制草图
-        var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
+      /*  var filePath = mContext.filesDir.path+"/sketch/draw.jpg"
         var toPath = mContext.filesDir.path+"/${ConstStrings.sktchId}/sketch/draw.jpg"
         toPath = if (!ZXFileUtil.isFileExists(toPath)){
             ZXFileUtil.createNewFile(toPath)
             ZXFileUtil.copyFile(filePath, toPath)?.path?:""
-        } else toPath
-        mPresenter.zddWorld(fieldList,toPath,if (ConstStrings.drawTempleteName.contains("宗地")) "宗地图.docx" else "房屋图.docx")
+        } else toPath*/
+        mPresenter.zddWorld(fieldList,ConstStrings.copyDrawPath,if (ConstStrings.drawTempleteName.contains("宗地")) "宗地图.docx" else "房屋图.docx")
     }
     override fun onDestroy() {
         ConstStrings.clear()

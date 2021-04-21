@@ -29,7 +29,7 @@ object ConstStrings {
     var sktchId: String = ""//当前选中的id
     var drawTempleteName = "" //草图模板名字
     var drawTemplatesId: String = ""//当前选中的id
-
+    var copyDrawPath = "" //复制草图地址
     val checkList = arrayListOf<CheckBean>()
     val appfuncList = arrayListOf<AppFuncBean>()
 
