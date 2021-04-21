@@ -6,7 +6,8 @@ import com.gt.base.app.CheckBean
 data class ProjectListBean(
      var id:String= "",
     var checkInfo: CheckBean? = null,
-    var featureLayer: FeatureLayer? = null
+    var featureLayer: FeatureLayer? = null,
+     var drawPath:String = ""
 ) {
 
     fun isEdit(): Boolean {
