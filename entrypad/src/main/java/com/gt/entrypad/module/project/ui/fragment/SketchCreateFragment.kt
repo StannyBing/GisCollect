@@ -92,6 +92,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
 
         reInit()
         super.initView(savedInstanceState)
+        loadFeature()
     }
 
     /**
@@ -111,29 +112,7 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
                 position: Int,
                 id: Long
             ) {
-                identifyList.clear()
-                if (sp_create_layer_model.selectedValue.toString().isNotEmpty()) {
-                    val file = File(sp_create_layer_model.selectedValue.toString())
-                    if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
-                        GeoPackageTool.getTablesFromGpkg(file.path) {
-                            if (it.isNotEmpty()) {
-                                val table = it.first()
-                                table.loadAsync()
-                                table.addDoneLoadingListener {
-                                    tempalteType = table.geometryType
-                                    table.fields.forEach {
-                                        if (it.isEditable) {//不能加载FID字段
-                                            identifyList.add(it)
-                                        }
-                                    }
-                                    identifyAdapter.notifyDataSetChanged()
-                                    table.cancelLoad()
-                                }
-                            }
-                        }
-                    }
-                }
-                identifyAdapter.notifyDataSetChanged()
+
             }
         }
         //录音
@@ -178,7 +157,31 @@ class SketchCreateFragment :BaseFragment<SketchCreatePresenter,SketchCreateModel
             }
         }
     }
-
+    private fun loadFeature(){
+        identifyList.clear()
+        if (ConstStrings.drawTempleteName.isNotEmpty()) {
+            val file = File(ConstStrings.drawTempleteName.toString())
+            if (file.exists() && file.isFile && file.name.endsWith(".gpkg")) {
+                GeoPackageTool.getTablesFromGpkg(file.path) {
+                    if (it.isNotEmpty()) {
+                        val table = it.first()
+                        table.loadAsync()
+                        table.addDoneLoadingListener {
+                            tempalteType = table.geometryType
+                            table.fields.forEach {
+                                if (it.isEditable) {//不能加载FID字段
+                                    identifyList.add(it)
+                                }
+                            }
+                            identifyAdapter.notifyDataSetChanged()
+                            table.cancelLoad()
+                        }
+                    }
+                }
+            }
+        }
+        identifyAdapter.notifyDataSetChanged()
+    }
     private fun createLayer() {
         val geoPackage = copyGpkgFromTemplate(et_create_layer_name.text.toString())
 
