@@ -321,19 +321,20 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         var jsonMap = LinkedHashMap<String,LinkedHashMap<String, GisServiceBean.OnlineBean>>()
         var jsonMap1 = LinkedHashMap<String, GisServiceBean.OnlineBean>()
         serviceResult?.let {
+            val list = it.sortedBy { it.sseq }.apply {
+                forEach {
+                    it.children = it.children?.sortedBy { it.sseq }
+                }
+            }
             //取出所有在线服务
-            it.forEach {
+            list.forEach {
                 it.children?.forEach {
                     jsonMap1[it.sname]= GisServiceBean.OnlineBean(it.surl,it.visible,it.type)
                 }
             }
             jsonMap["onlineService"]=jsonMap1
             AppInfoManager.setData(Gson().toJson(jsonMap))
-            AppInfoManager.gisService = it.sortedBy { it.sseq }.apply {
-                forEach {
-                    it.children = it.children?.sortedBy { it.sseq }
-                }
-            }
+            AppInfoManager.gisService =list
         }
         if (serviceResult.isNullOrEmpty()) AppInfoManager.gisService= arrayListOf()
     }
