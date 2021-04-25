@@ -174,7 +174,7 @@ class CollectMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>
                     if (it is Feature) {
                         collectFieldFragment.excuteField(it, true)
                     } else if (it is Pair<*, *>) {
-                        collectFieldFragment.excuteField(it.first as Feature, it.second as Boolean)
+                        collectFieldFragment.excuteField(it.first as Feature, (it.second as Array<Any>)[0] as Boolean)
                     }
                 }
             }
