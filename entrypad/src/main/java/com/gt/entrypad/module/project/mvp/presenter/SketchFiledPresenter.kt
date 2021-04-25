@@ -66,7 +66,6 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
                 override fun _onNext(t: HouseTableBean?) {
                     mView.uploadResult(t)
                     mView.dismissLoading()
-                    mView.showToast("上传成功")
                 }
 
                 override fun _onError(code: Int, message: String?) {
@@ -78,12 +77,11 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
 
     override fun downloadFile(name: String, downUrl: String) {
         val downInfo = DownInfo(downUrl)
-        val savePath = ZXSystemUtil.getSDCardPath() + "GisCollect/houseEntry/" + ConstStrings.sktchId+"/$name"
+        val savePath = ZXSystemUtil.getSDCardPath() + "GisCollect/houseEntry/" + ConstStrings.sktchId+"/${System.currentTimeMillis()}_$name"
         downInfo.baseUrl = ApiConfigModule.BASE_IP
         downInfo.savePath = savePath
         downInfo.listener = object : DownloadOnNextListener<Any>() {
             override fun onNext(o: Any) {
-                mView.showToast(o.toString())
                 ZXDialogUtil.dismissLoadingDialog()
             }
 
@@ -106,8 +104,10 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
             }
         }
         if (ZXFileUtil.isFileExists(savePath)) {
-            mView.onFileDownloadResult(File(savePath))
-        } else {
+//            mView.onFileDownloadResult(File(savePath))
+            ZXFileUtil.deleteFiles(savePath)
+        }
+//        else {
             HttpDownManager.getInstance().startDown(downInfo) { chain ->
                 val original = chain.request()
                 val request = original.newBuilder()
@@ -115,6 +115,6 @@ class SketchFiledPresenter : SketchFiledContract.Presenter() {
                     .build()
                 chain.proceed(request)
             }
-        }
+//        }
     }
 }

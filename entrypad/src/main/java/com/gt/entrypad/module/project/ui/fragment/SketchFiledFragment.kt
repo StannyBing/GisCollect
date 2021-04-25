@@ -481,6 +481,11 @@ class SketchFiledFragment :BaseFragment<SketchFiledPresenter,SketchFiledModel>()
     }
 
     fun  excuteField(featureLayer: Feature, editable: Boolean) {
+        if (ConstStrings.drawTempleteName.contains("宗地")){
+            btnWorld.text = "生成宗地图"
+        }else{
+            btnWorld.text = "生成房屋图"
+        }
         fieldList.clear()
         fileList.clear()
         fieldAdapter.notifyDataSetChanged()

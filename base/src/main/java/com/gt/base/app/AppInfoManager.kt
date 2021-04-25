@@ -3,6 +3,7 @@ package com.gt.base.app
 import android.util.Log
 import com.google.gson.Gson
 import com.gt.base.bean.GisServiceBean
+import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import org.json.JSONObject
 
@@ -12,19 +13,19 @@ import org.json.JSONObject
  */
 object AppInfoManager {
     val mSharedPrefUtil = ZXSharedPrefUtil()
-    var gisService:List<GisServiceBean>?=null
-    get() {
-        if (field == null) {
-            val sharedPref = mSharedPrefUtil
-            return sharedPref.getList("gisService")
+    var gisService: List<GisServiceBean>? = null
+        get() {
+            if (field == null) {
+                val sharedPref = mSharedPrefUtil
+                return sharedPref.getList("gisService")
+            }
+            return field
         }
-        return field
-    }
-    set(value) {
-        val sharedPref = mSharedPrefUtil
-        sharedPref.putList("gisService", value)
-        field = value
-    }
+        set(value) {
+            val sharedPref = mSharedPrefUtil
+            sharedPref.putList("gisService", value)
+            field = value
+        }
     var appInfo: AppInfoBean? = null
         get() {
             if (field == null) {
@@ -38,6 +39,7 @@ object AppInfoManager {
             sharedPref.putObject("appInfoBean", value)
             field = value
         }
+
     fun setData(appInfo: String) {
         try {
             val obj = JSONObject(appInfo)
@@ -45,7 +47,8 @@ object AppInfoManager {
             if (obj.has("appInfo")) {//app信息
                 try {
                     val info = obj.getJSONObject("appInfo")
-                    appInfoBean.appInfo = AppInfoBean.AppInfo(info.optString("enName"), info.optString("name"))
+                    appInfoBean.appInfo =
+                        AppInfoBean.AppInfo(info.optString("enName"), info.optString("name"))
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -63,7 +66,7 @@ object AppInfoManager {
                     e.printStackTrace()
                 }
             }
-            if (obj.has("layerstyle")) {//图层style--要素
+            if (obj.has("identifystyle")) {//图层style--要素
                 try {
                     val identifystyle = arrayListOf<String>()
                     obj.getJSONObject("identifystyle").keys().forEach {
@@ -76,7 +79,7 @@ object AppInfoManager {
                     e.printStackTrace()
                 }
             }
-            if (obj.has("editService")){//可编辑服务
+            if (obj.has("editService")) {//可编辑服务
                 try {
                     val editService = arrayListOf<String>()
                     obj.getJSONObject("editService").keys().forEach {
@@ -85,7 +88,7 @@ object AppInfoManager {
                         }.toString())
                         appInfoBean.editService = editService
                     }
-                }catch (e : Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }

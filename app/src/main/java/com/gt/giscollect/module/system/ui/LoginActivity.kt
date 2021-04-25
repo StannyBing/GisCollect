@@ -165,6 +165,10 @@ class LoginActivity : BaseActivity<LoginPresenter, LoginModel>(), LoginContract.
         }
     }
 
+    override fun onAppConfigResult(appInfo: String) {
+        AppInfoManager.setData(appInfo)
+    }
+
     override fun onLoginResult(bean: UserBean?) {
         if (bean != null) {
             UserManager.userName = et_login_username.text.toString()

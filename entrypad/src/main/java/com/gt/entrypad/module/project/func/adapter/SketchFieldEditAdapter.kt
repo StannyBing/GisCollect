@@ -39,7 +39,7 @@ class SketchFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
         when (item.first.fieldType) {
             Field.Type.TEXT -> "字符型"
             Field.Type.INTEGER -> "整型"
-            Field.Type.FLOAT -> "浮点型"
+            Field.Type.FLOAT, Field.Type.DOUBLE -> "浮点型"
             else -> "字符型"
         }
         helper.getView<LinearLayout>(R.id.ll_collect_edit_field_value).visibility = View.GONE

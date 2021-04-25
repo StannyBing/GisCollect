@@ -13,18 +13,38 @@ import okhttp3.RequestBody
  */
 class LoginPresenter : LoginContract.Presenter() {
     override fun doLogin(body: RequestBody) {
-        mModel.loginData(body)
+//        mModel.loginData(body)
+//            .compose(RxHelper.bindToLifecycle(mView))
+//            .subscribe(object : RxSubscriber<UserBean>(mView) {
+//                override fun _onNext(t: UserBean?) {
+//                    mView.onLoginResult(t)
+//                }
+//
+//                override fun _onError(code: Int, message: String?) {
+//                    mView.handleError(code, message)
+//                }
+//
+//            })
+
+
+        mModel.appConfigData()
             .compose(RxHelper.bindToLifecycle(mView))
+            .flatMap {
+                mView.onAppConfigResult(it)
+                mModel.loginData(body)
+            }
             .subscribe(object : RxSubscriber<UserBean>(mView) {
                 override fun _onNext(t: UserBean?) {
                     mView.onLoginResult(t)
                 }
 
                 override fun _onError(code: Int, message: String?) {
+                    mView.onLoginResult(null)
                     mView.handleError(code, message)
                 }
 
             })
+
     }
 
 }

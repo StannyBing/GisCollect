@@ -22,4 +22,11 @@ class LoginModel : BaseModel(), LoginContract.Model {
             .compose(RxSchedulers.io_main())
     }
 
+    override fun appConfigData(): Observable<String> {
+        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
+            .getAppConfig()
+            .compose(RxHelper.handleResult())
+            .compose(RxSchedulers.io_main())
+    }
+
 }

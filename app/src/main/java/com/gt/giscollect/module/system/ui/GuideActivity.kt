@@ -77,16 +77,27 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         startService(Intent(this, WHandService::class.java))
 
         //TODO 图层文件转移
-        getPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)){
-            if (ZXFileUtil.isFileExists(ConstStrings.getOperationalLayersPath(true))){
-                val status = FileUtils.copyFolder(ConstStrings.getOperationalLayersPath(true), ConstStrings.getOperationalLayersPath())
-                if (status){
+        getPermission(
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        ) {
+            if (ZXFileUtil.isFileExists(ConstStrings.getOperationalLayersPath(true))) {
+                val status = FileUtils.copyFolder(
+                    ConstStrings.getOperationalLayersPath(true),
+                    ConstStrings.getOperationalLayersPath()
+                )
+                if (status) {
                     ZXFileUtil.deleteFiles(ConstStrings.getOperationalLayersPath(true))
                 }
             }
-            if (ZXFileUtil.isFileExists(ConstStrings.getSurveyLayersPath(true))){
-                val status = FileUtils.copyFolder(ConstStrings.getSurveyLayersPath(true), ConstStrings.getOperationalLayersPath())
-                if (status){
+            if (ZXFileUtil.isFileExists(ConstStrings.getSurveyLayersPath(true))) {
+                val status = FileUtils.copyFolder(
+                    ConstStrings.getSurveyLayersPath(true),
+                    ConstStrings.getOperationalLayersPath()
+                )
+                if (status) {
                     ZXFileUtil.deleteFiles(ConstStrings.getSurveyLayersPath(true))
                 }
             }
@@ -305,20 +316,20 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             super.onBackPressed()
         }
     }
+
     /**
      * 调查类型接口回调
      */
     override fun surveyTypeResult(typeResult: String?) {
-      typeResult?.let {
-          mSharedPrefUtil.putString("fieldShow",it)
-      }
+        typeResult?.let {
+            mSharedPrefUtil.putString("fieldShow", it)
+        }
     }
 
     /**
      * 用户在线服务数据回调
      */
     override fun gisServiceResult(serviceResult: List<GisServiceBean>?) {
-        var jsonMap = LinkedHashMap<String,LinkedHashMap<String, GisServiceBean.OnlineBean>>()
         var jsonMap1 = LinkedHashMap<String, GisServiceBean.OnlineBean>()
         serviceResult?.let {
             val list = it.sortedBy { it.sseq }.apply {
@@ -329,13 +340,25 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             //取出所有在线服务
             list.forEach {
                 it.children?.forEach {
-                    jsonMap1[it.sname]= GisServiceBean.OnlineBean(it.surl,it.visible,it.type)
+                    jsonMap1[it.sname] = GisServiceBean.OnlineBean(it.surl, it.visible, it.type)
                 }
             }
-            jsonMap["onlineService"]=jsonMap1
-            AppInfoManager.setData(Gson().toJson(jsonMap))
-            AppInfoManager.gisService =list
+//            jsonMap["onlineService"]=jsonMap1
+            try {
+                val obj = JSONObject(Gson().toJson(jsonMap1))
+                val onlineService = arrayListOf<String>()
+                obj.keys().forEach {
+                    onlineService.add(obj.getJSONObject(it).apply {
+                        put("itemName", it)
+                    }.toString())
+                }
+                AppInfoManager.appInfo?.onlineService = onlineService
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+//            AppInfoManager.setData(Gson().toJson(jsonMap))
+            AppInfoManager.gisService = list
         }
-        if (serviceResult.isNullOrEmpty()) AppInfoManager.gisService= arrayListOf()
+        if (serviceResult.isNullOrEmpty()) AppInfoManager.gisService = arrayListOf()
     }
 }
