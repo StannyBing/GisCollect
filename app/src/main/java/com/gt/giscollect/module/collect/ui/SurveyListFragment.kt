@@ -182,7 +182,7 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
 
                         files.firstOrNull { it.isFile }?.apply {
 
-                            addSurveyLayer(this, true)
+                            addSurveyLayer(this, true,surveyList[position].keyword)
 
 //                            if (exists()) {
 //                                val geoPackage = GeoPackage(path)
@@ -277,7 +277,7 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
         }
     }
 
-    private fun addSurveyLayer(file: File, isJump: Boolean = false) {
+    private fun addSurveyLayer(file: File, isJump: Boolean = false,businessid:String="") {
         if (!file.exists()) {
             showToast("该调查图层文件不存在")
             return
@@ -300,7 +300,7 @@ class SurveyListFragment : BaseFragment<SurveyListPresenter, SurveyListModel>(),
                                 SurveyMainFragment.Survey_Feature,
                                 featureLayer to arrayOf(
                                     true,
-                                    false
+                                    false,businessid
                                 )
                             )
                         }

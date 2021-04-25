@@ -27,5 +27,10 @@ data class DataResBean(
     val srid: Int = 0,
     val userId: String = "",
     val userName: String = "",
-    var isDownload: Boolean = false
+    var isDownload: Boolean = false,
+    var keyword:String="",
+    var category:String="",
+    var dictCode:String="",
+    var dictValue:String="",
+    var dictItems:ArrayList<DictItemBean>?=null
 ) : Serializable

@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
@@ -17,6 +18,8 @@ import com.gt.camera.module.CameraVedioActivity
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
+import com.gt.base.bean.NormalList
+import com.gt.base.bean.toJson
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.base.tool.MyUtil
@@ -28,6 +31,7 @@ import com.gt.giscollect.module.collect.func.tool.InScrollGridLayoutManager
 import com.gt.giscollect.module.collect.mvp.contract.CollectFieldContract
 import com.gt.giscollect.module.collect.mvp.model.CollectFieldModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectFieldPresenter
+import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.module_map.tool.FileUtils
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.entity.KeyValueEntity
@@ -81,6 +85,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     private var saveIndex = 0
 
     private var moduleType = 2 //1 采集 2调查
+
+    private var hasDictResult = false //类型查询接口是否成功
 
     /**
      * layout配置
@@ -267,20 +273,25 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 id: Long
             ) {
                 try {
-                    val selectValueList = Gson().fromJson<ArrayList<String>>(
-                        spSurveyType.selectedValue.toString(),
-                        object : TypeToken<ArrayList<String>>() {}.type
-                    )
-                    currentFeature?.let {
-                        if (it is ArcGISFeature) {
-                            showLoading("正在加载在线属性信息")
-                            it.loadAsync()
-                            it.addDoneLoadingListener {
-                                loadFeature(it, selectValueList)
-                                dismissLoading()
+                    val value  = spSurveyType.selectedValue.toString()
+                    if (hasDictResult){
+                        if (value.isNotEmpty()) mPresenter.doDictByDictQuery( hashMapOf("col" to "dict_class", "op" to "like", "val" to value).toJson())
+                    }else{
+                        val selectValueList = Gson().fromJson<ArrayList<String>>(
+                            spSurveyType.selectedValue.toString(),
+                            object : TypeToken<ArrayList<String>>() {}.type
+                        )
+                        currentFeature?.let {
+                            if (it is ArcGISFeature) {
+                                showLoading("正在加载在线属性信息")
+                                it.loadAsync()
+                                it.addDoneLoadingListener {
+                                    loadFeature(it,selectValueList)
+                                    dismissLoading()
+                                }
+                            } else {
+                                loadFeature(it,selectValueList)
                             }
-                        } else {
-                            loadFeature(it, selectValueList)
                         }
                     }
                 } catch (e: java.lang.Exception) {
@@ -479,7 +490,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     /**
      * moduleType 1 为采集 2为调查
      */
-    fun excuteField(featureLayer: Feature, editable: Boolean, moduleType: Int = 1) {
+    fun excuteField(featureLayer: Feature, editable: Boolean, moduleType: Int = 1,businessid:String="") {
         fieldList.clear()
         fileList.clear()
         fieldAdapter.notifyDataSetChanged()
@@ -490,6 +501,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         ll_field_btnbar.visibility = if (!editable) View.GONE else View.VISIBLE
         tv_collect_field_import.visibility =
             if (!editable || moduleType != 1) View.GONE else View.VISIBLE
+        hasDictResult = false
         if (moduleType == 2) {
             spSurveyType.visibility = View.VISIBLE
             mSharedPrefUtil.getString("fieldShow").let {
@@ -521,6 +533,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     }
                 }
             }
+            if (businessid.isNotEmpty())mPresenter.doDictQuery(hashMapOf("businessId" to businessid).toJson())
         } else {
             spSurveyType.visibility = View.GONE
             if (featureLayer is ArcGISFeature) {
@@ -534,10 +547,9 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 loadFeature(featureLayer)
             }
         }
-
     }
 
-    private fun loadFeature(featureLayer: Feature, isShowList: ArrayList<String> = arrayListOf()) {
+    private fun loadFeature(featureLayer: Feature, isShowList:Any?=null) {
         fieldAdapter.readonlyList.clear()
         filePath =
             ConstStrings.getOperationalLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"
@@ -547,9 +559,36 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         fieldAdapter.notifyDataSetChanged()
         val filedTemp = arrayListOf<Pair<Field, Any?>>()
         currentFeature?.featureTable?.fields?.forEach {
-            if (!isShowList.isNullOrEmpty()) {
-                //筛选出显示的数据
-                if (isShowList.contains(it.name) || it.name == "filled") {
+            if (isShowList!=null) {
+                if (isShowList is ArrayList<*>){
+                    //筛选出显示的数据
+                    if (isShowList.contains(it.name) || it.name == "filled") {
+                        if (it.name in arrayOf(
+                                "camera",
+                                "video",
+                                "record",
+                                "CAMERA",
+                                "VIDEO",
+                                "RECORD"
+                            )
+                        ) {
+                            filedTemp.add(it to currentFeature!!.attributes[it.name])
+                        } else {
+                            if (currentFeature!!.attributes[it.name] == null) {
+                                fieldList.add(it to "")
+                            } else {
+                                fieldList.add(it to currentFeature!!.attributes[it.name])
+                            }
+                        }
+                    }
+                }else if (isShowList is  LinkedHashMap<*,*>){
+                    if (isShowList.keys.contains(it.name)||it.name=="filled"){
+                        if (currentFeature!!.attributes[it.name] == null) {
+                            fieldList.add(it to "")
+                        } else {
+                            fieldList.add(it to currentFeature!!.attributes[it.name])
+                        }
+                    }
                     if (it.name in arrayOf(
                             "camera",
                             "video",
@@ -560,12 +599,6 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         )
                     ) {
                         filedTemp.add(it to currentFeature!!.attributes[it.name])
-                    } else {
-                        if (currentFeature!!.attributes[it.name] == null) {
-                            fieldList.add(it to "")
-                        } else {
-                            fieldList.add(it to currentFeature!!.attributes[it.name])
-                        }
                     }
                 }
             } else {
@@ -583,7 +616,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 
         //获取筛选内容
         try {
-            var spinnerMap = hashMapOf<String, List<String>>()
+            var spinnerMap = hashMapOf<String, List<KeyValueEntity>>()
             AppInfoManager.appInfo?.identifystyle?.forEach {
                 val obj = JSONObject(it)
                 if (obj.getString("itemName") == featureLayer.featureTable.tableName) {
@@ -594,10 +627,10 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     }
                     obj.keys().forEach { child ->
                         if (child !in arrayOf("default", "size", "itemName", "readonly", "wkid")) {
-                            val keyList = arrayListOf<String>()
+                            val keyList = arrayListOf<KeyValueEntity>()
                             if (obj.get(child) is JSONArray) {
                                 for (i in 0 until obj.getJSONArray(child).length()) {
-                                    keyList.add(obj.getJSONArray(child).getString(i))
+                                    keyList.add(KeyValueEntity(obj.getJSONArray(child).getString(i),obj.getJSONArray(child).getString(i)))
                                 }
                             }
                             spinnerMap[child] = keyList
@@ -695,4 +728,59 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
 //        fieldAdapter.notifyDataSetChanged()
     }
 
+    /**
+     * 调查查询数据回调
+     */
+    override fun dictQueryResult(dictResult: Any?) {
+        dictResult?.let {
+            hasDictResult = true
+            var typeList = arrayListOf<KeyValueEntity>()
+          var dataList :List<String>  =  Gson().fromJson(Gson().toJson(it),object :TypeToken<List<String>>(){}.type)
+            dataList.forEach {
+                typeList.add(KeyValueEntity(it,it))
+            }
+           if (!typeList.isNullOrEmpty()){
+               typeList.add(0,KeyValueEntity("请选择调查类型",""))
+               spSurveyType.setData(typeList).notifyDataSetChanged().build()
+           }
+        }
+    }
+
+    /**
+     * 通过调查类型查询数据回调
+     */
+    override fun dictQueryByQictResult(dictByDictResult: NormalList<DataResBean>?) {
+        dictByDictResult?.let {
+            val rows = it.rows
+            var selectValueList = linkedMapOf<String,DataResBean>()
+            var tempSpinnerMap=LinkedHashMap<String,List<KeyValueEntity>>()
+            rows.forEach {
+                var tempList = arrayListOf<KeyValueEntity>()
+                selectValueList[it.dictCode]=it
+                //下拉框
+                if (it.category=="field_dict"){
+                    it.dictItems?.forEach {
+                        tempList.add(KeyValueEntity(it.itemText,it.itemId))
+                    }
+                    tempSpinnerMap[it.dictCode]=tempList
+                }
+            }
+            fieldAdapter.spinnerMap.clear()
+            fieldAdapter.spinnerMap = tempSpinnerMap
+            fieldAdapter.isShowList.clear()
+            fieldAdapter.isShowList = selectValueList
+            currentFeature?.let {
+                if (it is ArcGISFeature) {
+                    showLoading("正在加载在线属性信息")
+                    it.loadAsync()
+                    it.addDoneLoadingListener {
+                        loadFeature(it, selectValueList)
+                        dismissLoading()
+                    }
+                } else {
+                    loadFeature(it, selectValueList)
+                }
+            }
+        }
+    }
 }

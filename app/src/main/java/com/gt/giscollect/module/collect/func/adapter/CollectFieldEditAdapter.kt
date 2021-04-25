@@ -17,6 +17,7 @@ import com.esri.arcgisruntime.data.Feature
 import com.esri.arcgisruntime.data.Field
 import com.gt.giscollect.R
 import com.gt.giscollect.module.collect.bean.CollectBean
+import com.gt.giscollect.module.system.bean.DataResBean
 import com.zx.zxutils.entity.KeyValueEntity
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
@@ -34,13 +35,17 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
 
     private var call: (Int, Any) -> Unit = { _, _ -> }
 
-    var spinnerMap = hashMapOf<String, List<String>>()
+    var spinnerMap = hashMapOf<String, List<KeyValueEntity>>()
 
     var readonlyList = arrayListOf<String>()
 
+    var isShowList = linkedMapOf<String, DataResBean>()
+
+
     @RequiresApi(Build.VERSION_CODES.N)
     override fun convert(helper: ZXBaseHolder, item: Pair<Field, Any?>) {
-        helper.setText(R.id.tv_collect_edit_field_name, item.first.name)
+        var name = if (!isShowList.isNullOrEmpty()&&isShowList.keys.contains(item.first.name)) isShowList[item.first.name]?.dictValue else item.first.name
+        helper.setText(R.id.tv_collect_edit_field_name, name)
         val layoutParams = helper.itemView.layoutParams
         if (item.first.name=="filled"){
             layoutParams.width = 0
@@ -58,7 +63,7 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
         }
         helper.getView<EditText>(R.id.et_collect_edit_field_value).apply {
             visibility = View.GONE
-            hint="请输入${item.first.name}"
+            hint="请输入$name"
         }
         helper.getView<TextView>(R.id.tv_collect_edit_field_date).visibility = View.GONE
         helper.getView<Button>(R.id.btn_collect_edit_filed_file).visibility = View.GONE
@@ -94,7 +99,7 @@ class CollectFieldEditAdapter(dataList: List<Pair<Field, Any?>>) :
             helper.getView<ZXSpinner>(R.id.sp_collect_edit_field_value)
                 .setData(arrayListOf<KeyValueEntity>().apply {
                     spinnerMap[item.first.name]?.forEach {
-                        add(KeyValueEntity(it, it))
+                        add(it)
                     }
                 })
                 .setDefaultItem(if (editable) "请选择..." else "不可选")

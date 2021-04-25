@@ -91,7 +91,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     private val featureList = arrayListOf<Feature>()
     private val featureAdapter = CollectFeatureAdapter(featureList)
     private var clickPosition = 0
-
+    private var businessId:String =""
     /**
      * layout配置
      */
@@ -680,7 +680,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         currentLayer?.selectFeature(featureList[postion])
         fragChangeListener?.onFragGoto(
             CollectMainFragment.Collect_Field,
-            featureList[postion] to (ll_collect_edit_bar.visibility == View.VISIBLE)
+            featureList[postion] to arrayOf((ll_collect_edit_bar.visibility == View.VISIBLE),businessId)
         )
     }
     /**
@@ -917,10 +917,12 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         canRename: Boolean,
         clickEdit: Boolean = false,
         moduleType: Int = 1 //1采集 2 调查
+    ,businessId:String=""
     ) {
         startNum = 0
         isInEdit = false
         isClickEdit = clickEdit
+        this.businessId  = businessId
 //        et_collect_rename.isEnabled = canRename
 //        tv_collect_rename.visibility = if (canRename) View.VISIBLE else View.GONE
         et_collect_rename.isEnabled = false

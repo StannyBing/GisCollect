@@ -120,9 +120,9 @@ class SurveyMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>(
                     } else if (it is Pair<*, *>) {
                         surveyFeatureFragment?.excuteLayer(
                             it.first as FeatureLayer,
-                            (it.second as Array<Boolean>)[0],
-                            (it.second as Array<Boolean>)[1],
-                            clickEdit = true,moduleType = 2
+                            (it.second as Array<Any>)[0] as Boolean,
+                            (it.second as Array<Any>)[1] as Boolean,
+                            clickEdit = true,moduleType = 2, businessId = (it.second as Array<Any>)[2] as String
                         )
                     } else {
 
@@ -137,7 +137,7 @@ class SurveyMainFragment : BaseFragment<CollectMainPresenter, CollectMainModel>(
                     if (it is Feature) {
                         surveyFieldFragment.excuteField(it, true,2)
                     } else if (it is Pair<*, *>) {
-                        surveyFieldFragment.excuteField(it.first as Feature, it.second as Boolean,2)
+                        surveyFieldFragment.excuteField(it.first as Feature, (it.second as Array<Any>)[0] as Boolean,2,(it.second as Array<Any>)[1] as String)
                     }
                 }
             }

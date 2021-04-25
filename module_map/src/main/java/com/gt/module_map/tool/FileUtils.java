@@ -113,7 +113,7 @@ public class FileUtils {
             if (file.exists() && file.isDirectory()) {
                 File[] childFile = file.listFiles();
                 for (File child : childFile) {
-                    if (child.isFile() && child.getName().substring(0, child.getName().lastIndexOf(".")).equals(name)) {
+                    if (child.isFile() && child.length()>0&&child.getName().substring(0, child.getName().lastIndexOf(".")).equals(name)) {
                         files.add(child);
                     } else if (child.isDirectory()) {
                         files.addAll(getFilesByName(child.getPath(), name));
@@ -125,6 +125,7 @@ public class FileUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+
         }
         return files;
     }

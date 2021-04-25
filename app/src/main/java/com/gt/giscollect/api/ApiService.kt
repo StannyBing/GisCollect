@@ -69,4 +69,12 @@ interface ApiService {
     //在线服务
     @GET("/tGisService/queryUserGisServiceAll")
     fun getGisService(@QueryMap map: Map<String, String>) : Observable<BaseRespose<List<GisServiceBean>>>
+
+    //调查查询接口
+    @POST("/tSysDict/queryDistinctDictClass")
+    fun doQueryDict(@Body body: RequestBody) : Observable<BaseRespose<Any>>
+
+    //调查查询接口
+    @POST("/tSysDict/queryDictByDictClassWithPage")
+    fun doQueryDictByDict(@Body body: RequestBody) : Observable<BaseRespose<NormalList<DataResBean>>>
 }

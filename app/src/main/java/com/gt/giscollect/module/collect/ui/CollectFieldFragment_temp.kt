@@ -19,6 +19,7 @@ import com.gt.camera.module.CameraVedioActivity
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
 import com.gt.base.app.AppInfoManager
+import com.gt.base.bean.NormalList
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.giscollect.module.collect.bean.FieldImportBean
@@ -29,6 +30,7 @@ import com.gt.giscollect.module.collect.func.tool.InScrollGridLayoutManager
 import com.gt.giscollect.module.collect.mvp.contract.CollectFieldContract
 import com.gt.giscollect.module.collect.mvp.model.CollectFieldModel
 import com.gt.giscollect.module.collect.mvp.presenter.CollectFieldPresenter
+import com.gt.giscollect.module.system.bean.DataResBean
 import com.gt.module_map.tool.FileUtils
 import com.gt.giscollect.tool.SimpleDecoration
 import com.zx.zxutils.entity.KeyValueEntity
@@ -538,7 +540,7 @@ class CollectFieldFragment_temp : BaseFragment<CollectFieldPresenter, CollectFie
 
         //获取筛选内容
         try {
-            var spinnerMap = hashMapOf<String, List<String>>()
+            var spinnerMap = hashMapOf<String, List<KeyValueEntity>>()
             AppInfoManager.appInfo?.identifystyle?.forEach {
                 val obj = JSONObject(it)
                 if (obj.getString("itemName") == featureLayer.featureTable.tableName) {
@@ -549,10 +551,10 @@ class CollectFieldFragment_temp : BaseFragment<CollectFieldPresenter, CollectFie
                     }
                     obj.keys().forEach { child ->
                         if (child !in arrayOf("default", "size", "itemName", "readonly", "wkid")) {
-                            val keyList = arrayListOf<String>()
+                            val keyList = arrayListOf<KeyValueEntity>()
                             if (obj.get(child) is JSONArray) {
                                 for (i in 0 until obj.getJSONArray(child).length()) {
-                                    keyList.add(obj.getJSONArray(child).getString(i))
+                                    keyList.add(KeyValueEntity(obj.getJSONArray(child).getString(i),obj.getJSONArray(child).getString(i)))
                                 }
                             }
                             spinnerMap[child] = keyList
@@ -673,5 +675,13 @@ class CollectFieldFragment_temp : BaseFragment<CollectFieldPresenter, CollectFie
             result[key.toLowerCase()] = value
         }
         return result
+    }
+
+    override fun dictQueryResult(dictResult: Any?) {
+
+    }
+
+    override fun dictQueryByQictResult(dictByDictResult: NormalList<DataResBean>?) {
+
     }
 }
