@@ -19,7 +19,7 @@ class CollectFieldImportPresenter : CollectFieldImportContract.Presenter() {
     override fun getFieldList(body: RequestBody) {
         mModel.listData(body)
             .compose(RxHelper.bindToLifecycle(mView))
-            .subscribe(object : RxSubscriber<NormalList<Any>>(mView) {
+            .subscribe(object : RxSubscriber<NormalList<Any>>() {
                 override fun _onNext(t: NormalList<Any>?) {
                     val list = arrayListOf<FieldImportBean>()
                     t?.rows?.forEach {
@@ -38,7 +38,7 @@ class CollectFieldImportPresenter : CollectFieldImportContract.Presenter() {
                 }
 
                 override fun _onError(code: Int, message: String?) {
-                    mView.handleError(code, message)
+//                    mView.handleError(code, message)
                 }
             })
     }

@@ -77,6 +77,7 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
         startService(Intent(this, WHandService::class.java))
 
         //TODO 图层文件转移
+//        showToast("正在进行源文件拷贝")
         getPermission(
             arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -89,7 +90,10 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
                     ConstStrings.getOperationalLayersPath()
                 )
                 if (status) {
+//                    showToast("采集图层拷贝完成")
                     ZXFileUtil.deleteFiles(ConstStrings.getOperationalLayersPath(true))
+                } else {
+//                    showToast("采集图层拷贝失败")
                 }
             }
             if (ZXFileUtil.isFileExists(ConstStrings.getSurveyLayersPath(true))) {
@@ -98,7 +102,10 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
                     ConstStrings.getOperationalLayersPath()
                 )
                 if (status) {
+//                    showToast("调查图层拷贝完成")
                     ZXFileUtil.deleteFiles(ConstStrings.getSurveyLayersPath(true))
+                } else {
+//                    showToast("调查图层拷贝失败")
                 }
             }
         }
@@ -134,13 +141,14 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             ConstStrings.appfuncList.clear()
             ConstStrings.appfuncList.addAll(it.appFuncs)
             ConstStrings.mGuideBean = it
+            it.param
             if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersFirstPath())) {
                 File(ConstStrings.getSketchLayersFirstPath()).mkdirs()
             }
             if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersSecondPath())) {
                 File(ConstStrings.getSketchLayersSecondPath()).mkdirs()
             }
-            if (it.itemName.contains("草图")) {
+            if (it.getAppType() == "draw") {
                 ProjectListActivity.startAction(this, false)
             }
 //            else if(it.itemName.contains("农房")){
@@ -209,99 +217,6 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
                     subItems = childList
                 }
             )
-//            when (it.label) {
-//                "用地规划阶段" -> {
-//                    guideList.add(
-//                        GuideBean(
-//                            itemName = "用地规划阶段",
-//                            icon = R.drawable.ydghjd,
-//                            childList = arrayListOf<GuideBean>().apply {
-//                                it.children.forEach {
-//                                    add(GuideBean(it.label, it.label, type = GuideBean.GUIDE_ITEM))
-//                                }
-////                                add(GuideBean(it.label, "选址测绘", type = GuideBean.GUIDE_ITEM))
-////                                add(GuideBean(it.label, "土地勘测定界", type = GuideBean.GUIDE_ITEM))
-////                                add(GuideBean(it.label, "地籍调查", type = GuideBean.GUIDE_ITEM))
-////                                add(GuideBean(it.label, "拔地测量", type = GuideBean.GUIDE_ITEM))
-//                            }
-//                        ).apply {
-//                            subItems = childList
-//                        }
-//                    )
-//                }
-//                "工程规划阶段" -> {
-//                    guideList.add(
-//                        GuideBean(
-//                            itemName = "工程规划阶段",
-//                            icon = R.drawable.gcghjd,
-//                            childList = arrayListOf<GuideBean>().apply {
-//                                add(GuideBean(it.label, "报建图测绘", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "房屋面积测算", type = GuideBean.GUIDE_ITEM))
-//                            }).apply {
-//                            subItems = childList
-//                        }
-//                    )
-//                }
-//                "施工监督阶段" -> {
-//                    guideList.add(
-//                        GuideBean(
-//                            itemName = "施工监督阶段",
-//                            icon = R.drawable.sgjdjd,
-//                            childList = arrayListOf<GuideBean>().apply {
-//                                add(GuideBean(it.label, "规划放样", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "规划验线", type = GuideBean.GUIDE_ITEM))
-//                            }).apply {
-//                            subItems = childList
-//                        }
-//                    )
-//                }
-//                "竣工验收阶段" -> {
-//                    guideList.add(
-//                        GuideBean(
-//                            itemName = "竣工验收阶段",
-//                            icon = R.drawable.jgysjd,
-//                            childList = arrayListOf<GuideBean>().apply {
-//                                add(GuideBean(it.label, "规划核实", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "土地核验", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "房产测量", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "消防测量", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "人防测量", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "绿化测量", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "地下管线测量", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "不动产补充测绘", type = GuideBean.GUIDE_ITEM))
-//                            }).apply {
-//                            subItems = childList
-//                        }
-//                    )
-//                }
-//                "农房测绘" -> {
-//                    guideList.add(
-//                        GuideBean(
-//                            itemName = "农房测绘",
-//                            icon = R.drawable.nfch,
-//                            childList = arrayListOf<GuideBean>().apply {
-//                                add(GuideBean(it.label, "农房选址测绘", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "农房地基测绘", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "农房竣工测绘", type = GuideBean.GUIDE_ITEM))
-//                            }).apply {
-//                            subItems = childList
-//                        }
-//                    )
-//                }
-//                "专题应用" -> {
-//                    guideList.add(
-//                        GuideBean(
-//                            itemName = "专题应用",
-//                            icon = R.drawable.ztyy,
-//                            childList = arrayListOf<GuideBean>().apply {
-//                                add(GuideBean(it.label, "供后监管", type = GuideBean.GUIDE_ITEM))
-//                                add(GuideBean(it.label, "执法监察", type = GuideBean.GUIDE_ITEM))
-//                            }).apply {
-//                            subItems = childList
-//                        }
-//                    )
-//                }
-//            }
         }
         guideAdapter.notifyDataSetChanged()
     }

@@ -50,10 +50,29 @@ data class GuideBean(
         return dataList
     }
 
+    fun getAppType(): String {
+//        {"apptype":"gis","businesses":[{"id":"","name":""}],"templates":[{"id":"4bc14830-14dc-4b69-bbc5-b173ec74cba5","name":"点模版"},{"id":"5e88df83-8d41-47c7-9c1b-3d6c56fd75d8","name":"线模版"},{"id":"b96fcac5-e44f-4d3e-91f4-ac6fc779f04f","name":"面模版"}]}
+        try {
+            val obj = JSONObject(param)
+            return obj.optString("apptype", "gis")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return "gis"
+    }
+
     fun getTemplatesFirst(): String {
         return getTemplates().firstOrNull().let {
             it?.value?.toString() ?: ""
         }
+    }
+
+    fun getTemlatesList():List<String>{
+        val temlatesList = arrayListOf<String>()
+        getTemplates().forEach {
+            temlatesList.add(it.value.toString())
+        }
+        return temlatesList
     }
 
     fun getTemplatesSecond(): String {

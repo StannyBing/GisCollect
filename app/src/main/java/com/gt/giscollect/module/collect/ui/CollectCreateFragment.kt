@@ -213,7 +213,12 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
                     val nowTemplateId = templateIds.firstOrNull {
                         it.name.contains(sp_create_layer_model.selectedKey)
                     }?.templateId ?: ConstStrings.mGuideBean.getTemplatesFirst()
-                    mPresenter.checkMultiName(hashMapOf("templateId" to nowTemplateId, "layerName" to et_create_layer_name.text.toString()))
+                    mPresenter.checkMultiName(
+                        hashMapOf(
+                            "templateId" to nowTemplateId,
+                            "layerName" to et_create_layer_name.text.toString()
+                        )
+                    )
 //                    createLayer()
 
 //                    val shapePath = createShape()
@@ -241,24 +246,27 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
     }
 
     private fun createLayer() {
-        val geoPackage = copyGpkgFromTemplate(et_create_layer_name.text.toString())
+        var myTemplateId = ""
+        val templateIds =
+            mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+        templateIds.forEach {
+            if (it.name.contains(sp_create_layer_model.selectedKey)) {
+                myTemplateId = it.templateId
+                it.layerNames.add(et_create_layer_name.text.toString())
+                mSharedPrefUtil.putList(
+                    ConstStrings.TemplateIdList,
+                    templateIds
+                )
+                return@forEach
+            }
+        }
+
+        val geoPackage = copyGpkgFromTemplate(et_create_layer_name.text.toString(), myTemplateId)
 
         geoPackage?.loadAsync()
         geoPackage?.addDoneLoadingListener {
             geoPackage.geoPackageFeatureTables?.forEach {
                 val layer = FeatureLayer(it)
-                val templateIds =
-                    mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-                templateIds.forEach {
-                    if (it.name.contains(sp_create_layer_model.selectedKey)) {
-                        it.layerNames.add(et_create_layer_name.text.toString())
-                        mSharedPrefUtil.putList(
-                            ConstStrings.TemplateIdList,
-                            templateIds
-                        )
-                        return@forEach
-                    }
-                }
                 if (geoPackage.geoPackageFeatureTables.size == 1) {
                     layer.loadAsync()
                     layer.name = et_create_layer_name.text.toString()
@@ -359,11 +367,11 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
     /**
      * 从模板分钟复制gpkg
      */
-    private fun copyGpkgFromTemplate(name: String): GeoPackage? {
+    private fun copyGpkgFromTemplate(name: String, templateId: String = ""): GeoPackage? {
         val file = File(sp_create_layer_model.selectedValue.toString())
         if (file.exists() && file.isFile) {
             val destFile =
-                File(ConstStrings.getOperationalLayersPath() + name + "/")
+                File(ConstStrings.getOperationalLayersPath(templateId = templateId) + name + "/")
             destFile.mkdirs()
             val copyFile = ZXFileUtil.copyFile(
                 file.path,
@@ -489,7 +497,10 @@ class CollectCreateFragment : BaseFragment<CollectCreatePresenter, CollectCreate
                 if (it.isFile && it.name.endsWith(".gpkg")) {
                     //只添加当前用户对应的采集模板
                     templateIds?.forEach temp@{ temp ->
-                        if (it.path.contains(temp.name) && temp.templateId == ConstStrings.mGuideBean.getTemplatesFirst()) {
+                        if (it.path.contains(temp.name) && ConstStrings.mGuideBean.getTemlatesList().contains(
+                                temp.templateId
+                            )
+                        ) {
                             templateList.add(
                                 KeyValueEntity(
                                     it.name.substring(

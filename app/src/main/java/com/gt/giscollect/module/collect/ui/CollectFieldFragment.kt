@@ -273,10 +273,21 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                 id: Long
             ) {
                 try {
-                    val value  = spSurveyType.selectedValue.toString()
-                    if (hasDictResult){
-                        if (value.isNotEmpty()) mPresenter.doDictByDictQuery( hashMapOf("col" to "dict_class", "op" to "like", "val" to value).toJson())
-                    }else{
+                    val value = spSurveyType.selectedValue.toString()
+                    if (hasDictResult) {
+                        if (value.isNotEmpty()) mPresenter.doDictByDictQuery(
+                            hashMapOf(
+                                "currPage" to 0, "total" to 0, "pageSize" to 200,
+                                "filters" to arrayListOf(
+                                    hashMapOf(
+                                        "col" to "dict_class",
+                                        "op" to "like",
+                                        "val" to value
+                                    )
+                                )
+                            ).toJson()
+                        )
+                    } else {
                         val selectValueList = Gson().fromJson<ArrayList<String>>(
                             spSurveyType.selectedValue.toString(),
                             object : TypeToken<ArrayList<String>>() {}.type
@@ -286,11 +297,11 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                                 showLoading("正在加载在线属性信息")
                                 it.loadAsync()
                                 it.addDoneLoadingListener {
-                                    loadFeature(it,selectValueList)
+                                    loadFeature(it, selectValueList)
                                     dismissLoading()
                                 }
                             } else {
-                                loadFeature(it,selectValueList)
+                                loadFeature(it, selectValueList)
                             }
                         }
                     }
@@ -490,7 +501,12 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     /**
      * moduleType 1 为采集 2为调查
      */
-    fun excuteField(featureLayer: Feature, editable: Boolean, moduleType: Int = 1,businessid:String="") {
+    fun excuteField(
+        featureLayer: Feature,
+        editable: Boolean,
+        moduleType: Int = 1,
+        businessid: String = ""
+    ) {
         fieldList.clear()
         fileList.clear()
         fieldAdapter.notifyDataSetChanged()
@@ -519,7 +535,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                         }
                     }
                     spSurveyType.setData(moduleTypeData).notifyDataSetChanged().build()
-                }else{
+                } else {
                     spSurveyType.visibility = View.GONE
                     if (featureLayer is ArcGISFeature) {
                         showLoading("正在加载在线属性信息")
@@ -533,7 +549,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                     }
                 }
             }
-            if (businessid.isNotEmpty())mPresenter.doDictQuery(hashMapOf("businessId" to businessid).toJson())
+            if (businessid.isNotEmpty()) mPresenter.doDictQuery(hashMapOf("businessId" to businessid).toJson())
         } else {
             spSurveyType.visibility = View.GONE
             if (featureLayer is ArcGISFeature) {
@@ -549,7 +565,7 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         }
     }
 
-    private fun loadFeature(featureLayer: Feature, isShowList:Any?=null) {
+    private fun loadFeature(featureLayer: Feature, isShowList: Any? = null) {
         fieldAdapter.readonlyList.clear()
         filePath =
             ConstStrings.getOperationalLayersPath() + featureLayer.featureTable.featureLayer.name + "/file"
@@ -559,8 +575,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         fieldAdapter.notifyDataSetChanged()
         val filedTemp = arrayListOf<Pair<Field, Any?>>()
         currentFeature?.featureTable?.fields?.forEach {
-            if (isShowList!=null) {
-                if (isShowList is ArrayList<*>){
+            if (isShowList != null) {
+                if (isShowList is ArrayList<*>) {
                     //筛选出显示的数据
                     if (isShowList.contains(it.name) || it.name == "filled") {
                         if (it.name in arrayOf(
@@ -581,8 +597,8 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                             }
                         }
                     }
-                }else if (isShowList is  LinkedHashMap<*,*>){
-                    if (isShowList.keys.contains(it.name)||it.name=="filled"){
+                } else if (isShowList is LinkedHashMap<*, *>) {
+                    if (isShowList.keys.contains(it.name) || it.name == "filled") {
                         if (currentFeature!!.attributes[it.name] == null) {
                             fieldList.add(it to "")
                         } else {
@@ -630,7 +646,12 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
                             val keyList = arrayListOf<KeyValueEntity>()
                             if (obj.get(child) is JSONArray) {
                                 for (i in 0 until obj.getJSONArray(child).length()) {
-                                    keyList.add(KeyValueEntity(obj.getJSONArray(child).getString(i),obj.getJSONArray(child).getString(i)))
+                                    keyList.add(
+                                        KeyValueEntity(
+                                            obj.getJSONArray(child).getString(i),
+                                            obj.getJSONArray(child).getString(i)
+                                        )
+                                    )
                                 }
                             }
                             spinnerMap[child] = keyList
@@ -735,14 +756,15 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
         dictResult?.let {
             hasDictResult = true
             var typeList = arrayListOf<KeyValueEntity>()
-          var dataList :List<String>  =  Gson().fromJson(Gson().toJson(it),object :TypeToken<List<String>>(){}.type)
+            var dataList: List<String> =
+                Gson().fromJson(Gson().toJson(it), object : TypeToken<List<String>>() {}.type)
             dataList.forEach {
-                typeList.add(KeyValueEntity(it,it))
+                typeList.add(KeyValueEntity(it, it))
             }
-           if (!typeList.isNullOrEmpty()){
-               typeList.add(0,KeyValueEntity("请选择调查类型",""))
-               spSurveyType.setData(typeList).notifyDataSetChanged().build()
-           }
+            if (!typeList.isNullOrEmpty()) {
+                typeList.add(0, KeyValueEntity("请选择调查类型", ""))
+                spSurveyType.setData(typeList).notifyDataSetChanged().build()
+            }
         }
     }
 
@@ -752,17 +774,17 @@ class CollectFieldFragment : BaseFragment<CollectFieldPresenter, CollectFieldMod
     override fun dictQueryByQictResult(dictByDictResult: NormalList<DataResBean>?) {
         dictByDictResult?.let {
             val rows = it.rows
-            var selectValueList = linkedMapOf<String,DataResBean>()
-            var tempSpinnerMap=LinkedHashMap<String,List<KeyValueEntity>>()
+            var selectValueList = linkedMapOf<String, DataResBean>()
+            var tempSpinnerMap = LinkedHashMap<String, List<KeyValueEntity>>()
             rows.forEach {
                 var tempList = arrayListOf<KeyValueEntity>()
-                selectValueList[it.dictCode]=it
+                selectValueList[it.dictCode] = it
                 //下拉框
-                if (it.category=="field_dict"){
+                if (it.category == "field_dict") {
                     it.dictItems?.forEach {
-                        tempList.add(KeyValueEntity(it.itemText,it.itemId))
+                        tempList.add(KeyValueEntity(it.itemText, it.itemId))
                     }
-                    tempSpinnerMap[it.dictCode]=tempList
+                    tempSpinnerMap[it.dictCode] = tempList
                 }
             }
             fieldAdapter.spinnerMap.clear()

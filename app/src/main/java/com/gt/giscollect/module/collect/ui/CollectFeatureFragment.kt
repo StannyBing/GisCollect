@@ -91,7 +91,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     private val featureList = arrayListOf<Feature>()
     private val featureAdapter = CollectFeatureAdapter(featureList)
     private var clickPosition = 0
-    private var businessId:String =""
+    private var businessId: String = ""
     /**
      * layout配置
      */
@@ -116,7 +116,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             .build()
 
         sketchEditor.sketchStyle = SketchStyle().apply {
-            vertexSymbol = SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10f) as MarkerSymbol?
+            vertexSymbol =
+                SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10f) as MarkerSymbol?
             selectedVertexSymbol =
                 SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10f)
             fillSymbol =
@@ -660,13 +661,14 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 }
                 //检测图层压盖
                 checkOverlay(sketchEditor.geometry)
-                enter(featureList.size-1)
+//                enter(featureList.size-1)
             } else {
                 showToast("暂未添加要素")
             }
         }
     }
-    private fun enter(postion:Int){
+
+    private fun enter(postion: Int) {
         clickPosition = postion
         isInEdit = false
         //                MapTool.mapListener?.getMap()?.operationalLayers?.forEach {
@@ -680,9 +682,13 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         currentLayer?.selectFeature(featureList[postion])
         fragChangeListener?.onFragGoto(
             CollectMainFragment.Collect_Field,
-            featureList[postion] to arrayOf((ll_collect_edit_bar.visibility == View.VISIBLE),businessId)
+            featureList[postion] to arrayOf(
+                (ll_collect_edit_bar.visibility == View.VISIBLE),
+                businessId
+            )
         )
     }
+
     /**
      * 删除要素
      */
@@ -900,6 +906,8 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
             feature?.refresh()
             tv_collect_feature_title.text =
                 "要素列表(${currentLayer?.featureTable?.totalFeatureCount})"
+
+            enter(featureList.size - 1)
         }
         featureList.add(feature!!)
         featureAdapter.notifyDataSetChanged()
@@ -917,12 +925,12 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         canRename: Boolean,
         clickEdit: Boolean = false,
         moduleType: Int = 1 //1采集 2 调查
-    ,businessId:String=""
+        , businessId: String = ""
     ) {
         startNum = 0
         isInEdit = false
         isClickEdit = clickEdit
-        this.businessId  = businessId
+        this.businessId = businessId
 //        et_collect_rename.isEnabled = canRename
 //        tv_collect_rename.visibility = if (canRename) View.VISIBLE else View.GONE
         et_collect_rename.isEnabled = false

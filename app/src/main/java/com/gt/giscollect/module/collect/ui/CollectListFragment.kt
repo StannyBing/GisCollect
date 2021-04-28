@@ -124,7 +124,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                         val templateIds =
                                             mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
                                         templateIds?.forEach temp@{ temp ->
-                                            if (ConstStrings.mGuideBean.getTemplatesFirst().contains(
+                                            if (ConstStrings.mGuideBean.getTemlatesList().contains(
                                                     temp.templateId
                                                 )
                                             ) {
@@ -148,8 +148,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                                                 "filters" to arrayListOf(
                                                     hashMapOf(
                                                         "col" to "template_id",
-                                                        "op" to "=",
-                                                        "val" to ConstStrings.mGuideBean.getTemplatesFirst()
+                                                        "op" to "in",
+                                                        "val" to ConstStrings.mGuideBean.getTemlatesList()
                                                     )
                                                 )
                                             ).toJson()

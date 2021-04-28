@@ -119,11 +119,15 @@ object ConstStrings {
         return "$LOCAL_PATH$APPNAME/MapStyle/"
     }
 
-    fun getOperationalLayersPath(isInner: Boolean = false): String {
+    fun getOperationalLayersPath(isInner: Boolean = false, templateId: String = ""): String {
+        var id = mGuideBean.getTemplatesFirst()
+//        if (templateId.isEmpty()) {
+//            id = templateId
+//        }
         if (isInner) {
-            return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
+            return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + id + "/"
         }
-        return "$LOCAL_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + mGuideBean.getTemplatesFirst() + "/"
+        return "$LOCAL_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + id + "/"
     }
 
     fun getSurveyLayersPath(isInner: Boolean = false): String {
@@ -137,11 +141,11 @@ object ConstStrings {
         return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/$drawTemplatesId/" + sktchId
     }
 
-    fun getSketchLayersFirstPath():String{
+    fun getSketchLayersFirstPath(): String {
         return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/${mGuideBean.getTemplatesFirst()}/" + sktchId
     }
 
-    fun getSketchLayersSecondPath():String{
+    fun getSketchLayersSecondPath(): String {
         return "$INI_PATH$APPNAME/SketchLayers/" + UserManager.user?.userId + "/${mGuideBean.getTemplatesSecond()}/" + sktchId
     }
 
