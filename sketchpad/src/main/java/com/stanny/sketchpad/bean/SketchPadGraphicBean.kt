@@ -15,7 +15,7 @@ import kotlin.math.*
 /**
  * 图形构造类
  */
-data class SketchPadGraphicBean(var graphicType: GraphicType,var isChecked:Boolean=false) {
+data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boolean = false) {
 
     enum class GraphicType {
         RECTANGE,//矩形
@@ -25,7 +25,8 @@ data class SketchPadGraphicBean(var graphicType: GraphicType,var isChecked:Boole
         SQUARE,//正方形
         TRIANGLE,//三角形
         CIRCLE,//圆形
-        TRAPEZIUM//不规则四边形
+        TRAPEZIUM,//不规则四边形
+        CUSTOM//自定义绘制图形
     }
 
     val id = UUID.randomUUID()
@@ -63,11 +64,11 @@ data class SketchPadGraphicBean(var graphicType: GraphicType,var isChecked:Boole
      * @param canvas 画笔
      * @param color 颜色
      */
-    fun drawFill(canvas: Canvas?,@ColorInt color: Int= SketchPadConstant.graphicFillColor){
+    fun drawFill(canvas: Canvas?, @ColorInt color: Int = SketchPadConstant.graphicFillColor) {
         //绘制图形
         val fillPaint = Paint().apply {
             style = Paint.Style.FILL
-            this.color =color
+            this.color = color
             isAntiAlias = true
         }
         val path = Path().apply {
@@ -249,6 +250,9 @@ data class SketchPadGraphicBean(var graphicType: GraphicType,var isChecked:Boole
             }
             GraphicType.TRAPEZIUM_TU -> {
                 initTrapeziumTU(graphicMetres)
+            }
+            GraphicType.CUSTOM ->{
+                initCustom()
             }
         }
     }
@@ -451,6 +455,13 @@ data class SketchPadGraphicBean(var graphicType: GraphicType,var isChecked:Boole
             points[6].y += max(line6Change, line8Change)
             points[7].y += max(line6Change, line8Change)
         }
+    }
+
+    /**
+     * 初始化自定义图形
+     */
+    private fun initCustom() {
+        thumbnail = R.drawable.icon_graphic_custom
     }
 
     fun doAutoWeltPoint(graphicList: List<SketchPadGraphicBean>): Boolean {

@@ -38,6 +38,13 @@ class SketchPadView @JvmOverloads constructor(
         sketch_graphic.sketchPadListener = this
         sketch_propedit.sketchPadListener = this
         sketch_floor.sketchPadListener = this
+        sketch_customedit.sketchPadListener = this
+    }
+
+    private fun closeOtherView() {
+        sketch_propedit.visibility = View.INVISIBLE
+        sketch_floor.visibility = View.INVISIBLE
+        sketch_customedit.visibility = View.INVISIBLE
     }
 
     /**
@@ -51,6 +58,7 @@ class SketchPadView @JvmOverloads constructor(
      * 图形编辑
      */
     override fun graphicEdit(graphicBean: SketchPadGraphicBean) {
+        closeOtherView()
         sketch_propedit.editGraphic(graphicBean)
     }
 
@@ -87,7 +95,7 @@ class SketchPadView @JvmOverloads constructor(
      */
     override fun saveGraphicInfo() {
         resetCenter()
-        sketch_content.saveGraphicInfo{
+        sketch_content.saveGraphicInfo {
             ZXToastUtil.showToast("保存成功")
         }
     }
@@ -103,6 +111,7 @@ class SketchPadView @JvmOverloads constructor(
      * 楼层设置
      */
     override fun floorSetting(isCheck: Boolean) {
+        closeOtherView()
         sketch_floor.editFloor()
     }
 
@@ -113,7 +122,6 @@ class SketchPadView @JvmOverloads constructor(
         sketch_content.floorEdit(sketchPadFloorBean)
         ZXToastUtil.showToast("请点击图形")
     }
-
 
 
     /**
@@ -134,4 +142,13 @@ class SketchPadView @JvmOverloads constructor(
     override fun deleteGraphic(id: UUID) {
         sketch_content.deleteGraphic(id)
     }
+
+    /**
+     * 自定义绘制图形
+     */
+    override fun graphicCustomEdit() {
+        closeOtherView()
+        sketch_customedit.startCustomEdit()
+    }
+
 }

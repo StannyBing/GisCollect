@@ -35,6 +35,12 @@
         android:layout_height="match_parent"
         android:layout_alignParentRight="true" />
 
+    <com.stanny.sketchpad.view.SketchPadCustomEditView
+        android:id="@+id/sketch_customedit"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true" />
+
     <com.stanny.sketchpad.view.SketchPadFloorView
         android:id="@+id/sketch_floor"
         android:layout_width="200dp"

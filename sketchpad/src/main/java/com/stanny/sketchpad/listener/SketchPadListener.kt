@@ -35,4 +35,6 @@ interface SketchPadListener {
     fun showSizeInfo(checked: Boolean)
 
     fun deleteGraphic(id: UUID)
+
+    fun graphicCustomEdit()
 }

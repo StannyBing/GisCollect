@@ -71,6 +71,7 @@ open class MyApplication : BaseApplication() {
         ConstStrings.INI_PATH = filesDir.path + "/"
         ZXFileUtil.deleteFiles(ConstStrings.getApkPath())
         ZXFileUtil.deleteFiles(ConstStrings.getOnlinePath())
+        ZXFileUtil.deleteFiles(ConstStrings.getCachePath())
         //创建踏勘文件
         val file = File(ConstStrings.getSurveySearchPath())
         if (!file.exists())file.mkdirs()

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.stanny.sketchpad.adapter.SketchPadGraphicAdapter
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import com.stanny.sketchpad.listener.SketchPadListener
+import com.zx.zxutils.util.ZXToastUtil
 
 
 /**
@@ -36,6 +37,7 @@ class SketchPadGraphicView @JvmOverloads constructor(
         graphicList.add(SketchPadGraphicBean(SketchPadGraphicBean.GraphicType.TRAPEZIUM_AO))
         graphicList.add(SketchPadGraphicBean(SketchPadGraphicBean.GraphicType.TRAPEZIUM_TU))
         graphicList.add(SketchPadGraphicBean(SketchPadGraphicBean.GraphicType.SQUARE))
+        graphicList.add(SketchPadGraphicBean(SketchPadGraphicBean.GraphicType.CUSTOM))
 
         initView()
     }
@@ -56,7 +58,11 @@ class SketchPadGraphicView @JvmOverloads constructor(
         graphicAdapter.setOnItemClickListener { adapter, view, position ->
             val vibrator = context.getSystemService(VIBRATOR_SERVICE) as Vibrator
             vibrator.vibrate(100L)
-            sketchPadListener?.graphicInsert(graphicList[position])
+            if (graphicList[position].graphicType != SketchPadGraphicBean.GraphicType.CUSTOM) {
+                sketchPadListener?.graphicInsert(graphicList[position])
+            } else {
+                sketchPadListener?.graphicCustomEdit()
+            }
         }
     }
 
