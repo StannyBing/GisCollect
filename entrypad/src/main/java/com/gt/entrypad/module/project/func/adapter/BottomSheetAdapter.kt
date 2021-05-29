@@ -5,8 +5,8 @@ import com.frame.zxmvp.baserx.RxManager
 import com.gt.entrypad.R
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
-import com.gt.entrypad.module.project.ui.view.titleView.TitleView
-import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
+import com.gt.entrypad.module.project.func.view.titleView.TitleView
+import com.gt.entrypad.module.project.func.view.titleView.TitleViewViewModel
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.ZXRecyclerAdapter.ZXRecyclerQuickAdapter
 

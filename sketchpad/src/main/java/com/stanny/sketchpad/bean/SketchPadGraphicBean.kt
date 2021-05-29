@@ -1,14 +1,12 @@
 package com.stanny.sketchpad.bean
 
 import android.graphics.*
-import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import com.stanny.sketchpad.R
 import com.stanny.sketchpad.tool.SketchPadConstant
 import com.stanny.sketchpad.tool.SketchPointTool
 import com.zx.zxutils.util.ZXLogUtil
-import com.zx.zxutils.util.ZXToastUtil
 import java.util.*
 import kotlin.math.*
 
@@ -30,6 +28,8 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
     }
 
     val id = UUID.randomUUID()
+
+    var customPathClose = false//自定义图形是否封闭
 
     val points = arrayListOf<PointF>()//点集
     @DrawableRes
@@ -106,7 +106,7 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
             textSize = 20f
         }
         when (graphicType) {
-            GraphicType.RECTANGE, GraphicType.SQUARE, GraphicType.TRAPEZIUM_L, GraphicType.TRAPEZIUM_AO, GraphicType.TRAPEZIUM_TU -> {
+            GraphicType.RECTANGE, GraphicType.SQUARE, GraphicType.TRAPEZIUM_L, GraphicType.TRAPEZIUM_AO, GraphicType.TRAPEZIUM_TU, GraphicType.CUSTOM -> {
                 val path = Path().apply {
                     points.forEachIndexed { index, it ->
                         if (index == 0) {
@@ -185,6 +185,56 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
         }
     }
 
+
+    /**
+     * 绘制自定义图形
+     */
+    fun drawCustom(canvas: Canvas?) {
+        val linePaint = Paint().apply {
+            style = Paint.Style.STROKE
+            this.color = SketchPadConstant.graphicLineColor
+            strokeWidth = SketchPadConstant.graphicLineWidth
+            isAntiAlias = true
+        }
+        val pointPaint = Paint().apply {
+            style = Paint.Style.FILL
+            this.color = SketchPadConstant.graphicHightLightColor
+            isAntiAlias = true
+            textSize = 15f
+        }
+        //绘制线
+        val path = Path().apply {
+            points.forEachIndexed { index, it ->
+                if (index == 0) {
+                    moveTo(it.x + offsetX, it.y + offsetY)
+                } else {
+                    lineTo(it.x + offsetX, it.y + offsetY)
+                }
+            }
+            if (customPathClose) close()
+        }
+        canvas?.drawPath(path, linePaint)
+        //绘制圆点及文字
+        points.forEachIndexed { index, it ->
+            pointPaint.color = SketchPadConstant.graphicHightLightColor
+            canvas?.drawCircle(it.x + offsetX, it.y + offsetY, 15f, pointPaint)
+            pointPaint.color = Color.WHITE
+            val textBounds = Rect()
+            pointPaint.getTextBounds(
+                (index + 1).toString(),
+                0,
+                (index + 1).toString().length,
+                textBounds
+            )
+            canvas?.drawText(
+                (index + 1).toString(),
+                it.x + offsetX - textBounds.width() / 2,
+                it.y + offsetY + textBounds.height() / 2,
+                pointPaint
+            )
+        }
+    }
+
     /**
      * 判断手指是否点击该图形
      * @param x
@@ -200,6 +250,13 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
      */
     fun isGraphicContainsPoint(x: Float, y: Float): Boolean {
         return SketchPointTool.isPolygonContainsPoint(PointF(x - offsetX, y - offsetY), points)
+    }
+
+    /**
+     * 判断点是否在边上（一定误差）
+     */
+    fun isPointOnLines(x: Float, y: Float) : Boolean{
+        return SketchPointTool.isPointOnLines(PointF(x - offsetX, y - offsetY), points)
     }
 
     /**
@@ -251,8 +308,8 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
             GraphicType.TRAPEZIUM_TU -> {
                 initTrapeziumTU(graphicMetres)
             }
-            GraphicType.CUSTOM ->{
-                initCustom()
+            GraphicType.CUSTOM -> {
+                initCustom(graphicMetres)
             }
         }
     }
@@ -460,8 +517,22 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
     /**
      * 初始化自定义图形
      */
-    private fun initCustom() {
+    private fun initCustom(graphicMetres: List<Float>) {
         thumbnail = R.drawable.icon_graphic_custom
+        graphicMetres.forEachIndexed { index, metre ->
+            val nextIndex = if (index == graphicMetres.lastIndex) 0 else index + 1
+            val newMetre = graphicMetres.getMetre(index)
+            val oldMetre = sqrt(
+                ((points[index].x - points[nextIndex].x).toDouble().pow(2.0)
+                        + (points[index].y - points[nextIndex].y).toDouble().pow(2.0))
+            ).toFloat() / SketchPadConstant.backgroundGridSpace * SketchPadConstant.graphicRatio
+            if (abs(newMetre - nextIndex) > 0.01) {
+                points[nextIndex].x =
+                    (points[nextIndex].x - points[index].x) / oldMetre * newMetre + points[index].x
+                points[nextIndex].y =
+                    (points[nextIndex].y - points[index].y) / oldMetre * newMetre + points[index].y
+            }
+        }
     }
 
     fun doAutoWeltPoint(graphicList: List<SketchPadGraphicBean>): Boolean {
@@ -541,4 +612,5 @@ data class SketchPadGraphicBean(var graphicType: GraphicType, var isChecked: Boo
             return get(index)
         }
     }
+
 }

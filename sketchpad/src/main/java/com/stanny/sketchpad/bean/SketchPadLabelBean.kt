@@ -23,10 +23,10 @@ data class SketchPadLabelBean(var name: String, var pointF: PointF) {
         return SketchPointTool.isPtInPoly(
             PointF(x - offsetX, y - offsetY),
             arrayListOf<PointF>().apply {
-                add(PointF(pointF.x - 50, pointF.y - 30))
-                add(PointF(pointF.x + 50, pointF.y - 30))
-                add(PointF(pointF.x + 50, pointF.y + 30))
-                add(PointF(pointF.x - 50, pointF.y + 30))
+                add(PointF(pointF.x - 60, pointF.y - 40))
+                add(PointF(pointF.x + 60, pointF.y - 40))
+                add(PointF(pointF.x + 60, pointF.y + 40))
+                add(PointF(pointF.x - 60, pointF.y + 40))
             })
     }
 

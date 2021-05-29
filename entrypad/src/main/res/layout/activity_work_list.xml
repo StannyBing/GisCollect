@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <include layout="@layout/layout_tool_bar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp">
+
+        <com.zx.zxutils.views.ZXSpinner
+            android:id="@+id/sp_work_type"
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_work_status"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:layout_marginTop="5dp"
+        android:paddingBottom="5dp">
+
+        <RadioButton
+            android:id="@+id/rb_work_local"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_list_local"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="未上传"
+            android:textColor="@drawable/selector_list_textcolor"
+            android:textSize="@dimen/text_size_small" />
+
+        <RadioButton
+            android:id="@+id/rb_work_net"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_list_net"
+            android:button="@null"
+            android:gravity="center"
+            android:text="已上传"
+            android:textColor="@drawable/selector_list_textcolor"
+            android:textSize="@dimen/text_size_small" />
+    </RadioGroup>
+
+    <com.gt.base.view.VerticalSwipeRefreshLayout
+        android:id="@+id/sr_work_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_work_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.gt.base.view.VerticalSwipeRefreshLayout>
+
+    <Button
+        android:id="@+id/btn_work_create"
+        style="@style/MyBtnStyle"
+        android:layout_margin="5dp"
+        android:layout_marginBottom="4dp"
+        android:text="创建工程"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</LinearLayout>

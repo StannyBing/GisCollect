@@ -7,7 +7,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gt.entrypad.R
 import com.gt.entrypad.module.project.func.adapter.CheckBoxAdapter
-import com.gt.entrypad.module.project.ui.view.checkBox.CheckBoxViewViewModel
+import com.gt.entrypad.module.project.func.view.checkBox.CheckBoxViewViewModel
 import kotlinx.android.synthetic.main.layout_recycler_view.view.*
 
 class CustomInfoDialog @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ConstraintLayout(context, attrs, defStyleAttr) {
@@ -26,12 +26,36 @@ class CustomInfoDialog @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private fun initData(){
         data.apply {
-            add(CheckBoxViewViewModel("混合"))
-            add(CheckBoxViewViewModel("砖混"))
-            add(CheckBoxViewViewModel("砖瓦"))
-            add(CheckBoxViewViewModel("砖木"))
-            add(CheckBoxViewViewModel("钢湿"))
-            add(CheckBoxViewViewModel("其他"))
+            add(
+                CheckBoxViewViewModel(
+                    "混合"
+                )
+            )
+            add(
+                CheckBoxViewViewModel(
+                    "砖混"
+                )
+            )
+            add(
+                CheckBoxViewViewModel(
+                    "砖瓦"
+                )
+            )
+            add(
+                CheckBoxViewViewModel(
+                    "砖木"
+                )
+            )
+            add(
+                CheckBoxViewViewModel(
+                    "钢湿"
+                )
+            )
+            add(
+                CheckBoxViewViewModel(
+                    "其他"
+                )
+            )
 
         }
         checkAdapter.notifyDataSetChanged()

@@ -27,6 +27,9 @@
         tools:ignore="LockedOrientationActivity"
         tools:replace="android:label">
         <activity
+            android:name=".module.layer.ui.LocalLayerActivity"
+            android:screenOrientation="landscape" />
+        <activity
             android:name=".module.scene.ui.SceneMapActivity"
             android:screenOrientation="portrait" />
 
@@ -51,6 +54,15 @@
         <activity
             android:name=".module.system.ui.LoginActivity"
             android:screenOrientation="portrait" />
+<!--         <activity-->
+<!--         android:name="com.gt.entrypad.module.project.ui.DrawSketchActivity"-->
+<!--         android:windowSoftInputMode="adjustPan|stateHidden"-->
+<!--         android:screenOrientation="landscape">-->
+<!--         <intent-filter>-->
+<!--         <action android:name="android.intent.action.MAIN" />-->
+<!--         <category android:name="android.intent.category.LAUNCHER" />-->
+<!--         </intent-filter>-->
+<!--         </activity>-->
         <activity
             android:name=".module.system.ui.SplashActivity"
             android:screenOrientation="portrait"

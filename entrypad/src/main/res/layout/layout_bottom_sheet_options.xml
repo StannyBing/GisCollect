@@ -17,7 +17,7 @@
         app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintBottom_toTopOf="@id/cancelTitleView"/>
 
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/cancelTitleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

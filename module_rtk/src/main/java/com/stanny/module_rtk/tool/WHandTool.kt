@@ -14,7 +14,10 @@ import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXLogUtil
 import com.zx.zxutils.util.ZXSharedPrefUtil
 import com.zx.zxutils.util.ZXToastUtil
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 import java.io.Serializable
+import java.util.concurrent.TimeUnit
 
 object WHandTool {
 
@@ -49,11 +52,16 @@ object WHandTool {
         }
 
         fun onScanError(context: Context, errorCode: Int, info: String) {
-            if (!isAutoConnect) ZXDialogUtil.showInfoDialog(
-                context,
-                "提示",
-                "设备查找失败，请确保设备已启动，并已开启手机蓝牙\n错误信息：${errorCode},${info}"
-            )
+            ZXDialogUtil.dismissLoadingDialog()
+            if (errorCode == -1) {
+                ZXToastUtil.showToast(info)
+            } else if (!isAutoConnect) {
+                ZXDialogUtil.showInfoDialog(
+                    context,
+                    "提示",
+                    "设备查找失败，请确保设备已启动，并已开启手机蓝牙\n错误信息：${errorCode},${info}"
+                )
+            }
         }
 
         fun onDeviceLogIn(
@@ -142,15 +150,27 @@ object WHandTool {
         }
     }
 
+    private var isNotFound = true
+
     private fun startScanf(
         listener: WHandRegisterListener,
         context: Context
     ) {
+        isNotFound = true
         listener.onScanStart(context)
         deviceList.clear()
         WHandManager.getInstance().stopScan()
+        Observable.timer(10, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (!isAutoConnect && isNotFound) {
+                    WHandManager.getInstance().stopScan()
+                    listener.onScanError(context, -1, "未找到设备,请重试")
+                }
+            }
         WHandManager.getInstance().startScan(object : ScanCallback {
             override fun onLeScan(p0: BluetoothDevice, p1: Int, p2: ByteArray) {
+                isNotFound = false
                 var isContains = false
                 deviceList.forEach {
                     if (it.address == p0.address) {
@@ -224,6 +244,7 @@ object WHandTool {
             )
         }.setOnCancelListener {
             WHandManager.getInstance().stopScan()
+            ZXDialogUtil.dismissLoadingDialog()
         }
     }
 

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/itemSignatureTv"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_marginTop="16dp"
         android:layout_height="wrap_content"/>
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/itemResetTv"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <com.gt.entrypad.module.project.ui.view.signView.SignView
+    <com.gt.entrypad.module.project.func.view.signView.SignView
         android:id="@+id/itemSignView"
         android:layout_width="0dp"
         android:layout_height="400dp"

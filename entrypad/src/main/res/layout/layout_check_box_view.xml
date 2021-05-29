@@ -4,7 +4,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.gt.entrypad.module.project.ui.view.checkBox.CheckBoxViewViewModel" />
+            type="com.gt.entrypad.module.project.func.view.checkBox.CheckBoxViewViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

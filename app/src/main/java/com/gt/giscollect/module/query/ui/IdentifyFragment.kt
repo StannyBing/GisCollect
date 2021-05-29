@@ -36,7 +36,7 @@ import kotlinx.android.synthetic.main.fragment_identify.*
  * Create By XB
  * 功能：要素查询
  */
-class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), IdentifyContract.View {
+class IdentifyFragment : BaseFragment<IdentifyPresenter, IdentifyModel>(), IdentifyContract.View {
     companion object {
         /**
          * 启动器
@@ -64,7 +64,7 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
     private val identifyFeatures = arrayListOf<Feature>()
 
     private val highLightLayer = GraphicsOverlay()
-    private var point:Point?=null
+    private var point: Point? = null
     /**
      * layout配置
      */
@@ -89,7 +89,10 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
 
         tl_search_identify.apply {
             setSelectedTabIndicatorColor(ContextCompat.getColor(mContext, R.color.colorPrimary))
-            setTabTextColors(ContextCompat.getColor(mContext, R.color.colorPrimary), ContextCompat.getColor(mContext, R.color.colorPrimary))
+            setTabTextColors(
+                ContextCompat.getColor(mContext, R.color.colorPrimary),
+                ContextCompat.getColor(mContext, R.color.colorPrimary)
+            )
             setBackgroundColor(ContextCompat.getColor(mContext, R.color.content_bg))
             tabMode = TabLayout.MODE_SCROLLABLE
         }
@@ -109,7 +112,12 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
             if (fileList[position].type == "record" || fileList[position].type == "RECORD") {
                 recordUtil?.playMedia(fileAdapter.fileParentPath + "/" + fileList[position].path)
             } else {
-                FilePreviewActivity.startAction(requireActivity(), false, "文件预览", fileAdapter.fileParentPath + "/" + fileList[position].path)
+                FilePreviewActivity.startAction(
+                    requireActivity(),
+                    false,
+                    "文件预览",
+                    fileAdapter.fileParentPath + "/" + fileList[position].path
+                )
             }
         }
 
@@ -125,17 +133,39 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
                 clearAllFeatureSelect()
 //                    tv_identify_layer_name.text = "图层:${feature.featureTable.tableName}"
                 addHighLightFeature(feature)
-                point =  PointTool.change4326To3857(EnvelopeBuilder.create(feature.geometry).extent.center,4326)
+                PointTool.change4326To3857(
+                    EnvelopeBuilder.create(feature.geometry).extent.center,
+                    4326
+                ).apply {
+                    point = PointTool.wgs84togcj02(this.x, this.y)
+                }
 
-                fileAdapter.fileParentPath = ConstStrings.getOperationalLayersPath() + feature.featureTable.displayName + "/file"
+                fileAdapter.fileParentPath =
+                    ConstStrings.getOperationalLayersPath() + feature.featureTable.displayName + "/file"
                 identifyList.clear()
                 fileList.clear()
                 feature.featureTable.fields.forEach {
-                    if (it.name in arrayOf("camera", "video", "record", "CAMERA", "VIDEO", "RECORD")) {
-                        val paths = feature.attributes[it.name].toString().split(ConstStrings.File_Split_Char)
+                    if (it.name in arrayOf(
+                            "camera",
+                            "video",
+                            "record",
+                            "CAMERA",
+                            "VIDEO",
+                            "RECORD"
+                        )
+                    ) {
+                        val paths = feature.attributes[it.name].toString()
+                            .split(ConstStrings.File_Split_Char)
                         paths.forEach { path ->
                             if (path.length > 1 && path.isNotEmpty() && path != "null") {
-                                fileList.add(FileInfoBean("", path = path, pathImage = path, type = it.name))
+                                fileList.add(
+                                    FileInfoBean(
+                                        "",
+                                        path = path,
+                                        pathImage = path,
+                                        type = it.name
+                                    )
+                                )
                             }
                         }
                     } else {
@@ -162,23 +192,23 @@ class IdentifyFragment :BaseFragment<IdentifyPresenter, IdentifyModel>(), Identi
             }
         })
         floatAcbNavigation.setOnClickListener {
-           point?.let {
-               if (MyUtil.isInstallApk(mContext, "com.autonavi.minimap")) {
-                   val intents = Intent()
-                   intents.data =
-                       Uri.parse("androidamap://navi?sourceApplication=清河CIM&lat=" + it.y + "&lon=" + it.x + "&dev=0&style=2")
-                   mContext.startActivity(intents) // 启动调用
-                   return@setOnClickListener
-               }
-               if (MyUtil.isInstallApk(mContext,"com.baidu.BaiduMap")){
-                   val intents = Intent()
-                   intents.data =
-                       Uri.parse("baidumap://map/direction?destination=latlng:"+it.y+","+it.x+"&mode=driving")
-                   mContext.startActivity(intents) // 启动调用
-                   return@setOnClickListener
-               }
-               ZXToastUtil.showToast("本设备尚未安装高德或百度导航，请安装并下载离线导航包")
-           }
+            point?.let {
+                if (MyUtil.isInstallApk(mContext, "com.autonavi.minimap")) {
+                    val intents = Intent()
+                    intents.data =
+                        Uri.parse("androidamap://navi?sourceApplication=清河CIM&lat=" + it.y + "&lon=" + it.x + "&dev=0&style=2")
+                    mContext.startActivity(intents) // 启动调用
+                    return@setOnClickListener
+                }
+                if (MyUtil.isInstallApk(mContext, "com.baidu.BaiduMap")) {
+                    val intents = Intent()
+                    intents.data =
+                        Uri.parse("baidumap://map/direction?destination=latlng:" + it.y + "," + it.x + "&mode=driving")
+                    mContext.startActivity(intents) // 启动调用
+                    return@setOnClickListener
+                }
+                ZXToastUtil.showToast("本设备尚未安装高德或百度导航，请安装并下载离线导航包")
+            }
         }
     }
 

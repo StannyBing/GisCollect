@@ -4,7 +4,7 @@
         <import type="androidx.databinding.BaseObservableField"/>
         <variable
             name="viewModel"
-            type="com.gt.entrypad.module.project.ui.view.photoView.PhotoViewViewModel" />
+            type="com.gt.entrypad.module.project.func.view.photoView.PhotoViewViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

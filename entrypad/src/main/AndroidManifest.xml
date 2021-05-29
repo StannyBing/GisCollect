@@ -1,57 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="com.gt.entrypad">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <application
-        android:requestLegacyExternalStorage="true">
+    package="com.gt.entrypad">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application android:requestLegacyExternalStorage="true">
+        <activity
+            android:name=".module.project.ui.change.ui.WorkListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
         <meta-data
             android:name="com.gt.entrypad.api.ApiConfigModule"
             android:value="ConfigModule" />
-    <activity android:name=".module.project.ui.activity.ProjectListActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/MainAppTheme"
-        android:windowSoftInputMode="adjustResize|stateHidden"/>
 
-        <activity android:name="com.zx.zxutils.views.PhotoPicker.PhotoPickerActivity"
-            android:theme="@style/MainAppTheme"
-            android:screenOrientation="landscape"
-            />
-        <activity android:name="com.zx.zxutils.views.PhotoPicker.PhotoPagerActivity"
-            android:theme="@style/MainAppTheme"
-            android:screenOrientation="landscape"/>
-        <activity android:name=".module.project.ui.activity.ScanIdCardActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.InfoInputActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
-        <activity android:name=".module.project.ui.activity.TakePhotoActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.GroundFigureActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.ResultShowActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.DrawSketchActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.SketchLoadActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.FilePreviewActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/MainAppTheme"/>
-        <activity android:name=".module.project.ui.activity.DrawTemplateDownloadActivity"
+        <activity
+            android:name=".module.project.ui.ProjectListActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/MainAppTheme"/>
-
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name="com.zx.zxutils.views.PhotoPicker.PhotoPickerActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name="com.zx.zxutils.views.PhotoPicker.PhotoPagerActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.ScanIdCardActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme" />
+        <activity
+            android:name=".module.project.ui.InfoInputActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".module.project.ui.TakePhotoActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.GroundFigureActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.ResultShowActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.DrawSketchActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.SketchLoadActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.FilePreviewActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".module.project.ui.DrawTemplateDownloadActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/MainAppTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
     </application>
+
 </manifest>

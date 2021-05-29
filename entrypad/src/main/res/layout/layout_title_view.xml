@@ -5,7 +5,7 @@
         <import type="androidx.databinding.BaseObservableField"/>
         <variable
             name="viewModel"
-            type="com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel" />
+            type="com.gt.entrypad.module.project.func.view.titleView.TitleViewViewModel" />
     </data>
     <TextView
         android:id="@+id/tooBarTv"

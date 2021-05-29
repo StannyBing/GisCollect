@@ -9,19 +9,20 @@ data class SiteBean(var id: String = UUID.randomUUID().toString(), var point:Poi
                     var angle:Double=0.0){
     var status = ""
     get() {
-       field =if (rtkList.isNullOrEmpty()) "未编辑" else {
-           var tempStatus = "未编辑"
-           run siten@{
-            rtkList?.forEach {
-                if (it.resultSitePoint.x==0.0||it.resultSitePoint.y==0.0){
-                    return@siten
-                }else{
-                    tempStatus = "经度:${it.resultSitePoint.x}纬度:${it.resultSitePoint.y}"
-                }
-            }
-           }
-           tempStatus
-       }
+       field =if (rtkList.isNullOrEmpty()) "未编辑" else "已编辑"
+//        {
+//           var tempStatus = "未编辑"
+//           run siten@{
+//            rtkList?.forEach {
+//                if (it.resultSitePoint.x==0.0||it.resultSitePoint.y==0.0){
+//                    return@siten
+//                }else{
+//                    tempStatus = "经度:${it.resultSitePoint.x}纬度:${it.resultSitePoint.y}"
+//                }
+//            }
+//           }
+//           tempStatus
+//       }
         return  field
     }
 

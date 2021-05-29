@@ -13,9 +13,7 @@ import com.esri.arcgisruntime.internal.jni.CoreSymbolLayer
 import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.esri.arcgisruntime.mapping.Viewpoint
-import com.esri.arcgisruntime.mapping.view.SketchCreationMode
-import com.esri.arcgisruntime.mapping.view.SketchEditor
-import com.esri.arcgisruntime.mapping.view.SketchStyle
+import com.esri.arcgisruntime.mapping.view.*
 import com.esri.arcgisruntime.symbology.*
 import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
@@ -89,9 +87,11 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     private var featureSize = 10
 
     private val featureList = arrayListOf<Feature>()
-    private val featureAdapter = CollectFeatureAdapter(featureList)
+    private var featureAdapter = CollectFeatureAdapter(featureList)
     private var clickPosition = 0
     private var businessId: String = ""
+
+    private val drawLengthOverlay = GraphicsOverlay()
     /**
      * layout配置
      */
@@ -126,6 +126,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         }
         sketchEditor.addGeometryChangedListener {
             val geometry = sketchEditor.geometry
+            drawSketchPathLength()
             tv_collect_geometry_size.setTextColor(
                 ContextCompat.getColor(
                     mContext,
@@ -165,6 +166,59 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         }
         MapTool.mapListener?.getMapView()?.sketchEditor = sketchEditor
         super.initView(savedInstanceState)
+    }
+
+    /**
+     * 绘制图形长度
+     */
+    private fun drawSketchPathLength() {
+        val pointList = arrayListOf<Point>()
+        val geometry = sketchEditor.geometry
+        if (geometry is Polyline) {
+            pointList.addAll(geometry.parts.partsAsPoints)
+        } else if (geometry is Polygon) {
+            pointList.addAll(geometry.parts.partsAsPoints)
+        }
+        drawLengthOverlay.graphics.clear()
+        if (pointList.size <= 1) {
+            return
+        }
+        pointList.forEachIndexed { index, point ->
+            val lastIndex = if (index < pointList.lastIndex) {
+                index + 1
+            } else {
+                0
+            }
+            val centerPoint = Point(
+                (pointList[index].x + pointList[lastIndex].x) / 2,
+                (pointList[index].y + pointList[lastIndex].y) / 2
+            )
+            val length = DecimalFormat("#0.00").format(
+                GeometrySizeTool.getLength(
+                    Polyline(
+                        PointCollection(
+                            arrayListOf(
+                                pointList[index],
+                                pointList[lastIndex]
+                            )
+                        )
+                    )
+                )
+            )
+
+            val symbol = TextSymbol(
+                12f,
+                length,
+                Color.BLUE,
+                TextSymbol.HorizontalAlignment.CENTER,
+                TextSymbol.VerticalAlignment.MIDDLE
+            )
+            if (MapTool.mapListener?.getMapView()?.graphicsOverlays?.contains(drawLengthOverlay) == false) {
+                MapTool.mapListener?.getMapView()?.graphicsOverlays?.add(drawLengthOverlay)
+            }
+            drawLengthOverlay.graphics.add(Graphic(centerPoint, symbol))
+            sketchEditor.opacity = 0.5f
+        }
     }
 
     /**
@@ -584,12 +638,14 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         tv_collect_feature_undo.setOnClickListener {
             if (sketchEditor.canUndo()) {
                 sketchEditor.undo()
+                drawSketchPathLength()
             }
         }
         //下一步
         tv_collect_feature_redo.setOnClickListener {
             if (sketchEditor.canRedo()) {
                 sketchEditor.redo()
+                drawSketchPathLength()
             }
         }
         //GPS
@@ -634,6 +690,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         //清除
         tv_collect_feature_clear.setOnClickListener {
             sketchEditor.clearGeometry()
+            drawSketchPathLength()
         }
         //距离打点
         tv_collect_feature_distance.setOnClickListener {
@@ -805,6 +862,11 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                 ?.addDoneListener {
                     applyLayerUpdateInfo()
                     sketchEditor.clearGeometry()
+                    MapTool.mapListener?.getMapView()?.graphicsOverlays?.apply {
+                        if (contains(drawLengthOverlay)) {
+                            remove(drawLengthOverlay)
+                        }
+                    }
                     sketchEditor.stop()
                     feature?.refresh()
                 }
@@ -902,6 +964,11 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         currentLayer?.featureTable?.addFeatureAsync(feature)?.addDoneListener {
             applyLayerUpdateInfo()
             sketchEditor.clearGeometry()
+            MapTool.mapListener?.getMapView()?.graphicsOverlays?.apply {
+                if (contains(drawLengthOverlay)) {
+                    remove(drawLengthOverlay)
+                }
+            }
             sketchEditor.stop()
             feature?.refresh()
             tv_collect_feature_title.text =
@@ -927,6 +994,15 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         moduleType: Int = 1 //1采集 2 调查
         , businessId: String = ""
     ) {
+        MapTool.mapListener?.getMapView()?.graphicsOverlays?.apply {
+            if (contains(drawLengthOverlay)) {
+                remove(drawLengthOverlay)
+            }
+            add(drawLengthOverlay)
+        }
+
+        sv_collect_feature.smoothScrollTo(0, 0)
+
         startNum = 0
         isInEdit = false
         isClickEdit = clickEdit
@@ -1015,6 +1091,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
     }
 
     private fun getFeatureList() {
+        ZXLogUtil.loge("fealist：开始请求")
         currentLayer?.featureTable?.loadAsync()
         currentLayer?.featureTable?.addDoneLoadingListener {
             //                if (featureLayer.featureTable.totalFeatureCount > 0) {
@@ -1024,11 +1101,22 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
                     this.resultOffset = startNum//从第几条开始
                     this.maxFeatures = featureSize//每次查多少条
                 })
+            ZXLogUtil.loge("fealist：从${startNum}开始获取${featureSize}条")
             queryGet?.addDoneListener {
                 val list = queryGet.get()
-                featureAdapter.loadMoreComplete()
+//                featureAdapter.loadMoreComplete()
+                ZXLogUtil.loge("fealist：获取到${list.toList().size}条")
+//                if (list.toList().isEmpty()) {
+//                    featureAdapter.loadMoreEnd()
+//                } else
                 if (list.toList().size < featureSize) {
+//                    featureAdapter.setEnableLoadMore(true)
                     featureAdapter.loadMoreEnd()
+                    ZXLogUtil.loge("fealist：停止加载")
+                }else{
+                    featureAdapter.loadMoreComplete()
+                    featureAdapter.notifyLoadMoreToLoading()
+                    ZXLogUtil.loge("fealist：本次加载结束")
                 }
 //                if (list.firstOrNull()?.attributes?.containsKey("OBJECTID") == true) {
 //                    featureList.addAll(list.sortedBy {
@@ -1036,6 +1124,7 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
 //                    })
 //                } else {
                 featureList.addAll(list)
+                ZXLogUtil.loge("fealist：一共有${featureList.size}条")
 //                }
                 if (startNum > 0) {
                     featureAdapter.notifyItemInserted(startNum)
@@ -1066,6 +1155,10 @@ class CollectFeatureFragment : BaseFragment<CollectFeaturePresenter, CollectFeat
         MapTool.mapListener?.getMapView()?.sketchEditor = sketchEditor
         currentLayer?.clearSelection()
         HighLightLayerTool.clearHighLight()
+//        featureAdapter = CollectFeatureAdapter(featureList)
+//        featureList.clear()
+//        featureAdapter.notifyLoadMoreToLoading()
+//        rv_collect_filed_features.scrollToPosition(0)
         featureAdapter.notifyDataSetChanged()
     }
 

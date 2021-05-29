@@ -1,6 +1,7 @@
 package com.stanny.sketchpad.view
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.*
 import android.os.Vibrator
 import android.util.AttributeSet
@@ -17,6 +18,7 @@ import com.stanny.sketchpad.tool.SketchPointTool
 import com.stanny.sketchpad.tool.algorithm.OffsetAlgorithm
 import com.stanny.sketchpad.tool.algorithm.entity.Point
 import com.zx.zxutils.util.*
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.util.*
@@ -50,14 +52,19 @@ class SketchPadContentView @JvmOverloads constructor(
 
     private var selectGraphic: SketchPadGraphicBean? = null//选中图形
     private var editGraphic: SketchPadGraphicBean? = null//编辑图形
+    var customGraphic: SketchPadGraphicBean? = null//自定义图形
 
-    private var graphicList = arrayListOf<SketchPadGraphicBean>()
+    var graphicList = arrayListOf<SketchPadGraphicBean>()
 
+    private var showBgGrid = true //显示网格
     private var drawSite = false //界址
     private var showMeters: Boolean = false//尺寸
     private var drawHighlight = false//是否高亮
+    private var isCustomEdit = false//是否自定义编辑
     private var sketchPadFloorBean: SketchPadFloorBean? = null
     private var sitePoints = arrayListOf<PointF>()
+
+    private var customInitTouch: () -> Unit = {}
 
     private var sketchLabelTool: SketchLabelTool
 
@@ -95,7 +102,7 @@ class SketchPadContentView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         //绘制网格
-        drawBackground(canvas)
+        if (showBgGrid) drawBackground(canvas)
         //绘制绘图区域
         drawContent(canvas)
         super.onDraw(canvas)
@@ -143,6 +150,7 @@ class SketchPadContentView @JvmOverloads constructor(
         sketchLabelTool.labelList.forEach {
             it.drawLabel(canvas)
         }
+        customGraphic?.drawCustom(canvas)
         //绘制界址点
         if (drawSite) {
             var points = arrayListOf<PointF>()
@@ -226,6 +234,7 @@ class SketchPadContentView @JvmOverloads constructor(
      * 包含普通触摸、双指缩放、单指移动、松手贴边
      */
     private var isTouchUp = false
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -274,6 +283,13 @@ class SketchPadContentView @JvmOverloads constructor(
 //                    insertGraphic(insertGraphic!!)
 //                    return true
 //                }
+                if (isCustomEdit) {
+                    customGraphic = SketchPadGraphicBean(SketchPadGraphicBean.GraphicType.CUSTOM)
+                    customGraphic?.points?.add(PointF(event.x, event.y))
+                    customInitTouch()
+                    isCustomEdit = false
+                    customInitTouch = {}
+                }
                 return true
             }
         }
@@ -338,6 +354,14 @@ class SketchPadContentView @JvmOverloads constructor(
         invalidate()
     }
 
+    /**
+     * 展示界址
+     */
+    fun showBgGrid(show: Boolean) {
+        showBgGrid = show
+        invalidate()
+    }
+
 
     /**
      * 显示尺寸
@@ -377,15 +401,34 @@ class SketchPadContentView @JvmOverloads constructor(
     }
 
     /**
+     * 自定义编辑
+     */
+    fun addCustomInitTouch(customInitTouch: () -> Unit) {
+        isCustomEdit = true
+        this.customInitTouch = customInitTouch
+    }
+
+    /**
      * 保存图形
      */
     fun saveGraphicInfo(callBack: () -> Unit) {
         if (graphicList.isNotEmpty()) {
             showSizeInfo(true)
             showSite(true)
+            showBgGrid(false)
             resetCenter()
-            val minPoint = SketchPointTool.getDrawMin(graphicList, sketchLabelTool, contentTransX, contentTransY)
-            val maxPoint = SketchPointTool.getDrawMax(graphicList, sketchLabelTool, contentTransX, contentTransY)
+            val minPoint = SketchPointTool.getDrawMin(
+                graphicList,
+                sketchLabelTool,
+                contentTransX,
+                contentTransY
+            )
+            val maxPoint = SketchPointTool.getDrawMax(
+                graphicList,
+                sketchLabelTool,
+                contentTransX,
+                contentTransY
+            )
             val tempBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             draw(Canvas(tempBitmap))
             val drawBitmap = Bitmap.createBitmap(
@@ -395,18 +438,9 @@ class SketchPadContentView @JvmOverloads constructor(
                 (maxPoint.x - minPoint.x).toInt() + SketchPadConstant.backgroundGridSpace.toInt() * 2,
                 (maxPoint.y - minPoint.y).toInt() + SketchPadConstant.backgroundGridSpace.toInt() * 2
             )
+            showBgGrid(true)
             val ivDraw = ImageView(context)
             ivDraw.setImageBitmap(drawBitmap)
-//            ZXDialogUtil.showCustomViewDialog(
-//                context,
-//                "",
-//                ivDraw
-//            ) { dialog: DialogInterface?, which: Int ->
-//                ZXBitmapUtil.bitmapToFile(
-//                    drawBitmap,
-//                    File(ZXSystemUtil.getSDCardPath() + "test.jpg")
-//                )
-//            }
             val file = context.filesDir.path
             //ZXTimeUtil.getTime(System.currentTimeMillis(), SimpleDateFormat("yyyyMMdd_HHmmss"))
             val s = "$file/sketch/draw.jpg"
@@ -455,21 +489,26 @@ class SketchPadContentView @JvmOverloads constructor(
         }
 
         override fun onLongPress(event: MotionEvent) {
-            if (isTouchUp){
+            if (isTouchUp) {
                 return
             }
-            graphicList.forEach {
-                if (it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)) {
-                    graphicList.forEach {
-                        it.showMeters = false
-                    }
-                    editGraphic = it
-                    sketchPadListener?.graphicEdit(editGraphic!!)
-                    invalidate()
-                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                    vibrator.vibrate(100L)
-                    return
+            sketchLabelTool.postLongPress(event) && return
+            graphicList.firstOrNull {
+                it.isGraphicInTouch(event.x - contentTransX, event.y - contentTransY)
+            }?.apply {
+                //                if (graphicType == SketchPadGraphicBean.GraphicType.CUSTOM){
+//                    ZXToastUtil.showToast("自定义图形，暂时无法编辑")
+//                    return
+//                }
+                graphicList.forEach {
+                    it.showMeters = false
                 }
+                editGraphic = this
+                sketchPadListener?.graphicEdit(editGraphic!!)
+                invalidate()
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.vibrate(100L)
+                return
             }
         }
     }

@@ -6,7 +6,7 @@
         <import type="androidx.databinding.BaseObservable"/>
         <variable
             name="viewModel"
-            type="com.gt.entrypad.module.project.ui.view.spinnerView.SpinnerViewViewModel" />
+            type="com.gt.entrypad.module.project.func.view.spinnerView.SpinnerViewViewModel" />
 
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout

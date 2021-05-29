@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:fitsSystemWindows="true">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -13,7 +14,6 @@
 
     <EditText
         android:id="@+id/otherEt"
-        android:layout_alignParentBottom="true"
         android:layout_height="40dp"
         android:layout_width="match_parent"
         android:layout_marginTop="4dp"
@@ -21,4 +21,4 @@
         android:hint="@string/otherHint"
         android:textSize="10sp"
         />
-</RelativeLayout>
+</LinearLayout>

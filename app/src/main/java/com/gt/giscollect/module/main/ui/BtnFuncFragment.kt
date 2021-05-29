@@ -86,6 +86,10 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         if (ConstStrings.appfuncList.firstOrNull { it.url == "appm01" } != null) funcList.add(
             FuncBean("图层", R.drawable.btn_func_layer)
         )
+//        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm10" } != null)
+//        funcList.add(
+//            FuncBean("加载文件", R.drawable.btn_func_localfile)
+//        )
         if (ConstStrings.appfuncList.firstOrNull { it.url == "appm02" } != null) funcList.add(
             FuncBean("查询", R.drawable.btn_func_search)
         )

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/content_bg"
     android:orientation="vertical"
     android:paddingTop="30dp">
@@ -20,9 +21,24 @@
         android:background="@color/gray_de"
         android:visibility="gone" />
 
-    <com.zx.zxutils.views.TabViewPager.ZXTabViewPager
-        android:id="@+id/tvp_layer_main"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+
+        <com.zx.zxutils.views.TabViewPager.ZXTabViewPager
+            android:id="@+id/tvp_layer_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/flb_layer_localfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            app:fabCustomSize="40dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/btn_func_localfile" />
+    </RelativeLayout>
 
 </LinearLayout>

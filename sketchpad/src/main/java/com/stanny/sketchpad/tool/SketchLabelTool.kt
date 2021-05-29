@@ -2,6 +2,7 @@ package com.stanny.sketchpad.tool
 
 import android.content.Context
 import android.graphics.PointF
+import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
@@ -163,19 +164,15 @@ class SketchLabelTool(var context: Context, var listener: LabelListener) {
     fun excuteLabelDraw(event: MotionEvent): Boolean {
         val labelPoint = PointF(event.x, event.y)
         listener.getGraphicList().forEach {
-            if (it.isGraphicContainsPoint(
+            if (it.isPointOnLines(event.x - listener.getContentTransX(), event.y - listener.getContentTransY())) {
+                showInDialog(labelPoint, showBoundaryData())
+                return true
+            } else if (it.isGraphicContainsPoint(
                     event.x - listener.getContentTransX(),
                     event.y - listener.getContentTransY()
                 )
             ) {
                 showInDialog(labelPoint, showInData())
-                return true
-            } else if (it.isGraphicContainsPoint(
-                    event.x - 40,
-                    event.y - 40
-                ) || it.isGraphicContainsPoint(event.x + 40, event.y + 40)
-            ) {
-                showInDialog(labelPoint, showBoundaryData())
                 return true
             }
         }
@@ -187,12 +184,37 @@ class SketchLabelTool(var context: Context, var listener: LabelListener) {
      * 处理label的触碰
      */
     fun excuteLabelTouch(event: MotionEvent) {
-        labelList.forEach {
-            if (it.isLabelInTouch(event.x - listener.getContentTransX(), event.y - listener.getContentTransY())) {
-                selectLabel = it
-                return@forEach
-            }
+        labelList.firstOrNull {
+            it.isLabelInTouch(
+                event.x - listener.getContentTransX(),
+                event.y - listener.getContentTransY()
+            )
+        }?.let {
+            selectLabel = it
         }
+    }
+
+    /**
+     * label的长按事件
+     */
+    fun postLongPress(event: MotionEvent): Boolean {
+        labelList.firstOrNull {
+            it.isLabelInTouch(
+                event.x - listener.getContentTransX(),
+                event.y - listener.getContentTransY()
+            )
+        }?.let {
+            selectLabel = it
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vibrator.vibrate(100L)
+            ZXDialogUtil.showYesNoDialog(context, "提示", "是否删除该标注：${it.name}?") { dialog, which ->
+                labelList.remove(it)
+                selectLabel = null
+                listener.refreshGraphic()
+            }
+            return true
+        }
+        return false
     }
 
 }

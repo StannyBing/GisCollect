@@ -113,7 +113,7 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
             }
 //            btn_layer_import.visibility = View.GONE
         }
-        MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
+        MapTool.registerLayerChange(ChangeTag + type, object : MapTool.LayerChangeListener {
             override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
                 rv_layer_list?.let {
                     if (this@LayerListFragment.type == 0) {
@@ -209,22 +209,22 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
      * View事件设置
      */
     override fun onViewListener() {
-        ZXRecyclerDeleteHelper(requireActivity(), rv_layer_list)
-            .setSwipeOptionViews(R.id.tv_delete)
-            .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
-                //滑动菜单点击事件
-                if (id == R.id.tv_delete) {
-                    val entity = dataList[pos]
-                   if (entity is GisSpotLayerBean){
-                       if (MapTool.mapListener?.getMap()?.basemap?.baseLayers?.contains(entity.layer) == true) {
-                           MapTool.mapListener?.getMap()?.basemap?.baseLayers?.remove(entity.layer)
-                       }
-                       dataList.removeAt(pos)
-                       dataAdapter.notifyItemRemoved(pos)
-                       dataAdapter.notifyItemRangeChanged(pos, 5)
-                   }
-                }
-            }
+//        ZXRecyclerDeleteHelper(requireActivity(), rv_layer_list)
+//            .setSwipeOptionViews(R.id.tv_delete)
+//            .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
+//                //滑动菜单点击事件
+//                if (id == R.id.tv_delete) {
+//                    val entity = dataList[pos]
+//                   if (entity is GisSpotLayerBean){
+//                       if (MapTool.mapListener?.getMap()?.basemap?.baseLayers?.contains(entity.layer) == true) {
+//                           MapTool.mapListener?.getMap()?.basemap?.baseLayers?.remove(entity.layer)
+//                       }
+//                       dataList.removeAt(pos)
+//                       dataAdapter.notifyItemRemoved(pos)
+//                       dataAdapter.notifyItemRangeChanged(pos, 5)
+//                   }
+//                }
+//            }
         //数据
         dataAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.iv_layer_checked) {
@@ -295,7 +295,7 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
                                             it.lastIndexOf(".")
                                         )
                                         MapTool.postLayerChange(
-                                            ChangeTag,
+                                            ChangeTag + type,
                                             localMap,
                                             MapTool.ChangeType.BaseAdd
                                         )
@@ -334,7 +334,7 @@ class LayerListFragment : BaseFragment<LayerListPresenter, LayerListModel>(),
                                                                         ) == "true"
                                                                     featureLayer.loadAsync()
                                                                     MapTool.postLayerChange(
-                                                                        ChangeTag,
+                                                                        ChangeTag + type,
                                                                         featureLayer,
                                                                         MapTool.ChangeType.BaseAdd
                                                                     )

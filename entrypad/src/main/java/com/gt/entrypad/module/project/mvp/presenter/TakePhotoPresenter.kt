@@ -9,7 +9,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gt.entrypad.module.project.bean.InputInfoBean
 import com.gt.entrypad.module.project.mvp.contract.TakePhotoContract
-import com.gt.entrypad.module.project.ui.view.editText.EditTextViewViewModel
+import com.gt.entrypad.module.project.func.view.editText.EditTextViewViewModel
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

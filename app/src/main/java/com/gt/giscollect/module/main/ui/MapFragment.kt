@@ -190,18 +190,22 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
         MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
             override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
 //                initOperationalLayers()
-                if (type == MapTool.ChangeType.OperationalAdd) {
-                    Log.e("fdfdfdf","${layer.name}    operationAdd")
-                    map.operationalLayers.add(layer)
-                } else if (type == MapTool.ChangeType.OperationalRemove) {
-                    Log.e("fdfdfdf","${layer.name}   OperationalRemove")
-                    map.operationalLayers.remove(layer)
-                } else if (type == MapTool.ChangeType.BaseAdd) {
-                    Log.e("fdfdfdf","${layer.name}   BaseAdd")
-                    map.basemap.baseLayers.add(layer)
-                } else if (type == MapTool.ChangeType.BaseRemove) {
-                    Log.e("fdfdfdf","${layer.name}   BaseRemove")
-                    map.basemap.baseLayers.remove(layer)
+                try {
+                    if (type == MapTool.ChangeType.OperationalAdd) {
+                        Log.e("fdfdfdf", "${layer.name}    operationAdd")
+                        map.operationalLayers.add(layer)
+                    } else if (type == MapTool.ChangeType.OperationalRemove) {
+                        Log.e("fdfdfdf", "${layer.name}   OperationalRemove")
+                        map.operationalLayers.remove(layer)
+                    } else if (type == MapTool.ChangeType.BaseAdd) {
+                        Log.e("fdfdfdf", "${layer.name}   BaseAdd")
+                        map.basemap.baseLayers.add(layer)
+                    } else if (type == MapTool.ChangeType.BaseRemove) {
+                        Log.e("fdfdfdf", "${layer.name}   BaseRemove")
+                        map.basemap.baseLayers.remove(layer)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         })
@@ -280,6 +284,10 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
                 }
             }
         }
+
+//        LayerTool.loadLocalFile(map, ConstStrings.LOCAL_PATH + "shp文件/房屋.shp"){
+//            showToast("本地加载！！！！")
+//        }
     }
 
     /**
@@ -487,7 +495,7 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
 
                 override fun onLongPress(e: MotionEvent?) {
                     singleTapList.forEach {
-                        it.onLongPress(e?.x?:0.0f,e?.y?:0.0f)
+                        it.onLongPress(e?.x ?: 0.0f, e?.y ?: 0.0f)
                     }
                 }
             }

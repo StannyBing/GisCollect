@@ -21,7 +21,7 @@
 
 
 
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/leftTv"
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toRightOf="@id/ivBack"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"/>
 
 
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/finishTv"
         android:layout_marginStart="16dp"
         android:background="@drawable/shape_solid_bg"
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:textSize="14sp"/>
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/rightTv"
         android:layout_width="72dp"
         android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
-    <com.gt.entrypad.module.project.ui.view.titleView.TitleView
+    <com.gt.entrypad.module.project.func.view.titleView.TitleView
         android:id="@+id/right2Tv"
         android:layout_width="72dp"
         android:layout_height="wrap_content"

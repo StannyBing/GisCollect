@@ -1,6 +1,5 @@
 package com.stanny.sketchpad.tool
 
-import android.graphics.Point
 import android.graphics.PointF
 import com.stanny.sketchpad.bean.SketchPadGraphicBean
 import kotlin.math.abs
@@ -229,6 +228,55 @@ object SketchPointTool {
         return (nCross % 2 == 1)
     }
 
+
+    fun isPointOnLines(pointF: PointF, points: ArrayList<PointF>) : Boolean {
+        for (index in points.indices) {
+            val point1 = points[index]
+            val point2 = points[(index + 1) % points.size]
+            if (pointToLine(pointF, point1, point2) < 30){
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun pointToLine(
+        point0: PointF, point1: PointF,point2: PointF
+        ): Float {
+        var space = 0f
+        val a = lineSpace(point1, point2) // 线段的长度
+        val b = lineSpace(point1, point0) // (x1,y1)到点的距离
+        val c = lineSpace(point2, point0) // (x2,y2)到点的距离
+        if (c <= 0.000001 || b <= 0.000001) {
+            space = 0f
+            return space
+        }
+        if (a <= 0.000001) {
+            space = b
+            return space
+        }
+        if (c * c >= a * a + b * b) {
+            space = b
+            return space
+        }
+        if (b * b >= a * a + c * c) {
+            space = c
+            return space
+        }
+        val p = (a + b + c) / 2 // 半周长
+        val s = sqrt(p * (p - a) * (p - b) * (p - c)) // 海伦公式求面积
+        space = 2 * s / a // 返回点到线的距离（利用三角形面积公式求高）
+        return space
+    }
+
+    // 计算两点之间的距离
+    private fun lineSpace(point1: PointF, point2: PointF): Float {
+        return sqrt(
+            ((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y)
+                    * (point1.y - point2.y))
+        )
+    }
+
     /**
      * 返回一个点是否在一个多边形边界上
      * @param points 多边形坐标点集合
@@ -438,4 +486,5 @@ object SketchPointTool {
         return PointF(maxX!! + contentTransX, maxY!! + contentTransY)
 //        return PointF(maxX!!, maxY!!)
     }
+
 }

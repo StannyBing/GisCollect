@@ -186,6 +186,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
                             val list =
                                 mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+                                    ?: arrayListOf()
                             list.forEach list@{
                                 var tempLayersName = it.layerNames.filter {
                                     it != name

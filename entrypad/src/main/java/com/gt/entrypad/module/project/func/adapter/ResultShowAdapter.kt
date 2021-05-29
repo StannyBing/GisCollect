@@ -6,11 +6,11 @@ import com.gt.entrypad.R
 import com.gt.base.view.ICustomViewActionListener
 import com.gt.base.viewModel.BaseCustomViewModel
 import com.gt.entrypad.module.project.bean.InputInfoBean
-import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowView
-import com.gt.entrypad.module.project.ui.view.resultShowView.ResultShowViewViewModel
-import com.gt.entrypad.module.project.ui.view.signView.SignView
-import com.gt.entrypad.module.project.ui.view.titleView.TitleView
-import com.gt.entrypad.module.project.ui.view.titleView.TitleViewViewModel
+import com.gt.entrypad.module.project.func.view.resultShowView.ResultShowView
+import com.gt.entrypad.module.project.func.view.resultShowView.ResultShowViewViewModel
+import com.gt.entrypad.module.project.func.view.signView.SignView
+import com.gt.entrypad.module.project.func.view.titleView.TitleView
+import com.gt.entrypad.module.project.func.view.titleView.TitleViewViewModel
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXMultiItemQuickAdapter
 
@@ -68,7 +68,10 @@ class ResultShowAdapter :ZXMultiItemQuickAdapter<InputInfoBean,ZXBaseHolder>{
                     setData(item.data as TitleViewViewModel)
                 }
                 helper.getView<TitleView>(R.id.itemResetTv).apply {
-                    setData(TitleViewViewModel("重签").apply {
+                    setData(
+                        TitleViewViewModel(
+                            "重签"
+                        ).apply {
                         resId =R.style.titleText
                         setActionListener(object : ICustomViewActionListener {
                             override fun onAction(

@@ -2,7 +2,6 @@ package com.stanny.sketchpad.view
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import com.stanny.sketchpad.R
@@ -67,6 +66,8 @@ class SketchPadView @JvmOverloads constructor(
      */
     override fun closeEdit() {
         sketch_content.closeEdit()
+        sketch_content.customGraphic = null
+        sketch_content.refreshGraphic()
     }
 
     /**
@@ -148,7 +149,32 @@ class SketchPadView @JvmOverloads constructor(
      */
     override fun graphicCustomEdit() {
         closeOtherView()
-        sketch_customedit.startCustomEdit()
+        ZXToastUtil.showToast("请先点击草图设置初始点")
+        sketch_customedit.setSketchCustomListener(object :
+            SketchPadCustomEditView.SketchCustomListener {
+            override fun getCustomGraphic(): SketchPadGraphicBean? {
+                return sketch_content.customGraphic
+            }
+
+            override fun refreshGraphic() {
+                sketch_content.refreshGraphic()
+            }
+
+            override fun closeCustomEdit() {
+                sketch_content.customGraphic = null
+            }
+
+            override fun saveCustomEdit() {
+                sketch_content.customGraphic?.let {
+                    sketch_content.graphicList.add(it)
+                    refreshGraphic()
+                }
+            }
+
+        })
+        sketch_content.addCustomInitTouch {
+            sketch_customedit.startCustomEdit()
+        }
     }
 
 }
