@@ -3,6 +3,11 @@ package com.gt.giscollect.module.collect.ui
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.esri.arcgisruntime.data.GeoPackage
@@ -30,6 +35,7 @@ import com.gt.base.bean.toJson
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.gt.giscollect.module.system.bean.TemplateBean
 import com.gt.giscollect.tool.SimpleDecoration
+import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
 import com.zx.zxutils.util.ZXDialogUtil
 import com.zx.zxutils.util.ZXFileUtil
 import com.zx.zxutils.views.RecylerMenu.ZXRecyclerDeleteHelper
@@ -58,12 +64,15 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     }
 
     private val totalCheckList = arrayListOf<CollectCheckBean>()
+    private var localCheckList = arrayListOf<CollectCheckBean>()
     private val collectList = arrayListOf<CollectCheckBean>()
     private val collectAdapter = CollectListAdapter(collectList)
 
     var fragChangeListener: FragChangeListener? = null
 
     private var editCollectPosition = 0//当前编辑的采集任务的列表
+
+    private var pageNum =0
 
     /**
      * layout配置
@@ -82,8 +91,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
             adapter = collectAdapter
             addItemDecoration(SimpleDecoration(mContext))
         }
-        refresh()
-
+       //本地数据
+        localData()
         ZXRecyclerDeleteHelper(activity, rv_collect_layers)
             .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
@@ -111,6 +120,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             "提示",
                             "是否上传该条采集数据？"
                         ) { dialog, which ->
+                            editCollectPosition = pos
                             val file = FileUtils.getFileByName(
                                 ConstStrings.getOperationalLayersPath(),
                                 layer.name
@@ -176,28 +186,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                             "提示",
                             "是否删除该图层，这将同时删除该图层的相关采集数据？"
                         ) { dialog, which ->
-                            var name = collectList[pos].featureLayer?.name
-                            collectList.removeAt(pos)
-                            collectAdapter.notifyItemRemoved(pos)
-                            collectAdapter.notifyItemRangeChanged(pos, 5)
-
-                            /*
-                             MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)*/
-
-                            val list =
-                                mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-                                    ?: arrayListOf()
-                            list.forEach list@{
-                                var tempLayersName = it.layerNames.filter {
-                                    it != name
-                                }
-                                it.layerNames.clear()
-                                it.layerNames.addAll(tempLayersName)
-                            }
-                            mSharedPrefUtil.putList(
-                                ConstStrings.TemplateIdList,
-                                list
-                            )
+                            refreshCache(pos)
+                            localCheckList.removeAt(pos)
                             MapTool.mapListener?.getMap()?.operationalLayers?.remove(layer)
                             DeleteLayerFileTool.deleteFileByLayer(
                                 ConstStrings.getOperationalLayersPath() + layer.name + "/file/",
@@ -228,6 +218,33 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         super.initView(savedInstanceState)
     }
 
+    /**
+     * 刷新缓存
+     */
+    private fun refreshCache(pos: Int){
+        var name = collectList[pos].featureLayer?.name
+        collectList.removeAt(pos)
+        collectAdapter.notifyItemRemoved(pos)
+        collectAdapter.notifyItemRangeChanged(pos, 5)
+
+        /*
+         MapTool.mapListener?.getMap()?.tables?.remove(layer.featureTable)*/
+
+        val list =
+            mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+                ?: arrayListOf()
+        list.forEach list@{
+            var tempLayersName = it.layerNames.filter {
+                it != name
+            }
+            it.layerNames.clear()
+            it.layerNames.addAll(tempLayersName)
+        }
+        mSharedPrefUtil.putList(
+            ConstStrings.TemplateIdList,
+            list
+        )
+    }
     private fun renameLayer(currentLayer: FeatureLayer, beforeName: String?, afterName: String) {
         val files = FileUtils.getFilesByName(
             ConstStrings.getOperationalLayersPath(),
@@ -310,12 +327,51 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     }
 
     /**
+     * 获取本地数据
+     */
+    private fun localData(){
+        collectList.clear()
+        localCheckList.clear()
+        //获取跟当前模块相关的TemplateIdBean
+        var tempBeans = arrayListOf<TempIdsBean>()
+        ConstStrings.mGuideBean?.getTemlatesList()?.forEach { id->
+          tempBeans.addAll(mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList).filter {
+              it.templateId ==id
+          } )
+        }
+        //进行文件对比
+        MapTool.mapListener?.getMap()?.operationalLayers?.filter {
+            //只添加采集
+            FileUtils.getFilesByName(
+                ConstStrings.getOperationalLayersPath(),
+                it.name
+            ).isNotEmpty()
+        }?.forEach { layer->
+            if (layer is FeatureLayer){
+                if (tempBeans.filter {
+                        it.layerNames.contains(layer.name)
+                    }.isNotEmpty()){
+                    //有数据
+                    collectList.add(CollectCheckBean(null,layer))
+                }
+            }
+        }
+        localCheckList.addAll(collectList)
+        collectAdapter.notifyDataSetChanged()
+        sr_collect_layers.isRefreshing=false
+    }
+    /**
      * View事件设置
      */
     override fun onViewListener() {
         //刷新
         sr_collect_layers.setOnRefreshListener {
-            refresh()
+           if (rb_collect_listnet.isChecked){
+               pageNum = 0
+               refresh()
+           }else{
+               localData()
+           }
         }
         //审核
         btn_collect_check.setOnClickListener {
@@ -329,39 +385,78 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
         //切换
         rg_collect_listtype.setOnCheckedChangeListener { group, checkedId ->
-            setCheckList()
+            if (checkedId==R.id.rb_collect_listnet){
+                searchEt.visibility=View.VISIBLE
+                pageNum=0
+                refresh()
+                loadMoreGone(false)
+            }else{
+                collectList.clear()
+                collectList.addAll(localCheckList)
+                loadMoreGone(true)
+                collectAdapter.notifyDataSetChanged()
+                searchEt.visibility=View.GONE
+            }
         }
 
         MapTool.registerLayerChange(ChangeTag, object : MapTool.LayerChangeListener {
             override fun onLayerChange(layer: Layer, type: MapTool.ChangeType) {
-                refresh()
+                localData()
             }
         })
+
+        searchEt.setOnEditorActionListener { v, actionId, event ->
+            if (actionId==EditorInfo.IME_ACTION_SEARCH){
+                pageNum = 0
+                refresh(searchEt.text.toString().trim())
+            }
+            return@setOnEditorActionListener false
+        }
+        loadMoreGone(true)
+    }
+
+    private fun loadMoreGone(gone:Boolean){
+        if (gone){
+            collectAdapter.loadMoreEnd()
+        }else{
+            collectAdapter.setOnLoadMoreListener(object :ZXQuickAdapter.RequestLoadMoreListener{
+                override fun onLoadMoreRequested() {
+                    //加载更多
+                    pageNum++
+                    refresh()
+                }
+            })
+        }
     }
 
     /**
      * 刷新列表
      */
-    fun refresh() {
-        mPresenter.getCheckList(
-            hashMapOf(
-                "currPage" to 0,
-                "pageSize" to 999,
-                "filters" to arrayListOf(
-                    hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId)
-
-                )
-            ).toJson()
-        )
+    fun refresh(keyword:String="") {
+        if (rb_collect_listnet.isChecked){
+            mPresenter.getCheckList(
+                hashMapOf(
+                    "currPage" to pageNum,
+                    "pageSize" to pageSize,
+                    "filters" to arrayListOf(
+                        hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
+                        hashMapOf("col" to "template_id", "op" to "in", "val" to ConstStrings.mGuideBean.getTemlatesList()),
+                        hashMapOf("col" to "user_id", "op" to "like", "val" to keyword)
+                    )
+                ).toJson()
+            )
+        }else{
+            localData()
+        }
     }
 
     /**
      * 审核反馈
      */
-    override fun onCheckListResult(checkList: List<CheckBean>) {
+    override fun onCheckListResult(total:Int,checkList: List<CheckBean>) {
         ConstStrings.checkList.clear()
         ConstStrings.checkList.addAll(checkList)
-        totalCheckList.clear()
+        if (pageNum==0) totalCheckList.clear()
         val tempCheck = arrayListOf<CheckBean>().apply {
             addAll(checkList)
         }
@@ -389,12 +484,17 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                         return@check
                     }
                 }
-                totalCheckList.add(CollectCheckBean(bean, layer))
+                //totalCheckList.add(CollectCheckBean(bean, layer))
             }
         }
         //将本地没有保存的checkBean添加进
         tempCheck.forEach check@{ check ->
             totalCheckList.add(CollectCheckBean(check, null))
+        }
+        if (pageNum*pageSize<total){
+            collectAdapter.loadMoreComplete()
+        }else{
+            collectAdapter.loadMoreEnd()
         }
 
         setCheckList()
@@ -404,11 +504,11 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
     private fun setCheckList() {
         collectList.clear()
-        collectList.addAll(if (rb_collect_listlocal.isChecked) {
+        collectList.addAll(/*if (rb_collect_listlocal.isChecked) {
             totalCheckList.filter {
                 it.checkInfo == null
             }
-        } else if (rb_collect_listnet.isChecked) {
+        } else*/ if (rb_collect_listnet.isChecked) {
             totalCheckList.filter {
                 it.checkInfo != null
             }
@@ -450,7 +550,8 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
      * 上传成功
      */
     override fun onCollectUpload(name: String) {
-        refresh()
+        refreshCache(editCollectPosition)
+        localData()
         showToast("上传成功")
     }
 

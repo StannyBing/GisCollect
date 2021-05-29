@@ -39,7 +39,17 @@
             android:text="已上传"
             android:textSize="@dimen/text_size_small" />
     </RadioGroup>
-
+    <EditText
+        android:id="@+id/searchEt"
+        style="@style/MyEditText"
+        android:background="@drawable/shape_stroke_bg"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_margin="8dp"
+        android:visibility="gone"
+        android:hint="请输入名称"
+        android:imeOptions="actionSearch"
+        android:gravity="center_vertical" />
     <com.gt.base.view.VerticalSwipeRefreshLayout
         android:id="@+id/sr_collect_layers"
         android:layout_width="match_parent"

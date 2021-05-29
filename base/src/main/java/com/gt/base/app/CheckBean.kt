@@ -4,18 +4,18 @@ import org.json.JSONObject
 import java.lang.Exception
 
 class CheckBean(
-    var id: String,
-    var collector: String,
-    var collectId: String,
-    var checker: String,
-    var created: String,
-    var gpkginfo: String,
-    var fileJson: String,
-    var note: String,
-    var status: String,
-    var layerName: String,
-    var catalogId : String,
-    var templateId : String
+    var id: String="",
+    var collector: String="",
+    var collectId: String="",
+    var checker: String="",
+    var created: String="",
+    var gpkginfo: String="",
+    var fileJson: String="",
+    var note: String="",
+    var status: String="",
+    var layerName: String="",
+    var catalogId : String="",
+    var templateId : String=""
 ) {
 
     fun getFilePath(): String {

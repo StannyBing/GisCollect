@@ -23,7 +23,7 @@ interface CollectListContract {
 
         fun onCollectUpload(name: String)
 
-        fun onCheckListResult(checkList: List<CheckBean>){}
+        fun onCheckListResult(total:Int,checkList: List<CheckBean>){}
 
         fun onSurveyListResult(tempalteList: NormalList<DataResBean>){}
 

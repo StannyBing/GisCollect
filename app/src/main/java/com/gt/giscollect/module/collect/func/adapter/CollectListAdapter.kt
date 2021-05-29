@@ -7,11 +7,12 @@ import com.gt.giscollect.R
 import com.gt.giscollect.module.collect.bean.CollectCheckBean
 import com.zx.zxutils.other.QuickAdapter.ZXBaseHolder
 import com.zx.zxutils.other.QuickAdapter.ZXQuickAdapter
+import com.zx.zxutils.other.ZXRecyclerAdapter.ZXRecyclerQuickAdapter
 
 class CollectListAdapter(dataList: List<CollectCheckBean>) :
-    ZXQuickAdapter<CollectCheckBean, ZXBaseHolder>(R.layout.item_collect_list, dataList) {
+    ZXRecyclerQuickAdapter<CollectCheckBean, ZXBaseHolder>(R.layout.item_collect_list, dataList) {
 
-    override fun convert(helper: ZXBaseHolder, bean: CollectCheckBean) {
+    override fun quickConvert(helper: ZXBaseHolder, bean: CollectCheckBean) {
         val layer = bean.featureLayer
         val name = layer?.name ?: (bean.checkInfo?.getFileName() ?: "")
         val info = if (layer == null) {

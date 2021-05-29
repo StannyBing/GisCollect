@@ -81,7 +81,7 @@ class CollectListPresenter : CollectListContract.Presenter() {
             .subscribe(object : RxSubscriber<NormalList<CheckBean>>(mView) {
                 override fun _onNext(t: NormalList<CheckBean>?) {
                     if (t != null) {
-                        mView.onCheckListResult(t.rows)
+                        mView.onCheckListResult(t.total,t.rows)
                     }
                 }
 
