@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -72,7 +73,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
     private var editCollectPosition = 0//当前编辑的采集任务的列表
 
-    private var pageNum =0
+    private var pageNum =1
 
     /**
      * layout配置
@@ -367,7 +368,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         //刷新
         sr_collect_layers.setOnRefreshListener {
            if (rb_collect_listnet.isChecked){
-               pageNum = 0
+               pageNum = 1
                refresh()
            }else{
                localData()
@@ -387,7 +388,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         rg_collect_listtype.setOnCheckedChangeListener { group, checkedId ->
             if (checkedId==R.id.rb_collect_listnet){
                 searchEt.visibility=View.VISIBLE
-                pageNum=0
+                pageNum=1
                 refresh()
                 loadMoreGone(false)
             }else{
@@ -407,7 +408,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
         searchEt.setOnEditorActionListener { v, actionId, event ->
             if (actionId==EditorInfo.IME_ACTION_SEARCH){
-                pageNum = 0
+                pageNum =1
                 refresh(searchEt.text.toString().trim())
             }
             return@setOnEditorActionListener false
@@ -441,7 +442,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                     "filters" to arrayListOf(
                         hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
                         hashMapOf("col" to "template_id", "op" to "in", "val" to ConstStrings.mGuideBean.getTemlatesList()),
-                        hashMapOf("col" to "user_id", "op" to "like", "val" to keyword)
+                        hashMapOf("col" to "layer_name", "op" to "like", "val" to keyword)
                     )
                 ).toJson()
             )
@@ -456,7 +457,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun onCheckListResult(total:Int,checkList: List<CheckBean>) {
         ConstStrings.checkList.clear()
         ConstStrings.checkList.addAll(checkList)
-        if (pageNum==0) totalCheckList.clear()
+        if (pageNum==1) totalCheckList.clear()
         val tempCheck = arrayListOf<CheckBean>().apply {
             addAll(checkList)
         }
@@ -471,20 +472,22 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
             if (layer is FeatureLayer) {
                 var bean: CheckBean? = null
                 //将所有能与线上对应的layer设置checkBean
-                checkList.forEach check@{ check ->
-                    if (check.getFileName().replace(".gpkg", "") == layer.name) {
-                        bean = check
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            tempCheck.removeIf {
-                                it.collectId == check.collectId
+                kotlin.run check@{
+                    checkList.forEach{ check ->
+                        if (check.getFileName().replace(".gpkg", "") == layer.name) {
+                            bean = check
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                tempCheck.removeIf {
+                                    it.collectId == check.collectId
+                                }
+                            } else {
+                                tempCheck.remove(check)
                             }
-                        } else {
-                            tempCheck.remove(check)
+                            return@check
                         }
-                        return@check
                     }
                 }
-                //totalCheckList.add(CollectCheckBean(bean, layer))
+                totalCheckList.add(CollectCheckBean(bean, layer))
             }
         }
         //将本地没有保存的checkBean添加进
@@ -498,7 +501,6 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         }
 
         setCheckList()
-
         sr_collect_layers.isRefreshing = false
     }
 
@@ -515,6 +517,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         } else {
             totalCheckList
         })
+
         collectAdapter.notifyDataSetChanged()
     }
 
