@@ -30,6 +30,8 @@ interface CollectListContract {
         fun onDownloadProgress(progress: Int)
 
         fun onCollectDownload(file: File)
+
+        fun onDeleteHistoryData(historyCheckList:List<CheckBean>)
     }
 
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
@@ -43,6 +45,8 @@ interface CollectListContract {
         fun dataListData(requestBody: RequestBody): Observable<NormalList<DataResBean>>
 
         fun templateListData(requestBody: RequestBody) : Observable<NormalList<TemplateBean>>
+
+        fun historyCheckListData(body: RequestBody):Observable<NormalList<CheckBean>>
     }
 
     //方法
@@ -62,6 +66,8 @@ interface CollectListContract {
         abstract fun getSurveyDataList(requestBody: RequestBody)
 
         abstract fun getTemplateList(path : String, layer: FeatureLayer, pos: Int, requestBody: RequestBody)
+
+        abstract fun getHistoryCheckList(body: RequestBody)
     }
 }
 

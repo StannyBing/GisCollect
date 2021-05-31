@@ -55,5 +55,10 @@ class CollectListModel : BaseModel(), CollectListContract.Model {
             .compose(RxSchedulers.io_main())
     }
 
-
+    override fun historyCheckListData(body: RequestBody):Observable<NormalList<CheckBean>>  {
+        return mRepositoryManager.obtainRetrofitService(ApiService::class.java)
+            .getCheckList(body)
+            .compose(RxHelper.handleResult())
+            .compose(RxSchedulers.io_main())
+    }
 }

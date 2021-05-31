@@ -92,6 +92,25 @@ class CollectListPresenter : CollectListContract.Presenter() {
             })
     }
 
+
+    override fun getHistoryCheckList(body: RequestBody) {
+        mModel.historyCheckListData(body)
+            .onBackpressureDrop()
+            .compose(RxHelper.bindToLifecycle(mView))
+            .subscribe(object : RxSubscriber<NormalList<CheckBean>>(mView,"正在优化数据...") {
+                override fun _onNext(t: NormalList<CheckBean>?) {
+                    if (t != null) {
+                        mView.onDeleteHistoryData(t.rows)
+                    }
+                }
+
+                override fun _onError(code: Int, message: String?) {
+
+                }
+
+            })
+    }
+
     override fun downloadCollect(bean: CheckBean) {
         var fileName = ""
         var countLength = 0L

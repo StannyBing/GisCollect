@@ -45,6 +45,18 @@ android {
             }
         }
     }
+    signingConfigs {
+        release{
+            // 选用固定keystore
+            storeFile file("../stanny.jks")
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias 'gis_collect'
+
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
     dataBinding {
         enabled true
     }
@@ -64,6 +76,7 @@ android {
             buildConfigField "boolean", "RELEASE", "true"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 

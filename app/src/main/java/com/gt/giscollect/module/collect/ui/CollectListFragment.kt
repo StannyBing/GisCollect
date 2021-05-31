@@ -16,6 +16,7 @@ import com.esri.arcgisruntime.layers.FeatureLayer
 import com.esri.arcgisruntime.layers.Layer
 import com.esri.arcgisruntime.loadable.LoadStatus
 import com.frame.zxmvp.http.unzip.ZipUtils
+import com.google.gson.Gson
 import com.gt.base.fragment.BaseFragment
 import com.gt.base.listener.FragChangeListener
 import com.gt.base.manager.UserManager
@@ -73,7 +74,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
     private var editCollectPosition = 0//当前编辑的采集任务的列表
 
-    private var pageNum =1
+    private var pageNum =0
 
     /**
      * layout配置
@@ -93,7 +94,20 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
             addItemDecoration(SimpleDecoration(mContext))
         }
        //本地数据
-        localData()
+        if (mSharedPrefUtil.getBool("deleteHistory",false)){
+            localData()
+        }else{
+            mPresenter.getHistoryCheckList(
+                hashMapOf(
+                    "currPage" to 0,
+                    "pageSize" to 999,
+                    "filters" to arrayListOf(
+                        hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
+                        hashMapOf("col" to "template_id", "op" to "in", "val" to ConstStrings.mGuideBean.getTemlatesList())
+                    )
+                ).toJson()
+            )
+        }
         ZXRecyclerDeleteHelper(activity, rv_collect_layers)
             .setSwipeOptionViews(R.id.tv_upload, R.id.tv_delete)
             .setSwipeable(R.id.rl_content, R.id.ll_menu) { id, pos ->
@@ -328,6 +342,35 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     }
 
     /**
+     * 删除历史数据回调
+     */
+    override fun onDeleteHistoryData(historyCheckList: List<CheckBean>) {
+        //获取跟当前模块相关的TemplateIdBean
+        var tempBeans = mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
+        var tempTempIdsBean = arrayListOf<TempIdsBean>()
+       tempBeans.forEach {
+           historyCheckList.forEach {checkBean->
+              var tempNames = it.layerNames.filter {name->
+                  checkBean.templateId==it.templateId
+              }
+               if (!tempNames.isNullOrEmpty()){
+                   var names = tempNames.filter {
+                       it==checkBean.layerName
+                   } as ArrayList<String>
+                   if (!names.isNullOrEmpty()){
+                       it.layerNames.removeAll(names)
+                       tempTempIdsBean.add(it)
+                   }
+               }
+           }
+       }
+        //移除已经删除了的
+        tempBeans.removeAll(tempTempIdsBean)
+        mSharedPrefUtil.putList(ConstStrings.TemplateIdList,tempBeans)
+        localData()
+        mSharedPrefUtil.putBool("deleteHistory",true)
+    }
+    /**
      * 获取本地数据
      */
     private fun localData(){
@@ -368,7 +411,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         //刷新
         sr_collect_layers.setOnRefreshListener {
            if (rb_collect_listnet.isChecked){
-               pageNum = 1
+               pageNum = 0
                refresh()
            }else{
                localData()
@@ -388,7 +431,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         rg_collect_listtype.setOnCheckedChangeListener { group, checkedId ->
             if (checkedId==R.id.rb_collect_listnet){
                 searchEt.visibility=View.VISIBLE
-                pageNum=1
+                pageNum=0
                 refresh()
                 loadMoreGone(false)
             }else{
@@ -408,7 +451,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
         searchEt.setOnEditorActionListener { v, actionId, event ->
             if (actionId==EditorInfo.IME_ACTION_SEARCH){
-                pageNum =1
+                pageNum =0
                 refresh(searchEt.text.toString().trim())
             }
             return@setOnEditorActionListener false
@@ -457,7 +500,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun onCheckListResult(total:Int,checkList: List<CheckBean>) {
         ConstStrings.checkList.clear()
         ConstStrings.checkList.addAll(checkList)
-        if (pageNum==1) totalCheckList.clear()
+        if (pageNum==0) totalCheckList.clear()
         val tempCheck = arrayListOf<CheckBean>().apply {
             addAll(checkList)
         }
