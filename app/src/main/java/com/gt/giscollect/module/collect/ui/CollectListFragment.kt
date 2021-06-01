@@ -347,7 +347,6 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun onDeleteHistoryData(historyCheckList: List<CheckBean>) {
         //获取跟当前模块相关的TemplateIdBean
         var tempBeans = mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-        var tempTempIdsBean = arrayListOf<TempIdsBean>()
        tempBeans.forEach {
            historyCheckList.forEach {checkBean->
               var tempNames = it.layerNames.filter {name->
@@ -358,14 +357,12 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                        it==checkBean.layerName
                    } as ArrayList<String>
                    if (!names.isNullOrEmpty()){
+                       //移除已经删除了的
                        it.layerNames.removeAll(names)
-                       tempTempIdsBean.add(it)
                    }
                }
            }
        }
-        //移除已经删除了的
-        tempBeans.removeAll(tempTempIdsBean)
         mSharedPrefUtil.putList(ConstStrings.TemplateIdList,tempBeans)
         localData()
         mSharedPrefUtil.putBool("deleteHistory",true)
