@@ -347,7 +347,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun onDeleteHistoryData(historyCheckList: List<CheckBean>) {
         //获取跟当前模块相关的TemplateIdBean
         var tempBeans = mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)
-       tempBeans.forEach {
+       tempBeans?.forEach {
            historyCheckList.forEach {checkBean->
               var tempNames = it.layerNames.filter {name->
                   checkBean.templateId==it.templateId
@@ -363,7 +363,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
                }
            }
        }
-        mSharedPrefUtil.putList(ConstStrings.TemplateIdList,tempBeans)
+        mSharedPrefUtil.putList(ConstStrings.TemplateIdList,tempBeans?: emptyList())
         localData()
         mSharedPrefUtil.putBool("deleteHistory",true)
     }
@@ -401,7 +401,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
             localCheckList.addAll(collectList)
             collectAdapter.notifyDataSetChanged()
             sr_collect_layers.isRefreshing=false
-        },100)
+        },1000)
     }
     /**
      * View事件设置
