@@ -74,7 +74,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
     private var editCollectPosition = 0//当前编辑的采集任务的列表
 
-    private var pageNum =0
+    private var pageNum =1
 
     /**
      * layout配置
@@ -99,7 +99,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         }else{
             mPresenter.getHistoryCheckList(
                 hashMapOf(
-                    "currPage" to 0,
+                    "currPage" to 1,
                     "pageSize" to 999,
                     "filters" to arrayListOf(
                         hashMapOf("col" to "user_id", "op" to "=", "val" to UserManager.user?.userId),
@@ -371,35 +371,37 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
      * 获取本地数据
      */
     private fun localData(){
-        collectList.clear()
-        localCheckList.clear()
-        //获取跟当前模块相关的TemplateIdBean
-        var tempBeans = arrayListOf<TempIdsBean>()
-        ConstStrings.mGuideBean?.getTemlatesList()?.forEach { id->
-          tempBeans.addAll(mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList).filter {
-              it.templateId ==id
-          } )
-        }
-        //进行文件对比
-        MapTool.mapListener?.getMap()?.operationalLayers?.filter {
-            //只添加采集
-            FileUtils.getFilesByName(
-                ConstStrings.getOperationalLayersPath(),
-                it.name
-            ).isNotEmpty()
-        }?.forEach { layer->
-            if (layer is FeatureLayer){
-                if (tempBeans.filter {
-                        it.layerNames.contains(layer.name)
-                    }.isNotEmpty()){
-                    //有数据
-                    collectList.add(CollectCheckBean(null,layer))
+        handler.postDelayed({
+            collectList.clear()
+            localCheckList.clear()
+            //获取跟当前模块相关的TemplateIdBean
+            var tempBeans = arrayListOf<TempIdsBean>()
+            ConstStrings.mGuideBean?.getTemlatesList()?.forEach { id->
+                tempBeans.addAll(mSharedPrefUtil.getList<TempIdsBean>(ConstStrings.TemplateIdList)?.filter {
+                    it.templateId ==id
+                }?: emptyList())
+            }
+            //进行文件对比
+            MapTool.mapListener?.getMap()?.operationalLayers?.filter {
+                //只添加采集
+                FileUtils.getFilesByName(
+                    ConstStrings.getOperationalLayersPath(),
+                    it.name
+                ).isNotEmpty()
+            }?.forEach { layer->
+                if (layer is FeatureLayer){
+                    if (tempBeans.filter {
+                            it.layerNames.contains(layer.name)
+                        }.isNotEmpty()){
+                        //有数据
+                        collectList.add(CollectCheckBean(null,layer))
+                    }
                 }
             }
-        }
-        localCheckList.addAll(collectList)
-        collectAdapter.notifyDataSetChanged()
-        sr_collect_layers.isRefreshing=false
+            localCheckList.addAll(collectList)
+            collectAdapter.notifyDataSetChanged()
+            sr_collect_layers.isRefreshing=false
+        },100)
     }
     /**
      * View事件设置
@@ -408,7 +410,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         //刷新
         sr_collect_layers.setOnRefreshListener {
            if (rb_collect_listnet.isChecked){
-               pageNum = 0
+               pageNum = 1
                refresh()
            }else{
                localData()
@@ -428,7 +430,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
         rg_collect_listtype.setOnCheckedChangeListener { group, checkedId ->
             if (checkedId==R.id.rb_collect_listnet){
                 searchEt.visibility=View.VISIBLE
-                pageNum=0
+                pageNum=1
                 refresh()
                 loadMoreGone(false)
             }else{
@@ -448,7 +450,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
 
         searchEt.setOnEditorActionListener { v, actionId, event ->
             if (actionId==EditorInfo.IME_ACTION_SEARCH){
-                pageNum =0
+                pageNum =1
                 refresh(searchEt.text.toString().trim())
             }
             return@setOnEditorActionListener false
@@ -497,7 +499,7 @@ class CollectListFragment : BaseFragment<CollectListPresenter, CollectListModel>
     override fun onCheckListResult(total:Int,checkList: List<CheckBean>) {
         ConstStrings.checkList.clear()
         ConstStrings.checkList.addAll(checkList)
-        if (pageNum==0) totalCheckList.clear()
+        if (pageNum==1) totalCheckList.clear()
         val tempCheck = arrayListOf<CheckBean>().apply {
             addAll(checkList)
         }
