@@ -25,9 +25,17 @@ object CollectDistanceTool {
                     ZXToastUtil.showToast("请先绘制初始边")
                 } else {
                     endPoint2 =
-                        (sketchEditor.geometry as Polyline).parts.first().getPoint((sketchEditor.geometry as Polyline).parts.first().lastIndex - 1)
+                        (sketchEditor.geometry as Polyline).parts.first()
+                            .getPoint((sketchEditor.geometry as Polyline).parts.first().lastIndex - 1)
                     endPoint = (sketchEditor.geometry as Polyline).parts.first().endPoint
-                    endGeometry = PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint, endPoint2))).toGeometry()
+                    endGeometry = PolylineBuilder(
+                        PointCollection(
+                            arrayListOf<Point>(
+                                endPoint,
+                                endPoint2
+                            )
+                        )
+                    ).toGeometry()
                 }
             }
             GeometryType.POLYGON -> {
@@ -35,9 +43,17 @@ object CollectDistanceTool {
                     ZXToastUtil.showToast("请先绘制初始边")
                 } else {
                     endPoint2 =
-                        (sketchEditor.geometry as Polygon).parts.first().getPoint((sketchEditor.geometry as Polygon).parts.first().lastIndex - 1)
+                        (sketchEditor.geometry as Polygon).parts.first()
+                            .getPoint((sketchEditor.geometry as Polygon).parts.first().lastIndex - 1)
                     endPoint = (sketchEditor.geometry as Polygon).parts.first().endPoint
-                    endGeometry = PolylineBuilder(PointCollection(arrayListOf<Point>(endPoint, endPoint2))).toGeometry()
+                    endGeometry = PolylineBuilder(
+                        PointCollection(
+                            arrayListOf<Point>(
+                                endPoint,
+                                endPoint2
+                            )
+                        )
+                    ).toGeometry()
                 }
             }
         }
@@ -77,6 +93,7 @@ object CollectDistanceTool {
                 val p2X = endPoint.x
                 val p2Y = endPoint.y
 
+                ZXLogUtil.loge("mAngle1:${mAngle}")
                 mAngle = Math.toDegrees(Math.atan((p2Y - p1Y) / (p2X - p1X))).let {
                     if (p2Y >= p1Y && p2X >= p1X) {
                         180 + it
@@ -88,12 +105,32 @@ object CollectDistanceTool {
                         it
                     }
                 } - mAngle
+                ZXLogUtil.loge("mAngle2:${mAngle}")
 
 //                val mDistance = mDistance * GeometrySizeTool.getLength(endGeometry!!).toDouble() / Math.sqrt(Math.pow(p1X - p2X, 2.0) + Math.pow(p1Y - p2Y, 2.0))
-                val mDistance = mDistance * Math.sqrt(Math.pow(p1X - p2X, 2.0) + Math.pow(p1Y - p2Y, 2.0)) / GeometrySizeTool.getLength(endGeometry!!).toDouble()
+                ZXLogUtil.loge("mDistance1:${mDistance}")
+                var mDistance = mDistance * Math.sqrt(
+                    Math.pow(p1X - p2X, 2.0) + Math.pow(
+                        p1Y - p2Y,
+                        2.0
+                    )
+                ) / GeometrySizeTool.getLength(endGeometry!!).toDouble()
+                ZXLogUtil.loge("mDistance2:${mDistance}")
+//                mDistance = 100.0
 
                 val pX = p2X + mDistance * cos(Math.toRadians(mAngle))
                 val pY = p2Y + mDistance * sin(Math.toRadians(mAngle))
+
+                ZXLogUtil.loge(
+                    "trueLength:${Math.sqrt(
+                        Math.pow(pX - p2X, 2.0) + Math.pow(
+                            pY - p2Y,
+                            2.0
+                        )
+                    )}"
+                )
+
+
 
                 return Point(pX, pY)
             }

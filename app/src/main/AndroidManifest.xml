@@ -38,6 +38,11 @@
             android:enabled="true"
             android:exported="true" />
 
+        <service
+            android:name="com.gt.giscollect.tool.TrailUpdateService"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
             android:name=".module.system.ui.GuideActivity"
             android:launchMode="singleTop"

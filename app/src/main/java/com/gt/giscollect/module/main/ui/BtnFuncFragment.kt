@@ -1,27 +1,32 @@
 package com.gt.giscollect.module.main.ui
 
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReference
 import com.esri.arcgisruntime.location.LocationDataSource
-import com.gt.base.fragment.BaseFragment
-import com.stanny.module_rtk.tool.WHandTool
-import com.gt.giscollect.R
 import com.gt.base.app.ConstStrings
+import com.gt.base.fragment.BaseFragment
+import com.gt.giscollect.R
 import com.gt.giscollect.app.MyApplication
 import com.gt.giscollect.module.main.bean.FuncBean
 import com.gt.giscollect.module.main.func.adapter.BtnFuncAdapter
 import com.gt.giscollect.module.main.func.tool.IdentifyTool
-import com.gt.module_map.tool.MapTool
 import com.gt.giscollect.module.main.mvp.contract.BtnFuncContract
 import com.gt.giscollect.module.main.mvp.model.BtnFuncModel
 import com.gt.giscollect.module.main.mvp.presenter.BtnFuncPresenter
 import com.gt.giscollect.module.query.ui.IdentifyFragment
 import com.gt.giscollect.module.system.ui.SplashActivity
 import com.gt.giscollect.tool.SimpleDecoration
+import com.gt.giscollect.tool.TrailUpdateService
+import com.gt.module_map.tool.MapTool
+import com.stanny.module_rtk.tool.WHandTool
 import com.woncan.whand.WHandInfo
 import com.zx.zxutils.util.ZXToastUtil
 import kotlinx.android.synthetic.main.fragment_btn_func.*
@@ -105,6 +110,9 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         if (ConstStrings.appfuncList.firstOrNull { it.url == "appm05" } != null) funcList.add(
             FuncBean("查要素", R.drawable.btn_func_identify)
         )
+        if (ConstStrings.appfuncList.firstOrNull { it.url == "appm10" } != null) funcList.add(
+            FuncBean("轨迹上传", R.drawable.btn_func_trail_close, isOpen = isServiceRunning(requireContext(), "com.gt.giscollect.tool.TrailUpdateService"))
+        )
         if (ConstStrings.appfuncList.firstOrNull { it.url == "appm06" } != null) funcList.add(
             FuncBean("测量", R.drawable.btn_func_measure)
         )
@@ -162,6 +170,25 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                         }
                     }
                 }
+                "轨迹上传" -> {
+                    funcList[position].isOpen = !funcList[position].isOpen
+                    funcAdapter.notifyDataSetChanged()
+                    if (funcList[position].isOpen) {
+                        requireActivity().startService(
+                            Intent(
+                                requireActivity(),
+                                TrailUpdateService::class.java
+                            )
+                        )
+                    } else {
+                        requireActivity().stopService(
+                            Intent(
+                                requireActivity(),
+                                TrailUpdateService::class.java
+                            )
+                        )
+                    }
+                }
                 "测量" -> {
                     call(DataType.Measure)
                 }
@@ -182,9 +209,9 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
         WHandTool.addDeviceInfoListener(object : WHandTool.WHandDeviceListener {
             override fun onDeviceInfoCallBack(info: WHandInfo?) {
                 try {
-                    if (info == null){
+                    if (info == null) {
                         tv_rtk_info?.visibility = View.GONE
-                    }else{
+                    } else {
                         tv_rtk_info?.visibility = View.VISIBLE
                     }
                     if (info?.longitude != null && info.longitude != 0.0) {
@@ -194,6 +221,8 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                                     "updateLocation",
                                     LocationDataSource.Location::class.java
                                 )
+                        MapTool.mapListener?.getMapView()
+                            ?.locationDisplay?.isShowLocation = true
                         MapTool.mapListener?.getMapView()
                             ?.locationDisplay?.locationDataSource?.apply {
                             method.isAccessible = true
@@ -218,6 +247,27 @@ class BtnFuncFragment : BaseFragment<BtnFuncPresenter, BtnFuncModel>(), BtnFuncC
                 handler.post { tv_rtk_info?.text = WHandTool.getRtkInfo() }
             }
         })
+    }
+
+    fun isServiceRunning(context: Context, className: String): Boolean {
+        if (className.isNullOrEmpty()) {
+            return false
+
+        }
+        var isRunning: Boolean = false
+        var activityManager: ActivityManager =
+            context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        var serviceList = activityManager.getRunningServices(30)
+        if (serviceList.isEmpty()) {
+            return false
+        }
+        serviceList.forEach { item ->
+            if (item.service.className == className) {
+                isRunning = true
+                return@forEach
+            }
+        }
+        return isRunning
     }
 
     fun setDrawerCall(call: (DataType) -> Fragment?) {

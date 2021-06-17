@@ -94,6 +94,7 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
 //                    showToast("采集图层拷贝失败")
                 }
             }
+
             if (ZXFileUtil.isFileExists(ConstStrings.getSurveyLayersPath(true))) {
                 val status = FileUtils.copyFolder(
                     ConstStrings.getSurveyLayersPath(true),
@@ -146,6 +147,24 @@ class GuideActivity : BaseActivity<GuidePresenter, GuideModel>(), GuideContract.
             if (!ZXFileUtil.isFileExists(ConstStrings.getSketchLayersSecondPath())) {
                 File(ConstStrings.getSketchLayersSecondPath()).mkdirs()
             }
+
+            //只加载当前用户的
+            File(ConstStrings.getOperationalLayersPath()).apply {
+                if (!exists()) {
+                    mkdirs()
+                }
+            }
+            File(ConstStrings.getOperationalLayersPath(isOld = true)).apply {
+                if (isDirectory && listFiles().isNotEmpty()) {
+                    listFiles().filter {
+                        it.isDirectory && it.name.length < 10
+                    }.forEach {
+                        FileUtils.copyFolder(it.path, ConstStrings.getOperationalLayersPath() + it.name +"/")
+                        ZXFileUtil.deleteFiles(it)
+                    }
+                }
+            }
+
             if (it.getAppType() == "draw") {
                 ProjectListActivity.startAction(this, false)
             }

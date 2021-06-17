@@ -30,6 +30,7 @@ import com.gt.giscollect.module.main.mvp.contract.MapContract
 import com.gt.giscollect.module.main.mvp.model.MapModel
 import com.gt.giscollect.module.main.mvp.presenter.MapPresenter
 import com.gt.base.manager.UserManager
+import com.gt.module_map.tool.FileUtils
 import com.gt.module_map.tool.PointTool
 import com.zx.zxutils.other.QuickAdapter.ZXMultiItemQuickAdapter
 import com.zx.zxutils.util.*
@@ -356,8 +357,9 @@ class MapFragment : BaseFragment<MapPresenter, MapModel>(), MapContract.View {
             //加载在线的
             addOnlineOperation()
 
-            //只加载当前用户的
+
             addOpreationalLayer(ConstStrings.getOperationalLayersPath())
+//           addOpreationalLayer(ConstStrings.getOperationalLayersPath(isOld = true))
         }
     }
 

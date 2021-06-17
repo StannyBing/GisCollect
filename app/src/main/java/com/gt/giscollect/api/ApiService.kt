@@ -77,4 +77,8 @@ interface ApiService {
     //调查查询接口
     @POST("/tSysDict/queryDictByDictClassWithPage")
     fun doQueryDictByDict(@Body body: RequestBody) : Observable<BaseRespose<NormalList<DataResBean>>>
+
+    //轨迹上传
+    @POST("/trajectory/add")
+    fun updateTrail(@Body body: RequestBody) : Observable<BaseRespose<Any>>
 }

@@ -4,5 +4,6 @@ import androidx.annotation.DrawableRes
 
 data class FuncBean(
     var name: String,
-    @DrawableRes var res: Int
+    @DrawableRes var res: Int,
+    var isOpen : Boolean = true
 )

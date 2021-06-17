@@ -119,15 +119,24 @@ object ConstStrings {
         return "$LOCAL_PATH$APPNAME/MapStyle/"
     }
 
-    fun getOperationalLayersPath(isInner: Boolean = false, templateId: String = ""): String {
+    fun getOperationalLayersPath(isInner: Boolean = false, templateId: String = "", isOld : Boolean = false): String {
         var id = mGuideBean.getTemplatesFirst()
 //        if (templateId.isEmpty()) {
 //            id = templateId
 //        }
-        if (isInner) {
-            return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + id + "/"
+        return if (isInner){
+            "${INI_PATH}${APPNAME}/OperationalLayers/" + UserManager.user?.userId + "/"
+        }else{
+            "${LOCAL_PATH}${APPNAME}/OperationalLayers/" + UserManager.user?.userId + "/"
+        } + if (isOld){
+            ""
+        }else{
+            "$id/"
         }
-        return "$LOCAL_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + id + "/"
+//        if (isInner) {
+//            return "$INI_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + id + "/"
+//        }
+//        return "$LOCAL_PATH$APPNAME/OperationalLayers/" + UserManager.user?.userId + "/" + id + "/"
     }
 
     fun getSurveyLayersPath(isInner: Boolean = false): String {
